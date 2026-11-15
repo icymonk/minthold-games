@@ -1,2 +1,17 @@
 # minthold-games
-Minthold 인디 게임 모노레포 (Godot 4)
+
+Minthold 인디 게임 모노레포 (Godot 4 + GDScript).
+
+## 게임
+
+| 코드명 | 제목 | 웹 미리보기 |
+|---|---|---|
+| [baekgwi](games/baekgwi) | 닭이 울기 전에 (Before the Rooster Crows) | https://minthold-baekgwi.web.app |
+
+## 규칙
+
+- 게임마다 `games/<코드명>/`에 독립된 Godot 프로젝트를 둔다(`project.godot`가 그 폴더에 있다).
+- 브랜치: `main` ← `develop` ← 작업 브랜치. PR은 `develop`으로 보낸다.
+- 웹 미리보기: Firebase 프로젝트 `minthold-preview`. Hosting 사이트는 게임마다 따로 둔다 — `minthold-<코드명>` → `https://minthold-<코드명>.web.app`.
+- 배포 키: repo secret `FIREBASE_SERVICE_ACCOUNT` 하나를 모든 게임이 같이 쓴다.
+- CI: 바뀐 게임 폴더만 테스트·빌드·배포한다.
