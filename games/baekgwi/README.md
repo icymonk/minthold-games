@@ -8,3 +8,18 @@
 - 개발 환경·아키텍처: [docs/architecture.md](docs/architecture.md)
 - 개발 단계: [docs/plan.md](docs/plan.md)
 - 원본 문서: [docs/reference/](docs/reference/)
+
+## 개발
+
+Godot 4.7.2로 이 폴더(`games/baekgwi`)를 연다.
+
+```bash
+# 테스트 (gdUnit4)
+godot --headless --import
+GODOT_BIN=$(which godot) bash addons/gdUnit4/runtest.sh --headless -a res://tests --ignoreHeadlessMode
+
+# 웹 빌드 (Web export template 필요)
+godot --headless --export-release "Web" build/web/index.html
+```
+
+CI는 [`.github/workflows/baekgwi.yml`](../../.github/workflows/baekgwi.yml)이다. PR마다 테스트·웹 빌드를 하고 3일짜리 미리보기 채널에 올린다. `develop`에 머지되면 https://minthold-baekgwi.web.app 에 배포한다.

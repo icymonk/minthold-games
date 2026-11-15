@@ -1,0 +1,30 @@
+name: baekgwi
+
+on:
+  pull_request:
+    paths:
+      - games/baekgwi/**
+      - .github/workflows/baekgwi.yml
+      - .github/workflows/godot.yml
+  push:
+    branches: [develop]
+    paths:
+      - games/baekgwi/**
+      - .github/workflows/baekgwi.yml
+      - .github/workflows/godot.yml
+
+concurrency:
+  group: baekgwi-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  game:
+    uses: ./.github/workflows/godot.yml
+    with:
+      game: baekgwi
+    secrets: inherit

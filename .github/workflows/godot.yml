@@ -1,21 +1,25 @@
-name: CI
+# 게임 하나를 테스트·웹 빌드·배포하는 공용 워크플로. 게임별 워크플로에서 호출한다.
+name: godot
 
 on:
-  pull_request:
-  push:
-    branches: [develop]
-
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
-
-env:
-  GODOT_VERSION: 4.7.2
+  workflow_call:
+    inputs:
+      game:
+        description: games/ 아래 코드명
+        required: true
+        type: string
+      godot_version:
+        required: false
+        type: string
+        default: 4.7.2
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    container: barichello/godot-ci:4.7.2
+    container: barichello/godot-ci:${{ inputs.godot_version }}
+    defaults:
+      run:
+        working-directory: games/${{ inputs.game }}
     steps:
       - uses: actions/checkout@v4
       - name: Import
@@ -25,13 +29,16 @@ jobs:
 
   web:
     runs-on: ubuntu-latest
-    container: barichello/godot-ci:4.7.2
+    container: barichello/godot-ci:${{ inputs.godot_version }}
+    defaults:
+      run:
+        working-directory: games/${{ inputs.game }}
     steps:
       - uses: actions/checkout@v4
       - name: Export templates
         run: |
           mkdir -p ~/.local/share/godot/export_templates
-          ln -sfn /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+          ln -sfn /root/.local/share/godot/export_templates/${{ inputs.godot_version }}.stable ~/.local/share/godot/export_templates/${{ inputs.godot_version }}.stable
       - name: Import
         run: godot --headless --import
       - name: Export Web
@@ -41,25 +48,21 @@ jobs:
           test -f build/web/index.pck
       - uses: actions/upload-artifact@v4
         with:
-          name: web
-          path: build/web
+          name: ${{ inputs.game }}-web
+          path: games/${{ inputs.game }}/build/web
 
   deploy:
     needs: [test, web]
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
-      checks: write
     env:
       HAS_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT != '' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
-          name: web
-          path: build/web
+          name: ${{ inputs.game }}-web
+          path: games/${{ inputs.game }}/build/web
       - name: Secret missing
         if: env.HAS_SA != 'true'
         run: echo "::warning::FIREBASE_SERVICE_ACCOUNT 없음 — 배포를 건너뜁니다."
@@ -70,6 +73,7 @@ jobs:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           projectId: minthold-preview
+          entryPoint: games/${{ inputs.game }}
           target: web
           expires: 3d
       - name: Deploy live (develop)
@@ -79,5 +83,6 @@ jobs:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           projectId: minthold-preview
+          entryPoint: games/${{ inputs.game }}
           target: web
           channelId: live
