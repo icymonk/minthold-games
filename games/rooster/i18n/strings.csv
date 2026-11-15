@@ -1,0 +1,17 @@
+keys,ko,en
+GAME_TITLE,닭이 울기 전에,Before the Rooster Crows
+TITLE_SUBTITLE,일곱 밤 동안 백귀의 행렬을 막아라,Hold back the hundred ghosts for seven nights
+TITLE_NEW_RUN,새 원정,New Run
+TITLE_SEED,시드,Seed
+TITLE_LANGUAGE,English,한국어
+NIGHT_LABEL,밤 %d / %d,Night %d / %d
+NIGHT_BOSS,보스의 밤,Boss Night
+NIGHT_LANTERNS,등불 %d,Lanterns %d
+NIGHT_PLACEHOLDER,장터와 전투는 다음 단계에서 만듭니다.,The market and battles come in the next phase.
+NIGHT_WIN,이겼다 (임시),Win (temp)
+NIGHT_LOSE,졌다 (임시),Lose (temp)
+RESULT_VICTORY,닭이 울었다. 살아남았다!,The rooster crowed. You survived!
+RESULT_DEFEAT,등불이 모두 꺼졌다…,All lanterns went out…
+RESULT_REACHED,밤 %d까지 버텼다,Reached night %d
+RESULT_AGAIN,다시 하기,Play Again
+RESULT_TITLE,처음 화면,Title
