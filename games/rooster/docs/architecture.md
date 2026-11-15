@@ -97,10 +97,10 @@ docs/
 ### 8.1 웹 미리보기 호스팅
 
 - Firebase 프로젝트 `minthold-preview`는 **여러 게임의 미리보기를 함께 올리는 곳**이다.
-- Hosting은 배포할 때 사이트 전체를 덮어쓴다. 그래서 게임마다 **사이트를 따로** 만든다. 이 게임은 `minthold-baekgwi` → https://minthold-baekgwi.web.app
-- 다른 게임도 같은 규칙으로 `minthold-<코드명>` 사이트를 쓴다.
+- Hosting은 배포할 때 사이트 전체를 덮어쓴다. 그래서 게임마다 **사이트를 따로** 만든다. 이 게임은 `minthold-rooster` → https://minthold-rooster.web.app
+- 다른 게임도 같은 규칙으로 `minthold-<코드명>` 사이트를 쓴다. 사이트가 없으면 CI가 배포 전에 `firebase hosting:sites:create`로 만든다.
 - 배포 키: GitHub repo secret `FIREBASE_SERVICE_ACCOUNT`(모노레포 전체가 같이 쓴다). 서비스 계정 역할은 Firebase Hosting Admin.
-- PR마다 3일짜리 미리보기 채널(`minthold-baekgwi--pr-…web.app`)에 올리고, PR 댓글로 주소를 남긴다.
+- PR마다 3일짜리 미리보기 채널(`minthold-rooster--pr-…web.app`)에 올리고, PR 댓글로 주소를 남긴다.
 - Godot 웹 빌드는 스레드를 끈 싱글 스레드 export다. 그래서 COOP/COEP 헤더가 필요 없다.
 
 - 기준 해상도는 **1920×1080**이다. Steam Deck(1280×800, 16:10)에서는 위아래 여백만 늘어나도록 `canvas_items` + `expand`로 맞춘다.

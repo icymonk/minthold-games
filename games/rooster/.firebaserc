@@ -5,7 +5,7 @@
   "targets": {
     "minthold-preview": {
       "hosting": {
-        "web": ["minthold-baekgwi"]
+        "web": ["minthold-rooster"]
       }
     }
   }

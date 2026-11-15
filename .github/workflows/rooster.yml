@@ -1,20 +1,20 @@
-name: baekgwi
+name: rooster
 
 on:
   pull_request:
     paths:
-      - games/baekgwi/**
-      - .github/workflows/baekgwi.yml
+      - games/rooster/**
+      - .github/workflows/rooster.yml
       - .github/workflows/godot.yml
   push:
     branches: [develop]
     paths:
-      - games/baekgwi/**
-      - .github/workflows/baekgwi.yml
+      - games/rooster/**
+      - .github/workflows/rooster.yml
       - .github/workflows/godot.yml
 
 concurrency:
-  group: baekgwi-${{ github.ref }}
+  group: rooster-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -26,5 +26,5 @@ jobs:
   game:
     uses: ./.github/workflows/godot.yml
     with:
-      game: baekgwi
+      game: rooster
     secrets: inherit

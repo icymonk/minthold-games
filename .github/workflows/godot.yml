@@ -66,6 +66,17 @@ jobs:
       - name: Secret missing
         if: env.HAS_SA != 'true'
         run: echo "::warning::FIREBASE_SERVICE_ACCOUNT 없음 — 배포를 건너뜁니다."
+      - name: Ensure Hosting site
+        if: env.HAS_SA == 'true'
+        env:
+          SA_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          SITE: minthold-${{ inputs.game }}
+        run: |
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
+          printf '%s' "$SA_JSON" > "$GOOGLE_APPLICATION_CREDENTIALS"
+          npx -y firebase-tools@15 hosting:sites:get "$SITE" --project minthold-preview \
+            || npx -y firebase-tools@15 hosting:sites:create "$SITE" --project minthold-preview
+          rm -f "$GOOGLE_APPLICATION_CREDENTIALS"
       - name: Deploy PR preview
         if: env.HAS_SA == 'true' && github.event_name == 'pull_request'
         uses: FirebaseExtended/action-hosting-deploy@v0
