@@ -195,6 +195,10 @@ func _drop_from_shop(pos: Vector2, p: Piece) -> void:
 	_card = -1
 	if not _moved:
 		return
+	var target := _piece_under(pos)
+	if target != null:
+		_report_feed(target, p, run.hire_feed(slot, target))
+		return
 	if _bag_rect().has_point(pos):
 		var hired := run.hire_to_bag(slot, p.cells, _cell_at(pos) - _grab)
 		if hired == null:
@@ -238,11 +242,12 @@ func _drop(pos: Vector2) -> void:
 		run.sell(p)
 		_selected = null
 		return
+	var target := _piece_under(pos)
+	if target != null and target != p:
+		p.cells = _drag_cells_backup
+		_report_feed(target, p, run.feed(target, p))
+		return
 	if _bag_rect().has_point(pos):
-		var target := run.bag.piece_at(_cell_at(pos))
-		if target != null and target != p:
-			_try_eat(target, p)
-			return
 		var at := _cell_at(pos) - _grab
 		if run.bag.can_place(p, at):
 			run.bench.erase(p)
@@ -258,15 +263,20 @@ func _drop(pos: Vector2) -> void:
 	p.cells = _drag_cells_backup
 
 
-func _try_eat(eater: Piece, food: Piece) -> void:
-	food.cells = _drag_cells_backup
-	if not _drag_from_bag:
-		_toast_msg("TOAST_EAT_TOUCH")
-		return
-	var before := Ink.name_of(eater.kind)
-	match run.bag.feed(eater, food):
-		Bag.Feed.NOT_TOUCHING:
-			_toast_msg("TOAST_EAT_TOUCH")
+## 보따리 칸이나 대기 줄에서 pos 아래 있는 요괴.
+func _piece_under(pos: Vector2) -> Piece:
+	if _bag_rect().has_point(pos):
+		return run.bag.piece_at(_cell_at(pos))
+	if BENCH_RECT.has_point(pos):
+		return _bench_piece_at(pos)
+	return null
+
+
+func _report_feed(eater: Piece, food: Piece, result: Bag.Feed) -> void:
+	var before := Ink.name_of(food.kind)
+	match result:
+		Bag.Feed.SELF:
+			_toast_msg("TOAST_NO_COINS")
 			return
 		Bag.Feed.FULL:
 			_toast_msg("TOAST_EAT_FULL")
@@ -278,9 +288,9 @@ func _try_eat(eater: Piece, food: Piece) -> void:
 			_toast_msg("TOAST_EAT_NO_ROOM")
 			return
 		Bag.Feed.EVOLVED:
-			_toast = tr("TOAST_EVOLVED") % [Ink.with_josa(before, "이가"), Ink.with_josa(Ink.name_of(eater.kind), "으로")]
+			_toast = tr("TOAST_EVOLVED") % [Ink.with_josa(Ink.name_of(YokaiDb.base_of(eater.kind)), "이가"), Ink.with_josa(Ink.name_of(eater.kind), "으로")]
 		_:
-			_toast = tr("TOAST_ATE") % [Ink.with_josa(before, "이가"), Ink.with_josa(Ink.name_of(food.kind), "을를")]
+			_toast = tr("TOAST_ATE") % [Ink.with_josa(Ink.name_of(eater.kind), "이가"), Ink.with_josa(before, "을를")]
 	_selected = eater
 	_toast_until = Time.get_ticks_msec() / 1000.0 + 2.5
 
@@ -506,24 +516,30 @@ func _draw_drag() -> void:
 	var p := _drag
 	var origin := _mouse - (Vector2(_grab) + Vector2(0.5, 0.5)) * CELL
 	var tint := Color(1, 1, 1, 0.88)
-	if _bag_rect().has_point(_mouse):
-		var target := run.bag.piece_at(_cell_at(_mouse))
-		if target != null and target != p and _drag_shop < 0:
-			var why := ""
-			if not _drag_from_bag or not run.bag.touching(target, p):
-				why = "TOAST_EAT_TOUCH"
-			elif not target.hungry():
-				why = "TOAST_EAT_FULL"
-			elif p.evolved:
-				why = "TOAST_EAT_EVOLVED"
-			var ok := why == ""
-			var hint := tr(why) if not ok else (tr("DRAG_EVOLVE") if target.eaten + 1 >= target.belly else tr("DRAG_EAT"))
-			Ink.draw_shape(_ci, BAG_POS + Vector2(target.pos) * CELL, target.cells, CELL, Color(Ink.VERMILION, 0.25), Ink.VERMILION if ok else Ink.SLATE, 6)
-			Ink.draw_label(_ci, BAG_POS + Vector2(target.pos) * CELL + Vector2(0, -12), hint, 22, Ink.VERMILION if ok else Ink.SLATE, -1, HORIZONTAL_ALIGNMENT_LEFT, 6)
+	var target := _piece_under(_mouse)
+	if target != null and target != p:
+		var why := ""
+		if not target.hungry():
+			why = "TOAST_EAT_FULL"
+		elif p.evolved:
+			why = "TOAST_EAT_EVOLVED"
+		var ok := why == ""
+		var fill := (Bag.SAME_KIND_FILL if target.base_kind() == p.base_kind() else 1) + p.eaten
+		var hint := tr(why) if not ok else (tr("DRAG_EVOLVE") if target.eaten + fill >= target.belly else tr("DRAG_EAT"))
+		var col := Ink.VERMILION if ok else Ink.SLATE
+		var label_at: Vector2
+		if target in run.bag.pieces:
+			Ink.draw_shape(_ci, BAG_POS + Vector2(target.pos) * CELL, target.cells, CELL, Color(Ink.VERMILION, 0.25), col, 6)
+			label_at = BAG_POS + Vector2(target.pos) * CELL
 		else:
-			var at := _cell_at(_mouse) - _grab
-			var ok := run.bag.can_place(p, at)
-			Ink.draw_shape(_ci, BAG_POS + Vector2(at) * CELL, p.cells, CELL, Color(Ink.JADE if ok else Ink.VERMILION, 0.35), Color(0, 0, 0, 0), 0)
+			var r: Rect2 = _bench_layout()[target]
+			_ci.draw_style_box(Ink.box(Color(Ink.VERMILION, 0.25), 8, col, 4), r.grow(4))
+			label_at = Vector2(r.position.x, r.end.y + 34)
+		Ink.draw_label(_ci, label_at + Vector2(0, -12), hint, 22, col, -1, HORIZONTAL_ALIGNMENT_LEFT, 6)
+	elif _bag_rect().has_point(_mouse):
+		var at := _cell_at(_mouse) - _grab
+		var ok := run.bag.can_place(p, at)
+		Ink.draw_shape(_ci, BAG_POS + Vector2(at) * CELL, p.cells, CELL, Color(Ink.JADE if ok else Ink.VERMILION, 0.35), Color(0, 0, 0, 0), 0)
 	elif BENCH_RECT.has_point(_mouse) and (_drag_from_bag or _drag_shop >= 0):
 		_ci.draw_style_box(Ink.box(Color(Ink.JADE, 0.18), 12, Ink.JADE, 3), BENCH_RECT)
 	Ink.draw_piece(_ci, origin, p, CELL, _font, tint)

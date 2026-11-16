@@ -16,7 +16,7 @@ NIGHT_FIGHT,행렬 맞이하기,Face the Procession
 NIGHT_HINT,드래그: 옮기기 · 우클릭/R: 돌리기 · 맞닿은 요괴 위에 놓기: 먹이기,Drag: move · Right-click/R: rotate · Drop on a touching yokai: feed
 COINS,엽전 %d,Coins %d
 MARKET_TITLE,장터,Market
-MARKET_CLICK,누르면 설명 · 끌어 놓으면 고용,Click for details · drag to hire
+MARKET_CLICK,누르면 설명 · 끌어 놓으면 고용 · 요괴 위에 놓으면 먹이기,Click for details · drag to hire · drop on a yokai to feed
 MARKET_REFRESH,새로고침 (%d),Refresh (%d)
 BAG_TITLE,보따리,Bundle
 BAG_FRONT,오른쪽이 앞줄: 각 줄의 맨 오른쪽 요괴가 그 줄로 오는 적에게 맞는다,Right is the front: the rightmost yokai in each row takes hits from that lane
@@ -27,7 +27,7 @@ PREVIEW_TIME,닭이 %d초 만에 운다,The rooster crows in %ds
 INFO_EMPTY,요괴를 누르면 정보가 보인다.,Click a yokai to see details.
 HELP_1,1. 장터 카드를 누르면 설명이 나온다,1. Click a market card to read about it
 HELP_2,2. 카드를 보따리나 대기 줄로 끌어 놓으면 고용된다,2. Drag a card into the bundle or the waiting row to hire it
-HELP_3,3. 맞닿은 요괴를 다른 요괴 위로 끌면 먹는다. 먹힌 칸은 비고 배가 차면 변신한다,3. Drag a touching yokai onto another to feed it. The food frees its cells; a full belly evolves
+HELP_3,"3. 요괴나 장터 카드를 다른 요괴 위로 끌면 먹는다. 같은 종류는 배 2칸과 능력치 전부, 다른 종류는 능력 하나와 능력치 절반",3. Drag a yokai or market card onto another to feed it. Same kind: 2 belly and full stats; other kinds: one ability and half stats
 HELP_4,4. 행렬 맞이하기를 누르면 자동 전투,4. Face the procession to auto-battle
 INFO_STATS,공격 %d · 체력 %d · %s,ATK %d · HP %d · %s
 INFO_EATEN,먹은 요괴 %d,Eaten %d
@@ -40,7 +40,6 @@ TOAST_NO_COINS,엽전이 모자라다,Not enough coins
 TOAST_BENCH_FULL,대기 줄이 꽉 찼다,Waiting area is full
 TOAST_NO_ROOM,거기엔 놓을 수 없다,No room there
 TOAST_EMPTY_BAG,보따리에 요괴를 넣어야 한다,Put a yokai in the bundle first
-TOAST_EAT_TOUCH,보따리에서 맞닿아 있어야 먹을 수 있다,They must be touching in the bundle
 TOAST_ATE,%s %s 먹었다!,%s ate %s!
 YOKAI_DOKKAEBI,도깨비,Dokkaebi
 YOKAI_FOXFIRE,여우불,Foxfire

@@ -31,7 +31,7 @@ func _shop(run: RunState) -> void:
 	for p in run.bench.duplicate():
 		if _fit(run.bag, p):
 			run.bench.erase(p)
-	while feed and not run.bench.is_empty() and _feed_once(run.bag):
+	while feed and not run.bench.is_empty() and _feed_once(run):
 		for p in run.bench.duplicate():
 			if _fit(run.bag, p):
 				run.bench.erase(p)
@@ -50,15 +50,16 @@ func _fit(bag: Bag, p: Piece) -> bool:
 	return false
 
 
-## 변신에 가장 가까운 요괴에게 맞닿은 가장 약한 요괴를 먹인다.
-func _feed_once(bag: Bag) -> bool:
-	var eaters := bag.pieces.filter(func(p: Piece) -> bool: return p.hungry())
-	eaters.sort_custom(func(a: Piece, b: Piece) -> bool: return a.belly - a.eaten < b.belly - b.eaten)
-	for e in eaters:
-		var foods := bag.neighbors(e).filter(func(p: Piece) -> bool: return not p.evolved)
-		foods.sort_custom(func(a: Piece, b: Piece) -> bool: return a.atk + a.hp < b.atk + b.hp)
-		for f in foods:
-			var r := bag.feed(e, f)
+## 자리가 없어 남은 요괴를 보따리 요괴에게 먹인다. 같은 종류, 그다음 변신에 가까운 요괴를 고른다.
+func _feed_once(run: RunState) -> bool:
+	for f in run.bench.duplicate():
+		var eaters := run.bag.pieces.filter(func(p: Piece) -> bool: return p.hungry())
+		eaters.sort_custom(func(a: Piece, b: Piece) -> bool:
+			var sa := 0 if a.base_kind() == f.base_kind() else 1
+			var sb := 0 if b.base_kind() == f.base_kind() else 1
+			return sa < sb or (sa == sb and a.belly - a.eaten < b.belly - b.eaten))
+		for e in eaters:
+			var r := run.feed(e, f)
 			if r == Bag.Feed.OK or r == Bag.Feed.EVOLVED:
 				return true
 	return false

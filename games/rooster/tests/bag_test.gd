@@ -19,13 +19,61 @@ func test_rotate_keeps_shape_normalized() -> void:
 	assert_vector(b.size()).is_equal(Vector2i(3, 1))
 
 
-func test_feed_requires_touching() -> void:
+func test_feed_does_not_need_touching() -> void:
 	var bag := Bag.new(5, 4)
-	var a := Piece.create(&"mongdal")
+	var a := Piece.create(&"haetae")
 	var b := Piece.create(&"foxfire")
 	bag.place(a, Vector2i(0, 0))
 	bag.place(b, Vector2i(4, 3))
-	assert_int(bag.feed(a, b)).is_equal(Bag.Feed.NOT_TOUCHING)
+	assert_int(bag.feed(a, b)).is_equal(Bag.Feed.OK)
+	assert_object(bag.piece_at(Vector2i(4, 3))).is_null()
+
+
+func test_same_kind_fills_two_and_gives_full_stats() -> void:
+	var bag := Bag.new(5, 4)
+	var a := Piece.create(&"haetae")
+	var b := Piece.create(&"haetae")
+	bag.place(a, Vector2i(0, 0))
+	assert_int(bag.feed(a, b)).is_equal(Bag.Feed.OK)
+	assert_int(a.eaten).is_equal(2)
+	assert_int(a.hp).is_equal(18)
+	assert_array(a.traits).contains_exactly([&"guard"])
+
+
+func test_eaten_belly_carries_over() -> void:
+	var bag := Bag.new(5, 4)
+	var mid := Piece.create(&"dokkaebi")
+	mid.eaten = 1
+	var eater := Piece.create(&"haetae")
+	bag.place(eater, Vector2i(0, 0))
+	assert_int(bag.feed(eater, mid)).is_equal(Bag.Feed.OK)
+	assert_int(eater.eaten).is_equal(2)
+
+
+func test_eater_outside_bag_evolves_without_room() -> void:
+	var bag := Bag.new(1, 1)
+	var fox := Piece.create(&"foxfire")
+	assert_int(bag.feed(fox, Piece.create(&"bulgae"))).is_equal(Bag.Feed.EVOLVED)
+	assert_str(String(fox.kind)).is_equal("gumiho")
+
+
+func test_run_feed_removes_food_from_bench_and_hire_feed_charges() -> void:
+	var run := RunState.new(5)
+	run.coins = 20
+	var eater := Piece.create(&"haetae")
+	var food := Piece.create(&"mongdal")
+	run.bench.append(eater)
+	run.bench.append(food)
+	assert_int(run.feed(eater, food)).is_equal(Bag.Feed.OK)
+	assert_array(run.bench).contains_exactly([eater])
+	run.shelf[0] = &"foxfire"
+	assert_int(run.hire_feed(0, eater)).is_equal(Bag.Feed.OK)
+	assert_int(run.coins).is_equal(20 - YokaiDb.cost(&"foxfire"))
+	assert_str(String(run.shelf[0])).is_equal("")
+	run.coins = 0
+	run.shelf[1] = &"foxfire"
+	assert_int(run.hire_feed(1, Piece.create(&"haetae"))).is_equal(Bag.Feed.SELF)
+	assert_str(String(run.shelf[1])).is_equal("foxfire")
 
 
 func test_feed_frees_cells_and_inherits() -> void:
@@ -55,7 +103,7 @@ func test_full_belly_evolves_into_form_shape() -> void:
 	assert_str(String(fox.kind)).is_equal("gumiho")
 	assert_int(fox.cells.size()).is_equal(3)
 	assert_bool(fox.world_cells().has(Vector2i(3, 1))).is_true()
-	assert_int(fox.atk).is_equal(2 + 1 + 1)
+	assert_int(fox.atk).is_equal(2 + 2 + 1)
 	assert_float(fox.interval).is_equal(0.9)
 	var more := Piece.create(&"foxfire")
 	bag.place(more, fox.world_cells()[0] + Vector2i.LEFT)

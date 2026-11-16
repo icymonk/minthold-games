@@ -2,7 +2,7 @@ class_name Procession
 extends RefCounted
 ## 밤마다 오는 백귀의 행렬. lanes[y]는 보따리 y줄로 들어오는 적 목록(앞이 먼저 싸운다).
 
-const HP_GROWTH := 1.0
+const HP_GROWTH := 1.2
 const ATK_GROWTH_EVERY := 2
 
 var rule: StringName = &"none"
