@@ -8,9 +8,13 @@ mkdir -p kenney
 for s in "${PACKS[@]}"; do
 	[ -d "kenney/$s" ] && continue
 	id=$(printf "assets/%s" "$s" | xxd -p | tr -d '\n')
-	url=$(curl -s -A "$UA" "https://kenney.nl/download-link/$id" | python3 -c 'import sys,json; print(json.load(sys.stdin)["url"])')
-	curl -sL -A "$UA" -o "kenney/$s.zip" "$url"
-	mkdir -p "kenney/$s" && unzip -qo "kenney/$s.zip" -d "kenney/$s" && rm "kenney/$s.zip"
+	url=$(curl -sfL -A "$UA" "https://kenney.nl/download-link/$id" | python3 -c 'import sys,json; print(json.load(sys.stdin)["url"])')
+	curl -sfL -A "$UA" -o "kenney/$s.zip" "$url"
+	# 압축을 다 푼 뒤에만 이름을 바꿔, 실패한 팩이 다음 실행에서 캐시로 남지 않게 한다.
+	rm -rf "kenney/$s.part"
+	unzip -q "kenney/$s.zip" -d "kenney/$s.part"
+	mv "kenney/$s.part" "kenney/$s"
+	rm "kenney/$s.zip"
 done
 mkdir -p models/car models/city
 cp -r "kenney/car-kit/Models/GLB format/." models/car/
