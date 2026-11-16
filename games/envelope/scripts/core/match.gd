@@ -323,6 +323,7 @@ func _advance() -> void:
 				var drawn: int = hands[t][rng.randi_range(0, hands[t].size() - 1)]
 				hands[t].erase(drawn)
 				_to_hand(seat, drawn)
+				located[t][drawn] = seat
 				_effect.step = &"give"
 				_effect.target = t
 				_ask(seat, &"GIVE_BACK", hands[seat].duplicate())
