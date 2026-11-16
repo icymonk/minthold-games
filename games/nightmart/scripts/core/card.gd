@@ -30,6 +30,20 @@ func _init(card_corner: StringName, card_rank: int, card_tag: StringName = TAG_N
 	tag = card_tag
 
 
+## 디버그·테스트용 표기: "m5 s12+ d7?" — 코너 첫 글자, 가격, 꼬리표 기호(+ 할인, * 행사, ~ 냉장, ? PB, $ 금박, x 폐기).
+static func parse(text: String) -> Array[Card]:
+	const LETTER := {"m": MEAL, "s": SNACK, "d": DRINK, "g": GOODS}
+	const MARK := {"+": TAG_DISCOUNT, "*": TAG_EVENT, "~": TAG_CHILLED, "?": TAG_PB, "$": TAG_GOLD}
+	var out: Array[Card] = []
+	for word in text.split(" ", false):
+		var mark := "" if word.right(1).is_valid_int() else word.right(1)
+		var c := Card.new(LETTER[word.left(1)], int(word.substr(1, word.length() - 1 - mark.length())), MARK.get(mark, TAG_NONE))
+		if mark == "x":
+			c.shelf_life = 0
+		out.append(c)
+	return out
+
+
 static func standard_deck() -> Array[Card]:
 	var deck: Array[Card] = []
 	for c in CORNERS:
