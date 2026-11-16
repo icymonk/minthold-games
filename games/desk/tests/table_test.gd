@@ -274,3 +274,60 @@ func test_chief_has_no_sprint_slot() -> void:
 	assert_bool(t._slot_panel.visible).is_false()
 	assert_bool(t.can_drop_slot(Vector2.ZERO, { card = 1 })).is_false()
 	Game.role = before
+
+
+func test_rules_panel_opens_and_closes() -> void:
+	var before: int = Game.role
+	var t := _chief_table()
+	assert_bool(t._rules.visible).is_false()
+	t.show_rules(true)
+	assert_bool(t._rules.visible).is_true()
+	t.show_rules(false)
+	assert_bool(t._rules.visible).is_false()
+	Game.role = before
+
+
+func test_first_game_tips_follow_turns_and_skip() -> void:
+	var before: int = Game.role
+	var seen: Dictionary = Game.tips_seen
+	var off: bool = Game.tips_off
+	Game.tips_seen = {}
+	Game.tips_off = false
+	var t := _staff_table([1, 3, 5, 42])
+	assert_str(t._tip_key).is_equal("TIP_STAFF_FIRST")
+	assert_bool(t._tip_panel.visible).is_true()
+	t._play(t.place_move(1))
+	assert_bool(Game.tips_seen.has(&"TIP_STAFF_FIRST")).is_true()
+	assert_bool(t._tip_panel.visible).is_false()
+	Game.tips_seen = {}
+	Game.skip_tips()
+	t.refresh()
+	assert_bool(t._tip_panel.visible).is_false()
+	Game.tips_seen = seen
+	Game.tips_off = off
+	Game.role = before
+
+
+func test_manhunt_is_announced() -> void:
+	var before: int = Game.role
+	var t := _chief_table()
+	assert_bool(t._manhunt_bar.visible).is_false()
+	t.session.m.phase = Match.Phase.MANHUNT
+	t.refresh()
+	assert_bool(t._manhunt_bar.visible).is_true()
+	Game.role = before
+
+
+func test_result_lists_every_record() -> void:
+	var before: int = Game.role
+	Game.role = Game.Role.STAFF
+	Game.rng = RngStreams.new(4)
+	var t: Control = auto_free(TABLE.instantiate())
+	add_child(t)
+	_finish(t.session, t.refresh)
+	assert_bool(t._overlay.visible).is_true()
+	assert_int(t._result_row.get_child_count()).is_equal(t.session.m.hideouts.size() - 1)
+	t._result_rules.pressed.emit()
+	assert_bool(t._rules.visible).is_true()
+	assert_int(t._rules.get_index()).is_greater(t._overlay.get_index())
+	Game.role = before

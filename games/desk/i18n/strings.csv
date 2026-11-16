@@ -51,3 +51,19 @@ MULTI_WARN,%d개를 한꺼번에 짚습니다. 모두 맞아야 뒤집힙니다.
 BTN_GUESS_N,%d개 짚기,Call %d
 SLOT_TITLE,뛰기 칸 +%d (누르면 손패로),Sprint slot +%d (tap to take back)
 SLOT_HINT,뛰기 칸: 뛰기 카드를 끌어 놓으면 더 멀리 갑니다,Sprint slot: drop sprint cards here to go further
+RULES_BTN,규칙,Rules
+RULES_TITLE,규칙 요약,Rules summary
+RULES_BODY,"사원은 17:18(0)부터 18:00(42)까지 몰래 자리를 비운 시각을 뒷면으로 가운데 줄에 냅니다.\n· 다음 기록은 앞 기록보다 최대 3분 뒤까지만 됩니다. 뛰기 카드를 함께 버리면 그만큼 더 멀리 갑니다(3의 배수는 +2, 나머지는 +1).\n· 사원: 첫 차례에는 두 장까지 냅니다. 그 뒤로는 한 장 뽑고 한 장 내거나 쉽니다.\n· 팀장: 첫 차례에는 두 장, 그 뒤로는 한 장 뽑고 시각을 짚습니다. 여러 개를 한꺼번에 짚으면 모두 맞아야 뒤집힙니다.\n· 뒷면 기록을 모두 뒤집으면 팀장이 이깁니다.\n· 사원이 18:00을 내면 퇴근합니다. 단, 들킨 기록 중 가장 늦은 것이 17:47(29) 이하이면 마지막 추궁이 열립니다. 남은 기록을 하나도 틀리지 않고 짚으면 팀장이 이깁니다.","The employee logs the times he slipped away, face down, from 5:18 (0) to 6:00 (42).\n· Each record can be at most 3 minutes after the last. Discarding sprint cards goes further (+2 for multiples of 3, +1 otherwise).\n· Employee: play up to two cards on the first turn. After that, draw one, then play one or pass.\n· Manager: draw two on the first turn, then one each turn, and call times. Calling several at once only flips if all are right.\n· Flip every hidden record and the manager wins.\n· When the employee plays 6:00 he clocks out. But if the latest caught record is 5:47 (29) or earlier, a final grilling starts: call every remaining record without a miss to win."
+CLOSE,닫기,Close
+MANHUNT_BANNER,마지막 추궁!,Final grilling!
+TIP_SKIP,안내 끄기,Skip tips
+TIP_STAFF_FIRST,첫 차례: 빛나는 카드를 두 장까지 가운데 줄로 끌어 내세요. 기록은 앞 기록보다 최대 3분 뒤까지만 됩니다.,First turn: drag up to two lit cards to the row. Each record can be at most 3 minutes after the last.
+TIP_STAFF_DRAW,구역 더미 하나를 눌러 한 장 뽑으세요. 뒤 구역일수록 늦은 시각입니다.,Tap a pile to draw a card. Later zones hold later times.
+TIP_STAFF_SLOT,뛰기 카드를 오른쪽 뛰기 칸에 끌어 놓으면 더 멀리 갑니다. 필요 없는 뛰기 카드를 넣으면 팀장을 헷갈리게 할 수 있습니다.,Drop sprint cards in the slot to go further. Extra sprints throw the manager off.
+TIP_CHIEF_DRAW,더미에서 카드를 뽑으세요. 내 손에 든 번호는 사원의 기록일 수 없습니다.,Draw from a pile. Numbers in your hand can't be his records.
+TIP_CHIEF_MEMO,"메모판에서 흐린 번호는 이미 불가능한 시각입니다. 남은 번호를 골라 [짚기]를 누르고, 의심이 풀린 번호는 직접 지우기로 지워 두세요.",Greyed numbers on the notepad are impossible. Pick one and Call it; cross out numbers you have ruled out.
+TIP_CHIEF_MANHUNT,마지막 추궁: 남은 기록을 하나씩 짚으세요. 한 번이라도 틀리면 사원이 퇴근합니다.,Final grilling: call the rest one at a time. One miss and he clocks out.
+RESULT_STATS,"사원 %d차례 · 짚기 %d번 맞힘, %d번 틀림","%d employee turns · %d hits, %d misses"
+RESULT_ROW,오늘의 기록 (빨강: 들킨 기록),Today's records (red: caught)
+RESULT_SAME,같은 패로 다시,Same deal again
+RESULT_SEED,시드 %d,Seed %d
