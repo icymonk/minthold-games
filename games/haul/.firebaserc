@@ -1,0 +1,12 @@
+{
+  "projects": {
+    "default": "minthold-preview"
+  },
+  "targets": {
+    "minthold-preview": {
+      "hosting": {
+        "web": ["minthold-haul"]
+      }
+    }
+  }
+}
