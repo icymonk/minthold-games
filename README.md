@@ -7,6 +7,7 @@ Minthold 인디 게임 모노레포 (Godot 4 + GDScript).
 | 코드명 | 제목 | 웹 미리보기 |
 |---|---|---|
 | [rooster](games/rooster) | 닭이 울기 전에 (Before the Rooster Crows) | https://minthold-rooster.web.app |
+| [haul](games/haul) | 막차 택배 (Haul Order) | (준비 중) |
 
 ## 규칙
 
