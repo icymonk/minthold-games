@@ -8,6 +8,13 @@ func _ready() -> void:
 	_make_list()
 	_label(tr("GAME_TITLE"), 96)
 	_label(tr("TITLE_SUBTITLE"), 28).modulate = Color(Style.INK, 0.7)
+	var cast := HBoxContainer.new()
+	cast.alignment = BoxContainer.ALIGNMENT_CENTER
+	cast.add_theme_constant_override(&"separation", 12)
+	cast.add_child(Art.picture(Art.person(&"chief_think"), Vector2(150, 200)))
+	cast.add_child(Art.picture(Art.ZONES[Cards.Zone.FLOOR], Vector2(260, 200)))
+	cast.add_child(Art.picture(Art.person(&"staff_run0"), Vector2(150, 200)))
+	_list.add_child(cast)
 	_role_button = _button("", _on_toggle_role)
 	_refresh_role()
 	_seed_input = LineEdit.new()

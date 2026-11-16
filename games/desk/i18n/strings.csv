@@ -67,3 +67,7 @@ RESULT_STATS,"사원 %d차례 · 짚기 %d번 맞힘, %d번 틀림","%d employee
 RESULT_ROW,오늘의 기록 (빨강: 들킨 기록),Today's records (red: caught)
 RESULT_SAME,같은 패로 다시,Same deal again
 RESULT_SEED,시드 %d,Seed %d
+SOUND_ON,소리 켬,Sound on
+SOUND_OFF,소리 끔,Sound off
+STAMP_STAFF,정시 퇴근,Clocked out
+STAMP_CHIEF,땡땡이 적발,Caught slacking
