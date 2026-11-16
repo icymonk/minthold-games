@@ -134,6 +134,8 @@ func apply(move: Dictionary) -> bool:
 	match move.action:
 		Action.PLAY:
 			face_up[seat].append(uid)
+			for p in players:
+				_see(p, uid)
 		Action.ENVELOPE:
 			envelope.append(uid)
 		Action.NOTE:

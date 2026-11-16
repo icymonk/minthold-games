@@ -191,3 +191,13 @@ func test_synchronous_answers_from_asked_signal_finish_broadcast() -> void:
 	m.apply({ seat = 0, card = 0, action = A.PLAY })
 	assert_array(m.pending).is_empty()
 	assert_int(m.turn).is_equal(1)
+
+
+func test_everyone_remembers_face_up_card_after_supplies_takes_it() -> void:
+	var m := Match.from_hands([[C.HR, C.CHAIR, C.MISER], [C.SUPPLIES, C.MISER, C.HR], [C.MISER, C.MISER, C.HR]])
+	m.turn = 0
+	m.apply({ seat = 0, card = 0, action = A.PLAY })
+	m.answer(0, 1)
+	m.apply({ seat = 1, card = 3, action = A.PLAY })
+	m.answer(1, 0)
+	assert_int(Knowledge.of(m, 2).kind_of(0)).is_equal(C.HR)
