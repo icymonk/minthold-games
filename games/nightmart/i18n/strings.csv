@@ -15,3 +15,14 @@ COACH_PICK,상품 카드를 눌러요,Tap a product card
 COACH_CHECKOUT,「계산」을 눌러요,Press Check out
 COACH_DISCARD,안 쓸 카드를 바꿔요,Swap cards you don't need
 COACH_SKIP,건너뛰기,Skip
+COMBO_NONE,조합 없음,No combo
+COMBO_SINGLE,낱개,Single
+COMBO_PAIR,1+1,Buy One Get One
+COMBO_TWO_PAIR,2+2,Two Pairs
+COMBO_MEAL_SET,한 끼 세트,Meal Deal
+COMBO_TRIPLE,3개 묶음,Three-Pack
+COMBO_STRAIGHT,진열 줄,Shelf Row
+COMBO_FLUSH,같은 코너,Same Aisle
+COMBO_FULL_HOUSE,세트 메뉴,Combo Meal
+COMBO_FOUR,박스째,Whole Box
+COMBO_STRAIGHT_FLUSH,완벽 진열,Perfect Shelf
