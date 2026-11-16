@@ -39,6 +39,7 @@ func _ready() -> void:
 	_seed_input.placeholder_text = tr("TITLE_SEED")
 	_seed_input.custom_minimum_size = Vector2(200, 52)
 	_seed_input.add_theme_font_size_override(&"font_size", 22)
+	_seed_input.visible = Game.tutorial_done
 	row.add_child(_seed_input)
 	var lang := Button.new()
 	lang.text = tr("TITLE_LANGUAGE")
