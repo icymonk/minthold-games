@@ -85,10 +85,8 @@ func feed(eater: Piece, food: Piece) -> Feed:
 	var form_cells: Array[Vector2i] = []
 	var form_pos := eater.pos
 	if evolves:
-		pieces.erase(food)
-		var spot := _evolve_spot(eater, YokaiDb.ALLIES[eater.kind]["evolve"])
+		var spot := _evolve_spot(eater, food, YokaiDb.ALLIES[eater.kind]["evolve"])
 		if spot.is_empty():
-			pieces.append(food)
 			return Feed.NO_ROOM
 		form_cells = spot["cells"]
 		form_pos = spot["pos"]
@@ -114,7 +112,7 @@ func feed(eater: Piece, food: Piece) -> Feed:
 
 
 ## 변신한 모양을 놓을 자리. 지금 차지한 칸과 가장 많이 겹치는 위치(동점이면 더 오른쪽)를 고른다.
-func _evolve_spot(eater: Piece, form_key: StringName) -> Dictionary:
+func _evolve_spot(eater: Piece, food: Piece, form_key: StringName) -> Dictionary:
 	var shape: Array[Vector2i] = []
 	shape.assign(YokaiDb.FORMS[form_key]["cells"])
 	var mine := eater.world_cells()
@@ -129,7 +127,7 @@ func _evolve_spot(eater: Piece, form_key: StringName) -> Dictionary:
 				for sc in shape:
 					var w := sc + at
 					var other := piece_at(w)
-					if not in_bounds(w) or (other != null and other != eater):
+					if not in_bounds(w) or (other != null and other != eater and other != food):
 						ok = false
 						break
 					if w in mine:

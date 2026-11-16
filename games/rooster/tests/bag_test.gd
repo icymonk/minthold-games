@@ -70,6 +70,6 @@ func test_evolution_needs_room() -> void:
 	bag.place(fox, Vector2i(0, 0))
 	bag.place(food, Vector2i(1, 0))
 	assert_int(bag.feed(fox, food)).is_equal(Bag.Feed.NO_ROOM)
-	assert_int(bag.pieces.size()).is_equal(2)
+	assert_array(bag.pieces).contains_exactly([fox, food])
 	assert_int(fox.eaten).is_equal(0)
 	assert_int(fox.atk).is_equal(2)
