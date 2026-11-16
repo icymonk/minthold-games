@@ -182,3 +182,12 @@ func test_random_full_games_keep_invariants() -> void:
 			assert_int(total).is_equal(Cards.deck(n).size())
 			var r := m.resolve()
 			assert_bool(r.winners.is_empty()).is_equal(r.priority == 0)
+
+
+func test_synchronous_answers_from_asked_signal_finish_broadcast() -> void:
+	var m := Match.from_hands([[C.BROADCAST, C.HR, C.CHAIR], [C.MISER, C.QUITTER], [C.SUPPLIES, C.THIEF]])
+	m.turn = 0
+	m.asked.connect(func(r: Dictionary) -> void: m.answer(r.seat, r.options[0]))
+	m.apply({ seat = 0, card = 0, action = A.PLAY })
+	assert_array(m.pending).is_empty()
+	assert_int(m.turn).is_equal(1)

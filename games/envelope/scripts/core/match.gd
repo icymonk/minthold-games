@@ -144,8 +144,7 @@ func apply(move: Dictionary) -> bool:
 	if pending.is_empty():
 		_end_turn(seat)
 	moved.emit(move)
-	for r in pending:
-		asked.emit(r)
+	_announce()
 	return true
 
 
@@ -159,9 +158,15 @@ func answer(seat: int, choice: Variant) -> bool:
 	history.append({ seat = seat, ask = req.ask, answer = choice })
 	if pending.is_empty():
 		_advance()
-		for r in pending:
-			asked.emit(r)
+		_announce()
 	return true
+
+
+## 듣는 쪽이 신호 안에서 바로 answer()해도 남은 요청을 빠뜨리지 않는다.
+func _announce() -> void:
+	for r in pending.duplicate():
+		if pending.has(r):
+			asked.emit(r)
 
 
 func _end_turn(seat: int) -> void:
