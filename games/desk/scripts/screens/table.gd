@@ -419,7 +419,6 @@ func _top_button(s: String, on_pressed: Callable) -> Button:
 	var b := Button.new()
 	b.text = s
 	b.custom_minimum_size = Vector2(0, 64)
-	b.focus_mode = Control.FOCUS_NONE
 	b.pressed.connect(on_pressed)
 	return b
 
