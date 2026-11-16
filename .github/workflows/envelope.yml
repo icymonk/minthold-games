@@ -1,0 +1,30 @@
+name: envelope
+
+on:
+  pull_request:
+    paths:
+      - games/envelope/**
+      - .github/workflows/envelope.yml
+      - .github/workflows/godot.yml
+  push:
+    branches: [develop]
+    paths:
+      - games/envelope/**
+      - .github/workflows/envelope.yml
+      - .github/workflows/godot.yml
+
+concurrency:
+  group: envelope-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  game:
+    uses: ./.github/workflows/godot.yml
+    with:
+      game: envelope
+    secrets: inherit

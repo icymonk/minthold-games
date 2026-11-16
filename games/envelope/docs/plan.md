@@ -5,7 +5,7 @@
 각 항목은 PR 하나 단위다. 위에서부터 차례로 진행한다.
 
 ## 0단계 — 기반
-- [ ] 0-1 Godot 4.7 프로젝트, 화면 전환 뼈대, gdUnit4, CI(`envelope.yml` → 공용 `godot.yml`), 웹 미리보기 `minthold-envelope`
+- [x] 0-1 Godot 4.7 프로젝트, 화면 전환 뼈대, gdUnit4, CI(`envelope.yml` → 공용 `godot.yml`), 웹 미리보기 `minthold-envelope`
 
 ## 1단계 — 규칙 (재미 검증 1: "무엇을 남길지 고민되나")
 - [ ] 1-1 `Match` 엔진: 카드 13종, 인원별 덱, 분배, 세 가지 행동, 손 떼기, 결산(우선순위 판정), 테스트
