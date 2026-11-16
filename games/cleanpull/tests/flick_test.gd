@@ -46,3 +46,10 @@ func test_pause_before_release_is_slow() -> void:
 	var f := _drag(Vector2(100, 0), 0.05)
 	f.move(Vector2(100, 0), 0.5)
 	assert_float(f.to_pull().speed).is_equal_approx(0.0, 0.01)
+
+
+func test_leftward_drag_never_pulls() -> void:
+	var f := _drag(Vector2(-300, 0), 0.05)
+	assert_bool(f.committed()).is_false()
+	assert_bool(f.tugged()).is_false()
+	assert_bool(_drag(Vector2(Flick.MIN_TUG, 0), 0.05).tugged()).is_true()

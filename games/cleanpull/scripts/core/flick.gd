@@ -34,8 +34,14 @@ func offset() -> Vector2:
 	return _points[_points.size() - 1] - _start if not _points.is_empty() else Vector2.ZERO
 
 
+## 오른쪽으로 COMMIT 이상 끌었는가.
 func committed() -> bool:
-	return offset().length() >= COMMIT
+	return offset().x >= COMMIT
+
+
+## 오른쪽으로 MIN_TUG 이상 끌었는가.
+func tugged() -> bool:
+	return offset().x >= MIN_TUG
 
 
 ## 마지막 WINDOW초 동안의 속도(px/s).
