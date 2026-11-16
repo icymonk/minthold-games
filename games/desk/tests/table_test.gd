@@ -327,4 +327,7 @@ func test_result_lists_every_record() -> void:
 	_finish(t.session, t.refresh)
 	assert_bool(t._overlay.visible).is_true()
 	assert_int(t._result_row.get_child_count()).is_equal(t.session.m.hideouts.size() - 1)
+	t._result_rules.pressed.emit()
+	assert_bool(t._rules.visible).is_true()
+	assert_int(t._rules.get_index()).is_greater(t._overlay.get_index())
 	Game.role = before

@@ -39,6 +39,7 @@ var _pass: Button
 var _guess: Button
 var _overlay: Control
 var _result_row: HFlowContainer
+var _result_rules: Button
 var _rules: Control
 var _tip_panel: PanelContainer
 var _tip_label: Label
@@ -567,6 +568,13 @@ func _draw_overlay() -> void:
 	buttons.add_child(_big_button(tr("RESULT_SAME"), func() -> void: Game.start_match(Game.run_seed)))
 	buttons.add_child(_big_button(tr("BACK_TO_TITLE"), func() -> void: Game.goto(&"title")))
 	box.add_child(buttons)
+	var rules := Button.new()
+	rules.text = tr("RULES_BTN")
+	rules.add_theme_font_size_override(&"font_size", 20)
+	rules.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	rules.pressed.connect(show_rules.bind(true))
+	box.add_child(rules)
+	_result_rules = rules
 
 
 func _centered(s: String, size: int, bold := false) -> Label:
