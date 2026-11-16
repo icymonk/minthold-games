@@ -6,12 +6,14 @@ extends RefCounted
 var market := RandomNumberGenerator.new()
 var battle := RandomNumberGenerator.new()
 var events := RandomNumberGenerator.new()
+var bag := RandomNumberGenerator.new()
 
 
 func _init(run_seed: int) -> void:
 	market.seed = _derive(run_seed, "market")
 	battle.seed = _derive(run_seed, "battle")
 	events.seed = _derive(run_seed, "events")
+	bag.seed = _derive(run_seed, "bag")
 
 
 static func _derive(run_seed: int, stream: String) -> int:

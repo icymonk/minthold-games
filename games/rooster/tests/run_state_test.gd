@@ -41,7 +41,7 @@ func test_hire_to_bag_places_directly_and_charges() -> void:
 	run.shelf[0] = &"dokkaebi"
 	var coins := run.coins
 	var cells := YokaiDb.base_cells(&"dokkaebi")
-	var p := run.hire_to_bag(0, cells, Vector2i(1, 1))
+	var p := run.hire_to_bag(0, cells, Vector2i(5, 1))
 	assert_object(p).is_not_null()
 	assert_array(run.bag.pieces).contains_exactly([p])
 	assert_array(run.bench).is_empty()
@@ -66,3 +66,42 @@ func test_portrait_rotation_follows_piece_rotation() -> void:
 	for turns in 4:
 		assert_int(Ink.rotation_of(base, p.cells)).is_equal(turns)
 		p.rotate_cw()
+
+
+func test_start_bag_varies_by_seed_and_has_front_columns() -> void:
+	var a := RunState.new(1)
+	var b := RunState.new(2)
+	var size := RunState.BAG_START_COLS * RunState.BAG_HEIGHT + RunState.BAG_START_GROW
+	assert_int(a.bag.open.size()).is_equal(size)
+	for y in RunState.BAG_HEIGHT:
+		assert_bool(a.bag.in_bounds(Vector2i(RunState.BAG_WIDTH - 1, y))).is_true()
+	var differs := false
+	for s in range(2, 12):
+		if RunState.new(s).bag.open.keys().size() == size and RunState.new(s).bag.open != a.bag.open:
+			differs = true
+	assert_bool(differs).is_true()
+	assert_array(a.plots).is_empty()
+
+
+func test_plots_offered_after_first_night_and_attach_to_edge() -> void:
+	var run := RunState.new(3)
+	run.win_night()
+	run.start_night()
+	assert_int(run.plots.size()).is_equal(3)
+	var plot := run.plots[0]
+	var before := run.bag.open.size()
+	assert_bool(run.expand_bag(0, plot, Vector2i(0, 0))).is_false()
+	var spot := run.bag.expand_spot(plot)
+	assert_bool(run.expand_bag(0, spot["plot"], spot["at"])).is_true()
+	assert_int(run.bag.open.size()).is_equal(before + plot.cells.size())
+	assert_array(run.plots).is_empty()
+
+
+func test_skip_plots_pays_coin() -> void:
+	var run := RunState.new(3)
+	run.win_night()
+	run.start_night()
+	var coins := run.coins
+	run.skip_plots()
+	assert_int(run.coins).is_equal(coins + RunState.SKIP_PLOT_COINS)
+	assert_array(run.plots).is_empty()

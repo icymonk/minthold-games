@@ -221,3 +221,12 @@ HELP_5,"5. 같은 계열 2·4마리면 시너지, 맞닿은 계열끼리도 효�
 BONUS_ATK,공격%s,ATK%s
 BONUS_HP,체력+%d,HP+%d
 BONUS_FAST,빠름,faster
+PLOT_TITLE,보따리 넓히기,Grow the Bundle
+PLOT_HINT,조각 하나를 보따리 가장자리로 끌어다 붙이세요 (R로 회전),Drag one piece onto the bundle's edge (R to rotate)
+PLOT_CELLS,%d칸,%d cells
+PLOT_SKIP,건너뛰기 (엽전 +%d),Skip (+%d coin)
+TOAST_PLOT_EDGE,보따리 가장자리의 빈 땅에 붙여야 한다,It must attach to the bundle's edge
+CELL_WELL,우물,Well
+CELL_WELL_DESC,우물: 물 요괴가 올라서면 공격 +1 · 체력 +4,Well: water yokai on it get +1 ATK · +4 HP
+CELL_HEARTH,아궁이,Hearth
+CELL_HEARTH_DESC,아궁이: 불 요괴가 올라서면 공격 +2,Hearth: fire yokai on it get +2 ATK

@@ -12,6 +12,9 @@ const LINKS := [
 	{"id": &"solace", "from": &"divine", "to": &"grudge", "atk": 0, "hp": 2},
 ]
 const LINK_MAX := 2
+## 특수 칸에 올라선 요괴가 그 계열이면 받는 보너스.
+const SPECIAL_FAMILY := {&"well": &"water", &"hearth": &"fire"}
+const SPECIAL_BONUS := {&"well": {"atk": 1, "hp": 4}, &"hearth": {"atk": 2, "hp": 0}}
 
 
 ## 계열별 보따리 안 요괴 수.
@@ -77,5 +80,10 @@ static func bonuses(bag: Bag) -> Dictionary:
 				b["atk"] += link["atk"] * n
 				b["hp"] += link["hp"] * n
 				b["why"].append(link["id"])
+		for sp in bag.specials_under(p):
+			if f == SPECIAL_FAMILY[sp]:
+				b["atk"] += SPECIAL_BONUS[sp]["atk"]
+				b["hp"] += SPECIAL_BONUS[sp]["hp"]
+				b["why"].append(sp)
 		out[p.id] = b
 	return out
