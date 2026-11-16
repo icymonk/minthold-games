@@ -13,6 +13,7 @@ Minthold 인디 게임 모노레포 (Godot 4 + GDScript).
 | [postage](games/postage) | 우표 붙이는 우체국 (Postage Paid) | (준비 중) |
 | [hive](games/hive) | 꿀 따는 계절 (Honey Season) | (준비 중) |
 | [desk](games/desk) | 땡땡이 (Away From Desk) | https://minthold-desk.web.app |
+| [cleanpull](games/cleanpull) | 식탁보 빼기 (Clean Pull) | (준비 중) |
 
 ## 규칙
 
