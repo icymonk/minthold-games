@@ -1,0 +1,57 @@
+class_name Style
+extends RefCounted
+## 새벽 편의점 색상표와 공용 테마. 크기는 docs/game-guide.md 2.1을 따른다.
+
+const NIGHT := Color("#121626")
+const NIGHT_DEEP := Color("#0A0D18")
+const FLUORESCENT := Color("#EAF6FF")
+const NEON := Color("#3DDC97")
+const PRICE := Color("#FFD23F")
+const ANGRY := Color("#FF4D6D")
+
+const HEADLINE := 64
+const BODY := 40
+const SCORE := 120
+const BUTTON_H := 160
+const GAP := 32
+
+static var _bold: Font
+
+
+static func bold() -> Font:
+	if _bold == null:
+		_bold = load("res://assets/fonts/Pretendard-Bold.otf")
+	return _bold
+
+
+static func box(color: Color, radius := 16, border := Color(0, 0, 0, 0), border_w := 0) -> StyleBoxFlat:
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = color
+	sb.set_corner_radius_all(radius)
+	sb.border_color = border
+	sb.set_border_width_all(border_w)
+	return sb
+
+
+static func make_theme() -> Theme:
+	var t := Theme.new()
+	t.set_stylebox(&"normal", &"Button", box(Color(FLUORESCENT, 0.08), 16, Color(FLUORESCENT, 0.35), 3))
+	t.set_stylebox(&"hover", &"Button", box(Color(FLUORESCENT, 0.18), 16, FLUORESCENT, 3))
+	t.set_stylebox(&"pressed", &"Button", box(Color(NEON, 0.35), 16, NEON, 3))
+	t.set_stylebox(&"focus", &"Button", box(Color(0, 0, 0, 0), 16, PRICE, 6))
+	for c in [&"font_color", &"font_hover_color", &"font_pressed_color", &"font_focus_color"]:
+		t.set_color(c, &"Button", FLUORESCENT)
+	t.set_font_size(&"font_size", &"Button", BODY)
+	t.set_color(&"font_color", &"Label", FLUORESCENT)
+	t.set_font_size(&"font_size", &"Label", BODY)
+	t.set_color(&"font_color", &"LineEdit", FLUORESCENT)
+	t.set_font_size(&"font_size", &"LineEdit", BODY)
+	t.set_stylebox(&"normal", &"LineEdit", box(Color(FLUORESCENT, 0.08), 16, Color(FLUORESCENT, 0.35), 3))
+	t.set_stylebox(&"focus", &"LineEdit", box(Color(0, 0, 0, 0), 16, PRICE, 6))
+	t.set_type_variation(&"AccentButton", &"Button")
+	t.set_stylebox(&"normal", &"AccentButton", box(NEON, 16))
+	t.set_stylebox(&"hover", &"AccentButton", box(NEON.lightened(0.15), 16))
+	t.set_stylebox(&"pressed", &"AccentButton", box(NEON.darkened(0.15), 16))
+	for c in [&"font_color", &"font_hover_color", &"font_pressed_color", &"font_focus_color"]:
+		t.set_color(c, &"AccentButton", NIGHT_DEEP)
+	return t
