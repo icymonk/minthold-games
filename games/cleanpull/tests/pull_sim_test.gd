@@ -72,3 +72,9 @@ func test_same_input_same_result() -> void:
 	var b := _one(&"vase", 70.0, PullSim.Pull.new(650.0, 5.0, 0.2))
 	assert_float(a.slide).is_equal(b.slide)
 	assert_float(a.tip).is_equal(b.tip)
+
+
+func test_bump_checks_non_neighbors() -> void:
+	var dishes: Array[Dish] = [Dish.new(&"jelly", 100.0), Dish.new(&"wine_glass", 110.0), Dish.new(&"wine_glass", 120.0)]
+	var results := PullSim.new(400.0).run(dishes, PullSim.Pull.new(350.0))
+	assert_bool(results[2].bumped).is_true()

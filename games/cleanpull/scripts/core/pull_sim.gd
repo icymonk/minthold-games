@@ -90,14 +90,16 @@ func _slide(dish: Dish, pull: Pull, lift: float) -> Result:
 	return r
 
 
+## 끝 위치가 겹치거나 서로 지나쳤으면 부딪힌 것이다.
 func _bump(results: Array[Result]) -> void:
-	var order := results.duplicate()
-	order.sort_custom(func(a: Result, b: Result) -> bool: return a.dish.x < b.dish.x)
-	for i in order.size() - 1:
-		var a: Result = order[i]
-		var b: Result = order[i + 1]
-		if a.final_x + a.dish.width / 2.0 > b.final_x - b.dish.width / 2.0:
-			for r: Result in [a, b]:
-				if not r.bumped:
-					r.bumped = true
-					r.tip += BUMP_TIP
+	for i in results.size():
+		for j in range(i + 1, results.size()):
+			var a := results[i]
+			var b := results[j]
+			var crossed := signf(a.final_x - b.final_x) != signf(a.dish.x - b.dish.x)
+			var overlap := absf(a.final_x - b.final_x) < (a.dish.width + b.dish.width) / 2.0
+			if crossed or overlap:
+				for r: Result in [a, b]:
+					if not r.bumped:
+						r.bumped = true
+						r.tip += BUMP_TIP
