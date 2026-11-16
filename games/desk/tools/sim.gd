@@ -1,6 +1,7 @@
 extends SceneTree
 ## 헤드리스 시뮬레이터(아키텍처 5장): AI끼리 돌려 사원 승률, 차례 수, 마지막 추궁, 뛰기 사용량을 본다.
 ## godot --headless -s tools/sim.gd -- --games 500 --chief careful --staff careful --seed 1
+## 사건 카드: --events 1
 ## 난이도: --chief-level easy|normal|hard, --staff-level ... (기본 hard = 실수 없음)
 
 
@@ -12,12 +13,13 @@ func _init() -> void:
 		Bot.NAMES[args.get("staff", "careful")],
 		int(args.get("seed", "1")),
 		Bot.LEVELS[args.get("chief-level", "hard")],
-		Bot.LEVELS[args.get("staff-level", "hard")])
+		Bot.LEVELS[args.get("staff-level", "hard")],
+		args.get("events", "0") == "1")
 	print(JSON.stringify(stats, "  "))
 	quit()
 
 
-static func run(games: int, chief: int, staff: int, base_seed: int, chief_level := Bot.Level.HARD, staff_level := Bot.Level.HARD) -> Dictionary:
+static func run(games: int, chief: int, staff: int, base_seed: int, chief_level := Bot.Level.HARD, staff_level := Bot.Level.HARD, events := false) -> Dictionary:
 	var staff_wins := 0
 	var turns := 0
 	var manhunts := 0
@@ -27,7 +29,7 @@ static func run(games: int, chief: int, staff: int, base_seed: int, chief_level 
 	var stalled := 0
 	for g in games:
 		var streams := RngStreams.new(base_seed * 100003 + g)
-		var m := Match.deal(streams.deal)
+		var m := Match.deal(streams.deal, events)
 		var bots := [StaffBot.new(streams.bots, staff, staff_level), ChiefBot.new(streams.bots, chief, chief_level)]
 		var steps := 0
 		var hunted := false

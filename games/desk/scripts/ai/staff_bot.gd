@@ -46,7 +46,7 @@ func choose(k: Knowledge, moves: Array[Dictionary]) -> Dictionary:
 ## card를 낼 뛰기 묶음. 지나간 카드부터, 뛰기 값이 큰 것부터. 못 내면 null.
 func sprints_for(k: Knowledge, card: int) -> Variant:
 	var last := _last(k)
-	var need := card - (last + Cards.BASE_STEP)
+	var need: int = card - (last + Cards.BASE_STEP + k.limits[side].get(&"bonus", 0))
 	var out: Array[int] = []
 	if need <= 0:
 		return out

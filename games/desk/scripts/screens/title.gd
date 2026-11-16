@@ -3,6 +3,7 @@ extends ScreenBase
 var _seed_input: LineEdit
 var _role_button: Button
 var _level_button: Button
+var _events_button: Button
 
 
 func _ready() -> void:
@@ -20,6 +21,8 @@ func _ready() -> void:
 	_refresh_role()
 	_level_button = _button("", _on_cycle_level)
 	_refresh_level()
+	_events_button = _button("", _on_toggle_events)
+	_refresh_events()
 	_seed_input = LineEdit.new()
 	_seed_input.placeholder_text = tr("TITLE_SEED")
 	_seed_input.alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -39,6 +42,15 @@ func _refresh_role() -> void:
 
 func _refresh_level() -> void:
 	_level_button.text = tr("TITLE_LEVEL") % tr("LEVEL_%d" % Game.level)
+
+
+func _refresh_events() -> void:
+	_events_button.text = tr("TITLE_EVENTS_ON" if Game.events else "TITLE_EVENTS_OFF")
+
+
+func _on_toggle_events() -> void:
+	Game.toggle_events()
+	_refresh_events()
 
 
 func _on_cycle_level() -> void:

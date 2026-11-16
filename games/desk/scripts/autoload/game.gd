@@ -12,6 +12,8 @@ const SCREENS := {
 
 var role := Role.CHIEF
 var level := Bot.Level.NORMAL
+## 사건 카드(선택 규칙) 켜기.
+var events := false
 var run_seed := 0
 var rng: RngStreams
 ## 첫 판 안내: 본 안내 키, 끄기 여부. user://에 저장한다.
@@ -42,6 +44,7 @@ func _ready() -> void:
 		tips_seen = cfg.get_value("tips", "seen", {})
 		tips_off = cfg.get_value("tips", "off", false)
 		muted = cfg.get_value("sound", "muted", false)
+		events = cfg.get_value("match", "events", false)
 		level = clampi(cfg.get_value("match", "level", Bot.Level.NORMAL), Bot.Level.EASY, Bot.Level.HARD) as Bot.Level
 	for i in 6:
 		var p := AudioStreamPlayer.new()
@@ -90,6 +93,7 @@ func _save_prefs() -> void:
 	cfg.set_value("tips", "off", tips_off)
 	cfg.set_value("sound", "muted", muted)
 	cfg.set_value("match", "level", level)
+	cfg.set_value("match", "events", events)
 	cfg.save(PREFS)
 
 
@@ -106,6 +110,11 @@ func side() -> int:
 
 func cycle_level() -> void:
 	level = ((level + 1) % Bot.Level.size()) as Bot.Level
+	_save_prefs()
+
+
+func toggle_events() -> void:
+	events = not events
 	_save_prefs()
 
 
