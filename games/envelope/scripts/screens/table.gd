@@ -6,6 +6,10 @@ const A := Match.Action
 const AI_DELAY := 0.7
 const CARD_SIZE := Vector2(150, 200)
 const LOG_LINES := 8
+## 화면 위에서 바로 고르는 결정 요청. 나머지는 보기 목록 창으로 받는다.
+const SEAT_ASKS := [&"PEEK_HAND", &"SWAP_TARGET", &"DRAW_FROM"]
+const HAND_ASKS := [&"SWAP_GIVE", &"PASS", &"GIVE_BACK"]
+const BOARD_ASKS := [&"TAKE_FACE_UP", &"MISER_TAKE"]
 
 var session: Session
 var _k: Knowledge
@@ -17,6 +21,9 @@ var _seat_row: HBoxContainer
 var _seat_panels := {}
 var _envelope: PanelContainer
 var _envelope_label: Label
+var _slots: HFlowContainer
+var _banner: Label
+var _shown_events := 0
 var _target_label: Label
 var _desk: PanelContainer
 var _desk_box: VBoxContainer
@@ -113,13 +120,28 @@ func _build() -> void:
 	_envelope_label = _text(34, true)
 	_envelope_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_envelope_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_envelope.add_child(_envelope_label)
+	var env_box := VBoxContainer.new()
+	env_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	env_box.alignment = BoxContainer.ALIGNMENT_CENTER
+	env_box.add_child(_envelope_label)
+	_slots = HFlowContainer.new()
+	_slots.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_slots.alignment = FlowContainer.ALIGNMENT_CENTER
+	env_box.add_child(_slots)
+	_envelope.add_child(env_box)
 	mid.add_child(_envelope)
+	var right := VBoxContainer.new()
+	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	right.alignment = BoxContainer.ALIGNMENT_CENTER
+	right.add_theme_constant_override(&"separation", 12)
+	mid.add_child(right)
+	_banner = _text(32, true)
+	_banner.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	right.add_child(_banner)
 	_log = _text(22)
-	_log.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_log.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_log.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	mid.add_child(_log)
+	_log.modulate = Color(1, 1, 1, 0.75)
+	right.add_child(_log)
 
 	var bottom := HBoxContainer.new()
 	bottom.add_theme_constant_override(&"separation", 24)
@@ -169,22 +191,41 @@ func _draw_seats() -> void:
 		if _k.out[s]:
 			info += " · " + tr("TABLE_OUT")
 		box.add_child(_text(20, false, info))
-		for uid in _k.face_up[s]:
-			box.add_child(_chip(_k.kind_of(uid)))
+		_add_face_up(box, s)
+		_add_notes(box, s)
+		var seen := seen_in_hand(s)
+		if not seen.is_empty():
+			box.add_child(_text(20, false, tr("TABLE_SEEN") % ", ".join(seen)))
 		p.modulate.a = 0.55 if _k.out[s] else 1.0
+		if _asking(SEAT_ASKS) and not s in _k.request.options:
+			p.modulate.a = 0.35
 
 
 func _draw_middle() -> void:
-	_target_label.text = tr("TABLE_TARGET") % _k.target
-	_envelope_label.text = "✉\n" + tr("TABLE_ENVELOPE") % _k.envelope.size()
+	_target_label.text = tr("TABLE_TARGET") % money(_k.target)
+	_envelope_label.text = "✉ " + tr("TABLE_ENVELOPE") % _k.envelope.size()
+	_clear(_slots)
+	var picking := _asking([&"MISER_TAKE"])
+	for i in _k.envelope.size():
+		var kind := _k.kind_of(_k.envelope[i])
+		var label := "%d" % (i + 1) if kind < 0 else "%d %s" % [i + 1, tr(Cards.name_key(kind))]
+		if picking:
+			_slots.add_child(_pick_button(label, i))
+		else:
+			_slots.add_child(_chip_text(label, kind >= 0))
 
 
 func _draw_desk() -> void:
 	_clear(_desk_box)
 	_desk_box.add_child(_text(24, true, tr("TABLE_MY_DESK")))
 	_desk_box.add_child(_text(20, false, tr("TABLE_MY_NOTES") % _k.notes[Session.HUMAN].size()))
-	for uid in _k.face_up[Session.HUMAN]:
-		_desk_box.add_child(_chip(_k.kind_of(uid)))
+	_add_face_up(_desk_box, Session.HUMAN)
+	_add_notes(_desk_box, Session.HUMAN)
+	if _k.thief_hint != Match.NO_HINT:
+		var who := tr("TABLE_HINT_NONE") if _k.thief_hint < 0 else _seat_name(_k.thief_hint)
+		var hint := _text(20, true, tr("TABLE_HINT") % who)
+		hint.add_theme_color_override(&"font_color", Style.STAMP)
+		_desk_box.add_child(hint)
 
 
 func _draw_hand() -> void:
@@ -197,13 +238,17 @@ func _draw_hand() -> void:
 		b.toggle_mode = true
 		b.button_pressed = uid == _selected
 		b.add_theme_font_size_override(&"font_size", 22)
-		var sub := tr("CARD_AMOUNT") % Cards.amount(kind) if Cards.playable(kind) else tr("CARD_LOCKED")
+		var sub := money(Cards.amount(kind)) if Cards.playable(kind) else tr("CARD_LOCKED")
 		b.text = "%s\n\n%s" % [tr(Cards.name_key(kind)), sub]
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		b.disabled = not my_turn or not Cards.playable(kind)
+		if _asking(HAND_ASKS):
+			b.disabled = not uid in _k.request.options
 		if kind == C.THIEF:
 			b.add_theme_color_override(&"font_disabled_color", Style.STAMP)
 		b.pressed.connect(_on_card_pressed.bind(uid))
+		if _asking(HAND_ASKS) and not b.disabled:
+			b.add_theme_stylebox_override(&"normal", Style.box(Color(Style.PARTITION, 0.45), 12, Style.INK, 2))
 		b.set_drag_forwarding(_card_drag.bind(uid, b), Callable(), Callable())
 		_hand.add_child(b)
 
@@ -217,7 +262,8 @@ func _draw_actions() -> void:
 		_hint.text = tr("TABLE_WAIT") % _seat_name(session.m.turn) if session.m.pending.is_empty() else tr("TABLE_WAIT") % _seat_name(session.m.pending[0].seat)
 		return
 	if not _k.request.is_empty():
-		_hint.text = tr("TABLE_ANSWER")
+		var req := _k.request
+		_hint.text = "%s · %s" % [tr("REQ_BY") % [_seat_name(req.by), tr(Cards.name_key(req.kind))], tr("REQ_%s" % req.ask)]
 		return
 	if _selected < 0:
 		_hint.text = tr("TABLE_YOUR_TURN")
@@ -239,13 +285,21 @@ func _draw_log() -> void:
 	for mv in session.events.slice(-LOG_LINES):
 		lines.append(describe(mv))
 	_log.text = "\n".join(lines)
+	if session.events.size() > _shown_events:
+		_shown_events = session.events.size()
+		var last: Dictionary = session.events[-1]
+		_banner.text = describe(last)
+		if last.seat != Session.HUMAN:
+			_flash(_banner)
+			if _seat_panels.has(last.seat):
+				_flash(_seat_panels[last.seat])
 
 
 func _draw_overlay() -> void:
 	_clear(_overlay)
 	if session.is_over():
 		_show_result(session.result())
-	elif session.waiting_for_human() and not _k.request.is_empty():
+	elif session.waiting_for_human() and not _k.request.is_empty() and not _on_board(_k.request.ask):
 		_show_request(_k.request)
 
 
@@ -275,7 +329,7 @@ func _show_result(r: Dictionary) -> void:
 	var list := _dialog()
 	list.add_child(_text(40, true, tr("RESULT_TITLE")))
 	var fund_key := "RESULT_FUND_OK" if r.funded else "RESULT_FUND_FAIL"
-	list.add_child(_text(26, false, tr(fund_key) % [r.fund, r.target]))
+	list.add_child(_text(26, false, tr(fund_key) % [money(r.fund), money(r.target)]))
 	for s in _k_players():
 		var role: int = r.roles[s]
 		var row := tr("RESULT_ROW") % [_seat_name(s), tr(Cards.name_key(role)) if role >= 0 else "-", r.suspicion[s]]
@@ -315,8 +369,9 @@ func _paint_zones() -> void:
 		return
 	var active := _my_turn() and (_dragging or _selected >= 0)
 	for s in _seat_panels:
-		_paint(_seat_panels[s], active, s == session.m.turn and not session.is_over())
-	_paint(_envelope, active and not _picking_desk, false)
+		var lit: bool = active or (_asking(SEAT_ASKS) and s in _k.request.options)
+		_paint(_seat_panels[s], lit, s == session.m.turn and not session.is_over())
+	_paint(_envelope, (active and not _picking_desk) or _asking([&"MISER_TAKE"]), false)
 	_paint(_desk, active and not _picking_desk, session.m.turn == Session.HUMAN and not session.is_over())
 
 
@@ -357,6 +412,10 @@ func option_text(ask: StringName, o: Variant) -> String:
 	return tr(Cards.name_key(_k.kind_of(o)))
 
 
+func money(n: int) -> String:
+	return tr("MONEY_ZERO") if n == 0 else tr("CARD_AMOUNT") % n
+
+
 func _seat_name(s: int) -> String:
 	return tr("SEAT_%d" % s)
 
@@ -382,6 +441,9 @@ func _my_turn() -> bool:
 
 
 func _on_card_pressed(uid: int) -> void:
+	if _asking(HAND_ASKS):
+		_answer(uid)
+		return
 	_selected = -1 if _selected == uid else uid
 	_picking_desk = false
 	refresh()
@@ -409,7 +471,13 @@ func _forward_drop(p: Control, action: Match.Action, to: int) -> void:
 
 func _on_zone_input(event: InputEvent, action: Match.Action, to: int) -> void:
 	var mb := event as InputEventMouseButton
-	if mb == null or not mb.pressed or mb.button_index != MOUSE_BUTTON_LEFT or _selected < 0:
+	if mb == null or not mb.pressed or mb.button_index != MOUSE_BUTTON_LEFT:
+		return
+	if action == A.NOTE and _asking(SEAT_ASKS):
+		if to in _k.request.options:
+			_answer(to)
+		return
+	if _selected < 0:
 		return
 	if _picking_desk and action != A.NOTE:
 		return
@@ -423,6 +491,20 @@ func _do(action: Match.Action, to: int) -> void:
 		_selected = -1
 		_picking_desk = false
 	refresh()
+
+
+func _answer(choice: Variant) -> void:
+	session.answer(choice)
+	refresh()
+
+
+## 지금 사람에게 온 요청이 asks 중 하나인가.
+func _asking(asks: Array) -> bool:
+	return not _k.request.is_empty() and session.waiting_for_human() and _k.request.ask in asks
+
+
+func _on_board(ask: StringName) -> bool:
+	return ask in SEAT_ASKS or ask in HAND_ASKS or ask in BOARD_ASKS
 
 
 func _move(uid: int, action: Match.Action, to: int) -> Dictionary:
@@ -452,9 +534,70 @@ func _text(size: int, bold := false, value := "") -> Label:
 
 
 func _chip(kind: int) -> Label:
-	var l := _text(20, false, tr(Cards.name_key(kind)))
-	l.add_theme_stylebox_override(&"normal", _pad(Style.box(Color(Style.KRAFT, 0.35), 8), 6))
+	return _chip_text(tr(Cards.name_key(kind)), true)
+
+
+func _chip_text(value: String, known: bool) -> Label:
+	var l := _text(20, false, value)
+	var bg := Color(Style.KRAFT, 0.35) if known else Color(Style.INK, 0.08)
+	l.add_theme_stylebox_override(&"normal", _pad(Style.box(bg, 8), 6))
 	return l
+
+
+func _pick_button(value: String, choice: Variant) -> Button:
+	var b := Button.new()
+	b.text = value
+	b.add_theme_font_size_override(&"font_size", 20)
+	b.add_theme_stylebox_override(&"normal", Style.box(Color(Style.PARTITION, 0.45), 8, Style.INK, 2))
+	b.pressed.connect(_answer.bind(choice))
+	return b
+
+
+func _add_face_up(box: Container, s: int) -> void:
+	var row := HFlowContainer.new()
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for uid in _k.face_up[s]:
+		var card_name := tr(Cards.name_key(_k.kind_of(uid)))
+		if _asking([&"TAKE_FACE_UP"]) and uid in _k.request.options:
+			row.add_child(_pick_button(card_name, uid))
+		else:
+			row.add_child(_chip(_k.kind_of(uid)))
+	box.add_child(row)
+
+
+## 받은 쪽지: 아는 카드는 금액, 모르는 카드는 "?".
+func _add_notes(box: Container, s: int) -> void:
+	if _k.notes[s].is_empty():
+		return
+	var parts := PackedStringArray()
+	for uid in _k.notes[s]:
+		var kind := _k.kind_of(uid)
+		parts.append("?" if kind < 0 else "%d" % Cards.amount(kind))
+	box.add_child(_text(20, false, tr("TABLE_NOTE_PILE") % " ".join(parts)))
+
+
+## 그 자리 손에 있는 걸 본(엿본·건넨) 카드. 지금도 거기 있다는 보장은 없다.
+func seen_in_hand(s: int) -> PackedStringArray:
+	var out := PackedStringArray()
+	for uid in _k.located:
+		if _k.located[uid] == s and _k.kind_of(uid) >= 0 and _holding_maybe(s, uid):
+			out.append(tr(Cards.name_key(_k.kind_of(uid))))
+	return out
+
+
+func _holding_maybe(s: int, uid: int) -> bool:
+	if uid in _k.envelope or uid in _k.hand:
+		return false
+	for p in _k_players():
+		if uid in _k.face_up[p] or uid in _k.notes[p]:
+			return false
+	return _k.hand_counts[s] > 0
+
+
+func _flash(c: CanvasItem) -> void:
+	var base := c.modulate
+	c.modulate = Color(1.25, 1.1, 0.8, base.a)
+	create_tween().tween_property(c, ^"modulate", base, 0.6)
 
 
 func _action_button(label: String, on_pressed: Callable) -> void:

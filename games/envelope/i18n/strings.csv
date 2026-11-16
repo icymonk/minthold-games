@@ -27,7 +27,7 @@ SEAT_4,정 주임,Jung
 SEAT_5,한 사원,Han
 CARD_AMOUNT,%d만 원,$%d0
 CARD_LOCKED,낼 수 없음,Can't play
-TABLE_TARGET,목표 %d만 원,Goal $%d0
+TABLE_TARGET,목표 %s,Goal: %s
 TABLE_ENVELOPE,봉투 %d장,Envelope: %d
 TABLE_SEAT_INFO,손패 %d장 · 쪽지 %d장,%d in hand · notes: %d
 TABLE_OUT,손 뗌,Done
@@ -37,7 +37,6 @@ TABLE_YOUR_TURN,"내 차례: 카드를 끌어 봉투·책상에 놓거나, 눌�
 TABLE_SELECTED,%s: 봉투나 책상을 누르거나 아래 버튼을 고르세요,"%s: click the envelope or a desk, or pick below"
 TABLE_PICK_DESK,쪽지를 놓을 동료 책상을 누르세요,Click a coworker's desk to leave the note
 TABLE_WAIT,%s 차례,%s's turn
-TABLE_ANSWER,선택을 기다리는 중,Waiting for your choice
 ACT_PLAY,시키기,Use
 ACT_ENVELOPE,봉투에,Envelope
 ACT_NOTE,쪽지,Note
@@ -45,7 +44,7 @@ ACT_CANCEL,취소,Cancel
 LOG_PLAY,%s: %s 시키기,%s used %s
 LOG_ENVELOPE,%s: 봉투에 1장,%s put a card in the envelope
 LOG_NOTE,%s: 쪽지 → %s,%s left a note for %s
-REQ_BY,%s의 %s,%s's %s
+REQ_BY,%s의 %s,%s · %s
 REQ_NOTE_MOVE,옮길 쪽지와 받을 사람,"Move which note, to whom"
 REQ_MISER_TAKE,봉투에서 가져올 카드,Take which envelope card
 REQ_PEEK_HAND,손패를 볼 사람,Whose hand to see
@@ -64,11 +63,16 @@ OPT_ENVELOPE_SWAP,봉투 %d번째 ↔ 내 %s,Slot %d ↔ my %s
 OPT_CLAIM_YES,범인인 척한다,Pretend
 OPT_CLAIM_NO,가만히 있는다,Stay quiet
 RESULT_TITLE,결산,Results
-RESULT_FUND_OK,봉투 %d만 원 / 목표 %d만 원: 모금 성공,Envelope $%d0 / goal $%d0: funded
-RESULT_FUND_FAIL,봉투 %d만 원 / 목표 %d만 원: 모금 실패,Envelope $%d0 / goal $%d0: short
+RESULT_FUND_OK,봉투 %s / 목표 %s: 모금 성공,Envelope %s / goal %s: funded
+RESULT_FUND_FAIL,봉투 %s / 목표 %s: 모금 실패,Envelope %s / goal %s: short
 RESULT_ROW,%s: %s · 쪽지 %d점,%s: %s · suspicion %d
 RESULT_CONFINED,걸림,caught
 RESULT_WINNERS,이긴 사람: %s,Winners: %s
 RESULT_NOBODY,선물은 없었다. 모두 졌다.,There was no gift. Everyone loses.
 RESULT_NO_THIEF,범인은 없었다. 김 대리가 봉투를 서랍에 넣어 두고 잊었을 뿐.,There was no thief. Kim just left the envelope in a drawer.
 RESULT_AGAIN,다시 하기,Play Again
+TABLE_SEEN,"본 것: %s","Seen: %s"
+TABLE_NOTE_PILE,"쪽지: %s","Notes: %s"
+TABLE_HINT,"눈치: 범인은 %s","Hunch: the Skimmer is %s"
+TABLE_HINT_NONE,아무도 아님,nobody
+MONEY_ZERO,0원,$0
