@@ -1,20 +1,20 @@
 keys,ko,en
 GAME_TITLE,땡땡이,Away From Desk
-TITLE_SUBTITLE,"17:18, 정 사원이 자리에서 일어났다. 18:00까지 42분.",5:18 PM. He just left his desk. 42 minutes to clock-out.
-TITLE_START,한 판 시작,Start
+TITLE_SUBTITLE,"17:18, 정 사원이 자리에서 일어났다. 18:00까지 42분.",17:18. He just left his desk. 42 minutes until clock-out at 18:00.
+TITLE_START,한 판 시작,Play one game
 TITLE_ROLE_CHIEF,내 역할: 팀장 (짚어 내기),My role: Manager (find him)
 TITLE_ROLE_STAFF,내 역할: 사원 (숨기),My role: Employee (hide)
 TITLE_SEED,시드,Seed
 TITLE_LANGUAGE,English,한국어
 ROLE_CHIEF,팀장,Manager
 ROLE_STAFF,사원,Employee
-BACK_TO_TITLE,제목으로,Back to Title
+BACK_TO_TITLE,제목으로,Back to title
 ZONE_0,층 안,Floor
 ZONE_1,건물 안,Building
 ZONE_2,건물 밖,Outside
-DECK_LABEL,%s\n%d~%d · %d장,%s\n%d–%d · %d left
+DECK_LABEL,%s\n%d~%d · %d장 남음,%s\n%d–%d · %d left
 CLOCK_TITLE,벽시계,Wall clock
-ROW_TITLE,가운데 줄 (사원이 자리를 비운 시각),Hideouts (when he was away)
+ROW_TITLE,가운데 줄 (사원이 자리를 비운 시각),Records (times he was away)
 CARD_BACK,?,?
 SPRINT_COUNT,뛰기 %d장,Sprint ×%d
 SPRINT_CARDS,뛰기 %s,Sprint %s
@@ -22,7 +22,7 @@ SPRINT_VALUE,뛰기 +%d,Sprint +%d
 HIDDEN_MINE,숨김,hidden
 HAND_TITLE,내 손패,My hand
 MEMO_TITLE,메모판,Notepad
-LOG_TITLE,기록 줄,Log
+LOG_TITLE,진행 기록,Log
 BTN_PASS,쉬기,Pass
 BTN_GUESS,짚기,Call it
 STATUS_DRAW,더미를 눌러 %d장 뽑으세요,Tap a pile to draw %d
@@ -33,8 +33,8 @@ STATUS_MANHUNT,마지막 추궁: 틀리면 그대로 퇴근입니다,Final grill
 STATUS_WAIT,%s 차례…,%s is thinking…
 LOG_DRAW_SEEN,%s: %s에서 %s 뽑음,%s drew from %s: %s
 LOG_DRAW_HIDDEN,%s: %s에서 1장 뽑음,%s drew 1 from %s
-LOG_PLACE_SEEN,사원: %s 기록 (뛰기 %d장),Employee: logged %s (sprint ×%d)
-LOG_PLACE_HIDDEN,사원: 기록 1장 (뛰기 %d장),Employee: logged 1 card (sprint ×%d)
+LOG_PLACE_SEEN,사원: %s 기록 (뛰기 %d장),Employee logged %s (sprint ×%d)
+LOG_PLACE_HIDDEN,사원: 기록 1장 (뛰기 %d장),Employee logged a card (sprint ×%d)
 LOG_ESCAPE,사원: 18:00 도착,Employee reached 18:00
 LOG_PASS,사원: 쉬기,Employee passed
 LOG_GUESS,팀장: %s 짚음 → %s,Manager called %s → %s
@@ -42,8 +42,8 @@ HIT,맞음,hit
 MISS,틀림,miss
 RESULT_WIN,이겼습니다!,You win!
 RESULT_LOSE,졌습니다,You lose
-RESULT_STAFF,18:00 퇴근 성공. 팀장은 끝내 다 잡지 못했다.,Clocked out at 6. The manager never caught it all.
-RESULT_CHIEF,땡땡이 기록을 모두 잡아냈다.,Every break was exposed.
+RESULT_STAFF,18:00 퇴근 성공. 팀장은 끝내 다 잡지 못했다.,Clocked out at 18:00. The manager never caught every record.
+RESULT_CHIEF,땡땡이 기록을 모두 잡아냈다.,Every record was exposed.
 RESULT_AGAIN,다시 하기,Play again
 MEMO_MARK_OFF,직접 지우기,Cross out
 MEMO_MARK_ON,직접 지우기: 켜짐,Cross out: on
@@ -53,7 +53,7 @@ SLOT_TITLE,뛰기 칸 +%d (누르면 손패로),Sprint slot +%d (tap to take bac
 SLOT_HINT,뛰기 칸: 뛰기 카드를 끌어 놓으면 더 멀리 갑니다,Sprint slot: drop sprint cards here to go further
 RULES_BTN,규칙,Rules
 RULES_TITLE,규칙 요약,Rules summary
-RULES_BODY,"사원은 17:18(0)부터 18:00(42)까지 몰래 자리를 비운 시각을 뒷면으로 가운데 줄에 냅니다.\n· 다음 기록은 앞 기록보다 최대 3분 뒤까지만 됩니다. 뛰기 카드를 함께 버리면 그만큼 더 멀리 갑니다(3의 배수는 +2, 나머지는 +1).\n· 사원: 첫 차례에는 두 장까지 냅니다. 그 뒤로는 한 장 뽑고 한 장 내거나 쉽니다.\n· 팀장: 첫 차례에는 두 장, 그 뒤로는 한 장 뽑고 시각을 짚습니다. 여러 개를 한꺼번에 짚으면 모두 맞아야 뒤집힙니다.\n· 뒷면 기록을 모두 뒤집으면 팀장이 이깁니다.\n· 사원이 18:00을 내면 퇴근합니다. 단, 들킨 기록 중 가장 늦은 것이 17:49(31) 이하이면 마지막 추궁이 열립니다. 남은 기록을 하나도 틀리지 않고 짚으면 팀장이 이깁니다.","The employee logs the times he slipped away, face down, from 5:18 (0) to 6:00 (42).\n· Each record can be at most 3 minutes after the last. Discarding sprint cards goes further (+2 for multiples of 3, +1 otherwise).\n· Employee: play up to two cards on the first turn. After that, draw one, then play one or pass.\n· Manager: draw two on the first turn, then one each turn, and call times. Calling several at once only flips if all are right.\n· Flip every hidden record and the manager wins.\n· When the employee plays 6:00 he clocks out. But if the latest caught record is 5:49 (31) or earlier, a final grilling starts: call every remaining record without a miss to win."
+RULES_BODY,"사원은 17:18(0)부터 18:00(42)까지 몰래 자리를 비운 시각을 뒷면으로 가운데 줄에 냅니다.\n· 다음 기록은 앞 기록보다 최대 3분 뒤까지만 됩니다. 뛰기 카드를 함께 버리면 그만큼 더 멀리 갑니다(3의 배수는 +2, 나머지는 +1).\n· 사원: 첫 차례에는 두 장까지 냅니다. 그 뒤로는 한 장 뽑고 한 장 내거나 쉽니다.\n· 팀장: 첫 차례에는 두 장, 그 뒤로는 한 장 뽑고 시각을 짚습니다. 여러 개를 한꺼번에 짚으면 모두 맞아야 뒤집힙니다.\n· 뒷면 기록을 모두 뒤집으면 팀장이 이깁니다.\n· 사원이 18:00을 내면 퇴근합니다. 단, 들킨 기록 중 가장 늦은 것이 17:49(31) 이하이면 마지막 추궁이 열립니다. 남은 기록을 하나도 틀리지 않고 짚으면 팀장이 이깁니다.","The employee logs the times he slipped away, face down, from 17:18 (0) to 18:00 (42).\n· Each record can be at most 3 minutes after the last. Discarding sprint cards goes further (+2 for multiples of 3, +1 otherwise).\n· Employee: play up to two cards on the first turn. After that, draw one, then play one or pass.\n· Manager: draw two on the first turn, then one each turn, and call times. Calling several at once only flips if all are right.\n· Flip every hidden record and the manager wins.\n· When the employee plays 18:00 he clocks out. But if the latest caught record is 17:49 (31) or earlier, a final grilling starts: call every remaining record without a miss to win."
 CLOSE,닫기,Close
 MANHUNT_BANNER,마지막 추궁!,Final grilling!
 TIP_SKIP,안내 끄기,Skip tips
@@ -61,7 +61,7 @@ TIP_STAFF_FIRST,첫 차례: 빛나는 카드를 두 장까지 가운데 줄로 �
 TIP_STAFF_DRAW,구역 더미 하나를 눌러 한 장 뽑으세요. 뒤 구역일수록 늦은 시각입니다.,Tap a pile to draw a card. Later zones hold later times.
 TIP_STAFF_SLOT,뛰기 카드를 오른쪽 뛰기 칸에 끌어 놓으면 더 멀리 갑니다. 필요 없는 뛰기 카드를 넣으면 팀장을 헷갈리게 할 수 있습니다.,Drop sprint cards in the slot to go further. Extra sprints throw the manager off.
 TIP_CHIEF_DRAW,더미에서 카드를 뽑으세요. 내 손에 든 번호는 사원의 기록일 수 없습니다.,Draw from a pile. Numbers in your hand can't be his records.
-TIP_CHIEF_MEMO,"메모판에서 흐린 번호는 이미 불가능한 시각입니다. 남은 번호를 골라 [짚기]를 누르고, 의심이 풀린 번호는 직접 지우기로 지워 두세요.",Greyed numbers on the notepad are impossible. Pick one and Call it; cross out numbers you have ruled out.
+TIP_CHIEF_MEMO,"메모판에서 흐린 번호는 이미 불가능한 시각입니다. 남은 번호를 골라 [짚기]를 누르고, 아니라고 판단한 번호는 [직접 지우기]로 지워 두세요.",Greyed numbers on the notepad are impossible. Pick one and Call it; cross out numbers you have ruled out.
 TIP_CHIEF_MANHUNT,마지막 추궁: 남은 기록을 하나씩 짚으세요. 한 번이라도 틀리면 사원이 퇴근합니다.,Final grilling: call the rest one at a time. One miss and he clocks out.
 RESULT_STATS,"사원 %d차례 · 짚기 %d번 맞힘, %d번 틀림","%d employee turns · %d hits, %d misses"
 RESULT_ROW,오늘의 기록 (빨강: 들킨 기록),Today's records (red: caught)
@@ -81,16 +81,16 @@ ODD,홀수,Odd
 EVEN,짝수,Even
 TITLE_EVENTS_ON,사건 카드: 켬,Event cards: On
 TITLE_EVENTS_OFF,사건 카드: 끔,Event cards: Off
-LOG_EVENT,%s: 사건 「%s」,%s drew event “%s”
+LOG_EVENT,%s: 사건 「%s」,%s drew an event: “%s”
 CLUE_ZONE, → %d번 기록은 %s, → record #%d is in %s
 CLUE_PARITY, → %d번 기록은 %s, → record #%d is %s
 CLUE_HAND, → 사원 손패에 %s, → his hand has %s
-LOG_BELOW, · %s보다 이른 기록 %d장, · %s: %d records earlier
-EFFECT_NO_PLACE,긴급 회의: 이번엔 기록을 못 내요,Meeting: no record this turn
-EFFECT_ONE_GUESS,회의 중: 시각 1개만 짚어요,In a meeting: call one time only
-EFFECT_NO_DRAW,통화 중: 뽑기 없음,On a call: no draw
-EFFECT_CORRIDOR,복도: 틀려도 이른 기록 수를 알려 줘요,Hallway: a miss still tells how many are earlier
-EFFECT_BONUS,엘리베이터: +%d칸,Elevator: +%d
+LOG_BELOW, · %s보다 이른 기록 %d장, · earlier than %s: %d records
+EFFECT_NO_PLACE,긴급 회의: 이번 차례엔 기록을 낼 수 없습니다,Meeting: no record this turn
+EFFECT_ONE_GUESS,회의 중: 시각을 1개만 짚을 수 있습니다,In a meeting: call one time only
+EFFECT_NO_DRAW,통화 중: 이번 차례엔 뽑지 않습니다,On a call: no draw this turn
+EFFECT_CORRIDOR,복도: 틀려도 그보다 이른 기록 수를 알 수 있습니다,Hallway: a miss still tells how many records are earlier
+EFFECT_BONUS,엘리베이터: 뛰기 +%d,Elevator: sprint +%d
 RULES_EVENTS,· 사건 카드: 더미마다 2장씩 섞여 있습니다. 뽑으면 바로 처리하고 1장 더 뽑습니다.,"· Event cards: 2 are shuffled into each pile. Resolve one when drawn, then draw again."
 EVENT_0,출입카드 기록,Badge log
 EVENT_0_DESC,가장 이른 뒷면 기록이 어느 구역인지 밝혀집니다,Reveals the zone of his earliest face-down record
@@ -100,23 +100,23 @@ EVENT_2,옆자리 제보,Tip from the next desk
 EVENT_2_DESC,사원 손패 1장이 팀장에게 보입니다,The manager sees one random card in his hand
 EVENT_3,긴급 회의 소집,Emergency meeting
 EVENT_3_DESC,사원은 다음 차례에 기록을 낼 수 없습니다,He can't log a record on his next turn
-EVENT_4,"상태 메시지 ""회의 중""","Status: ""In a meeting"""
+EVENT_4,"상태 메시지 ""회의 중""",Status: “In a meeting”
 EVENT_4_DESC,팀장은 다음 차례에 시각 1개만 짚습니다,The manager may call only one time next turn
 EVENT_5,팀장 통화 중,Manager on a call
 EVENT_5_DESC,팀장은 다음 차례에 카드를 뽑지 않습니다,The manager draws nothing next turn
 EVENT_6,엘리베이터 바로 옴,Elevator's right there
-EVENT_6_DESC,사원은 이번(사원 차례가 아니면 다음) 차례에 공짜로 2칸 더 갑니다,He moves 2 extra for free this turn (or his next)
+EVENT_6_DESC,사원이 이번 차례(팀장이 뽑았으면 사원의 다음 차례)에 뛰기 +2를 공짜로 얻습니다,He gets a free sprint +2 this turn (his next turn if the manager drew it)
 EVENT_7,핑계 준비,Excuse ready
 EVENT_7_DESC,사원이 아무 더미에서 2장 더 뽑습니다,He draws 2 more from any pile
 EVENT_8,회식 공지,Team dinner notice
-EVENT_8_DESC,둘 다 1장씩 더 뽑습니다,Both draw 1 more
+EVENT_8_DESC,둘 다 아무 더미에서 1장씩 더 뽑습니다,Both draw 1 more from any pile
 EVENT_9,복도에서 마주침,Bump in the hallway
 EVENT_9_DESC,팀장의 다음 짚기가 틀려도 그 시각보다 이른 기록이 몇 장인지 알게 됩니다,"If the manager's next call misses, he still learns how many records are earlier"
 TITLE_WEEK,한 주 시작 (월~금),Start a week (Mon–Fri)
 TITLE_CONTINUE,이어 하기: %s (%d/%d),Continue: %s (%d/%d)
 RECORDS_BTN,기록,Records
 RECORDS_NONE,%s: 아직 둔 판이 없습니다,%s: no games yet
-RECORDS_LINE,%s: %d판 · 승률 %d%% · 평균 사원 %s차례 · 마지막 추궁 승률 %s · 끝낸 주 %d (최고 %s),%s: %d games · %d%% won · avg %s employee turns · final call won %s · weeks %d (best %s)
+RECORDS_LINE,%s: %d판 · 승률 %d%% · 평균 사원 %s차례 · 마지막 추궁 승률 %s · 끝낸 주 %d (최고 %s),%s: %d games · %d%% won · avg %s employee turns · final grilling won %s · weeks %d (best %s)
 DAY_0,월요일,Monday
 DAY_1,화요일,Tuesday
 DAY_2,수요일,Wednesday
@@ -124,7 +124,7 @@ DAY_3,목요일,Thursday
 DAY_4,금요일,Friday
 TABLE_DAY,%s · %d/%d,%s · %d/%d
 TABLE_EVENTS, · 사건 카드, · Event cards
-RESULT_NEXT_DAY,다음 날: %s,Next: %s
+RESULT_NEXT_DAY,다음 날: %s,Next day: %s
 RESULT_NEW_WEEK,새 주 시작,New week
 WEEK_SCORE_STAFF,이번 주 정시 퇴근 %d번 (%d판),On-time clock-outs this week: %d of %d
 WEEK_SCORE_CHIEF,이번 주 잡은 땡땡이 %d번 (%d판),Slackers caught this week: %d of %d
