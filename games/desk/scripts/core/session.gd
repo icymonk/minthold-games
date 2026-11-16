@@ -7,13 +7,13 @@ var human: int
 var bot: Bot
 
 
-func _init(human_side: int, streams: RngStreams, persona: Bot.Persona = Bot.Persona.CAREFUL) -> void:
+func _init(human_side: int, streams: RngStreams, level: Bot.Level = Bot.Level.NORMAL, persona: Bot.Persona = Bot.Persona.CAREFUL) -> void:
 	m = Match.deal(streams.deal)
 	human = human_side
 	if human == Match.Side.STAFF:
-		bot = ChiefBot.new(streams.bots, persona)
+		bot = ChiefBot.new(streams.bots, persona, level)
 	else:
-		bot = StaffBot.new(streams.bots, persona)
+		bot = StaffBot.new(streams.bots, persona, level)
 
 
 func view() -> Knowledge:
@@ -45,4 +45,4 @@ func ai_step() -> bool:
 	var moves := m.legal_moves(m.side)
 	if moves.is_empty():
 		return false
-	return m.apply(bot.choose(Knowledge.of(m, m.side), moves)) or m.apply(moves[0])
+	return m.apply(bot.pick(Knowledge.of(m, m.side), moves)) or m.apply(moves[0])

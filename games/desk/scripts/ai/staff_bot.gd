@@ -14,8 +14,8 @@ const DRAW_WINDOW := 5
 const A := Match.Action
 
 
-func _init(r: RandomNumberGenerator, p: Bot.Persona = Bot.Persona.CAREFUL) -> void:
-	super(Match.Side.STAFF, r, p)
+func _init(r: RandomNumberGenerator, p: Bot.Persona = Bot.Persona.CAREFUL, l: Bot.Level = Bot.Level.HARD) -> void:
+	super(Match.Side.STAFF, r, p, l)
 
 
 func choose(k: Knowledge, moves: Array[Dictionary]) -> Dictionary:

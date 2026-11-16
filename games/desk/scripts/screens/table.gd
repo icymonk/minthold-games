@@ -48,6 +48,7 @@ var _tip_label: Label
 var _tip_key := &""
 var _manhunt_bar: Label
 var _timer: Timer
+var _deduce: Deduce
 var _portrait: TextureRect
 var _mute_btn: Button
 var _stamp: Label
@@ -59,7 +60,7 @@ var _reaction := &""
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	var streams: RngStreams = Game.rng if Game.rng != null else RngStreams.new(Game.run_seed)
-	session = Session.new(Game.side(), streams)
+	session = Session.new(Game.side(), streams, Game.level)
 	_timer = Timer.new()
 	_timer.one_shot = true
 	_timer.wait_time = AI_DELAY
@@ -77,6 +78,7 @@ func _on_tick() -> void:
 ## 상태가 바뀔 때마다 전부 다시 그린다.
 func refresh() -> void:
 	_k = session.view()
+	_deduce = null
 	if not session.waiting_for_human():
 		_picked.clear()
 	else:
@@ -396,6 +398,11 @@ func _draw_row() -> void:
 		if h.card == Knowledge.HIDDEN:
 			box.add_child(Art.picture(Art.EMPTY_CHAIR, Vector2(CARD_SIZE.x - 16, 72)))
 			box.add_child(_text(tr("CARD_BACK"), 28, true))
+			var span := hint_range(i)
+			if span.x > 0:
+				var hint := _text(tr("RANGE_HINT") % [span.x, span.y], 16)
+				hint.modulate = Color(Style.INK, 0.6)
+				box.add_child(hint)
 		else:
 			box.add_child(Art.picture(Art.zone(h.card), Vector2(CARD_SIZE.x - 16, 48)))
 			box.add_child(_text(Cards.time_text(h.card), 26, true))
@@ -459,6 +466,22 @@ func _draw_memo() -> void:
 
 
 ## 뒷면 기록 중 하나라도 될 수 있는 번호(DP 기준, 자동 지우기).
+## 쉬움에서 팀장에게 보여 주는 뒷면 기록 i의 가능한 번호 범위. 안 보여 줄 때는 (0, 0).
+func hint_range(i: int) -> Vector2i:
+	if Game.level != Bot.Level.EASY or session.human != S.CHIEF or _k.is_known(i):
+		return Vector2i.ZERO
+	if _deduce == null:
+		_deduce = Deduce.run(_k, null, 0)
+	var lo := 0
+	var hi := 0
+	for c in range(1, Cards.LAST):
+		if _deduce.possible(i, c):
+			if lo == 0:
+				lo = c
+			hi = c
+	return Vector2i(lo, hi)
+
+
 func open_numbers() -> Dictionary:
 	var open := {}
 	var hidden: Array[int] = []
@@ -467,7 +490,9 @@ func open_numbers() -> Dictionary:
 			hidden.append(i)
 	if hidden.is_empty():
 		return open
-	var d := Deduce.run(_k, null, 0)
+	if _deduce == null:
+		_deduce = Deduce.run(_k, null, 0)
+	var d := _deduce
 	for i in hidden:
 		for c in range(1, Cards.LAST):
 			if d.possible(i, c):

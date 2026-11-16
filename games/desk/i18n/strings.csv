@@ -53,7 +53,7 @@ SLOT_TITLE,뛰기 칸 +%d (누르면 손패로),Sprint slot +%d (tap to take bac
 SLOT_HINT,뛰기 칸: 뛰기 카드를 끌어 놓으면 더 멀리 갑니다,Sprint slot: drop sprint cards here to go further
 RULES_BTN,규칙,Rules
 RULES_TITLE,규칙 요약,Rules summary
-RULES_BODY,"사원은 17:18(0)부터 18:00(42)까지 몰래 자리를 비운 시각을 뒷면으로 가운데 줄에 냅니다.\n· 다음 기록은 앞 기록보다 최대 3분 뒤까지만 됩니다. 뛰기 카드를 함께 버리면 그만큼 더 멀리 갑니다(3의 배수는 +2, 나머지는 +1).\n· 사원: 첫 차례에는 두 장까지 냅니다. 그 뒤로는 한 장 뽑고 한 장 내거나 쉽니다.\n· 팀장: 첫 차례에는 두 장, 그 뒤로는 한 장 뽑고 시각을 짚습니다. 여러 개를 한꺼번에 짚으면 모두 맞아야 뒤집힙니다.\n· 뒷면 기록을 모두 뒤집으면 팀장이 이깁니다.\n· 사원이 18:00을 내면 퇴근합니다. 단, 들킨 기록 중 가장 늦은 것이 17:47(29) 이하이면 마지막 추궁이 열립니다. 남은 기록을 하나도 틀리지 않고 짚으면 팀장이 이깁니다.","The employee logs the times he slipped away, face down, from 5:18 (0) to 6:00 (42).\n· Each record can be at most 3 minutes after the last. Discarding sprint cards goes further (+2 for multiples of 3, +1 otherwise).\n· Employee: play up to two cards on the first turn. After that, draw one, then play one or pass.\n· Manager: draw two on the first turn, then one each turn, and call times. Calling several at once only flips if all are right.\n· Flip every hidden record and the manager wins.\n· When the employee plays 6:00 he clocks out. But if the latest caught record is 5:47 (29) or earlier, a final grilling starts: call every remaining record without a miss to win."
+RULES_BODY,"사원은 17:18(0)부터 18:00(42)까지 몰래 자리를 비운 시각을 뒷면으로 가운데 줄에 냅니다.\n· 다음 기록은 앞 기록보다 최대 3분 뒤까지만 됩니다. 뛰기 카드를 함께 버리면 그만큼 더 멀리 갑니다(3의 배수는 +2, 나머지는 +1).\n· 사원: 첫 차례에는 두 장까지 냅니다. 그 뒤로는 한 장 뽑고 한 장 내거나 쉽니다.\n· 팀장: 첫 차례에는 두 장, 그 뒤로는 한 장 뽑고 시각을 짚습니다. 여러 개를 한꺼번에 짚으면 모두 맞아야 뒤집힙니다.\n· 뒷면 기록을 모두 뒤집으면 팀장이 이깁니다.\n· 사원이 18:00을 내면 퇴근합니다. 단, 들킨 기록 중 가장 늦은 것이 17:49(31) 이하이면 마지막 추궁이 열립니다. 남은 기록을 하나도 틀리지 않고 짚으면 팀장이 이깁니다.","The employee logs the times he slipped away, face down, from 5:18 (0) to 6:00 (42).\n· Each record can be at most 3 minutes after the last. Discarding sprint cards goes further (+2 for multiples of 3, +1 otherwise).\n· Employee: play up to two cards on the first turn. After that, draw one, then play one or pass.\n· Manager: draw two on the first turn, then one each turn, and call times. Calling several at once only flips if all are right.\n· Flip every hidden record and the manager wins.\n· When the employee plays 6:00 he clocks out. But if the latest caught record is 5:49 (31) or earlier, a final grilling starts: call every remaining record without a miss to win."
 CLOSE,닫기,Close
 MANHUNT_BANNER,마지막 추궁!,Final grilling!
 TIP_SKIP,안내 끄기,Skip tips
@@ -71,3 +71,8 @@ SOUND_ON,소리 켬,Sound on
 SOUND_OFF,소리 끔,Sound off
 STAMP_STAFF,정시 퇴근,Clocked out
 STAMP_CHIEF,땡땡이 적발,Caught slacking
+TITLE_LEVEL,상대 AI: %s,Opponent AI: %s
+LEVEL_0,쉬움,Easy
+LEVEL_1,보통,Normal
+LEVEL_2,어려움,Hard
+RANGE_HINT,%d~%d,%d–%d
