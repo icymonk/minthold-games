@@ -7,16 +7,26 @@ const AI_DELAY := 0.6
 const CARD_SIZE := Vector2(104, 140)
 const CELL_SIZE := Vector2(38, 34)
 const LOG_LINES := 9
+const FLIP_TIME := 0.35
+const BANNER_TIME := 1.6
 
 var session: Session
 var _k: Knowledge
-var _picked := -1
+var _picked: Array[int] = []
+## 팀장이 직접 지운 번호.
+var marks := {}
+var _mark_mode := false
+var _shown_history := 0
+var _flipped := {}
 
 var _clock: HBoxContainer
 var _decks: HBoxContainer
 var _row: HFlowContainer
 var _memo_box: VBoxContainer
 var _memo: GridContainer
+var _mark_btn: Button
+var _warn: Label
+var _banner: Label
 var _hand: HFlowContainer
 var _status: Label
 var _log: Label
@@ -47,8 +57,11 @@ func _on_tick() -> void:
 ## 상태가 바뀔 때마다 전부 다시 그린다.
 func refresh() -> void:
 	_k = session.view()
-	if not session.waiting_for_human() or _is_revealed(_picked):
-		_picked = -1
+	if not session.waiting_for_human():
+		_picked.clear()
+	else:
+		_picked.assign(_picked.filter(func(n: int) -> bool: return not _is_revealed(n)))
+	_announce()
 	_draw_clock()
 	_draw_decks()
 	_draw_row()
@@ -130,7 +143,13 @@ func _build() -> void:
 	mid.add_child(_decks)
 	var row_box := VBoxContainer.new()
 	row_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row_box.add_child(_text(tr("ROW_TITLE"), 22, true))
+	var row_head := HBoxContainer.new()
+	row_head.add_theme_constant_override(&"separation", 24)
+	row_head.add_child(_text(tr("ROW_TITLE"), 22, true))
+	_banner = _text("", 24, true)
+	_banner.modulate.a = 0.0
+	row_head.add_child(_banner)
+	row_box.add_child(row_head)
 	_row = HFlowContainer.new()
 	_row.add_theme_constant_override(&"h_separation", 8)
 	_row.add_theme_constant_override(&"v_separation", 8)
@@ -142,12 +161,23 @@ func _build() -> void:
 	low.add_theme_constant_override(&"separation", 24)
 	col.add_child(low)
 	_memo_box = VBoxContainer.new()
-	_memo_box.add_child(_text(tr("MEMO_TITLE"), 22, true))
+	var memo_head := HBoxContainer.new()
+	memo_head.add_theme_constant_override(&"separation", 16)
+	memo_head.add_child(_text(tr("MEMO_TITLE"), 22, true))
+	_mark_btn = Button.new()
+	_mark_btn.toggle_mode = true
+	_mark_btn.add_theme_font_size_override(&"font_size", 18)
+	_mark_btn.toggled.connect(func(on: bool) -> void: set_mark_mode(on))
+	memo_head.add_child(_mark_btn)
+	_memo_box.add_child(memo_head)
 	_memo = GridContainer.new()
 	_memo.columns = 14
 	_memo.add_theme_constant_override(&"h_separation", 4)
 	_memo.add_theme_constant_override(&"v_separation", 4)
 	_memo_box.add_child(_memo)
+	_warn = _text("", 20)
+	_warn.modulate = Style.ALERT
+	_memo_box.add_child(_warn)
 	low.add_child(_memo_box)
 	var log_box := VBoxContainer.new()
 	log_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -218,7 +248,8 @@ func _draw_decks() -> void:
 
 func _draw_row() -> void:
 	_clear(_row)
-	for h in _k.hideouts:
+	for i in _k.hideouts.size():
+		var h: Dictionary = _k.hideouts[i]
 		var card := PanelContainer.new()
 		card.custom_minimum_size = CARD_SIZE
 		var face: bool = h.revealed
@@ -244,6 +275,11 @@ func _draw_row() -> void:
 			l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		card.add_child(box)
 		_row.add_child(card)
+		if face and i > 0 and not _flipped.has(i):
+			_flipped[i] = true
+			card.pivot_offset = CARD_SIZE / 2
+			card.scale = Vector2(0, 1)
+			card.create_tween().tween_property(card, ^"scale", Vector2.ONE, FLIP_TIME)
 
 
 func _draw_memo() -> void:
@@ -251,8 +287,10 @@ func _draw_memo() -> void:
 	if not _memo_box.visible:
 		return
 	_clear(_memo)
+	_mark_btn.set_pressed_no_signal(_mark_mode)
+	_mark_btn.text = tr("MEMO_MARK_ON" if _mark_mode else "MEMO_MARK_OFF")
 	var can_guess := not _moves_of(A.GUESS).is_empty()
-	var excluded := _k.excluded()
+	var open := open_numbers()
 	for n in range(1, Cards.LAST):
 		var b := Button.new()
 		b.custom_minimum_size = CELL_SIZE * Vector2(1.6, 1.4)
@@ -260,10 +298,34 @@ func _draw_memo() -> void:
 		b.text = str(n)
 		b.tooltip_text = _time(n)
 		b.toggle_mode = true
-		b.button_pressed = n == _picked
-		b.disabled = not can_guess or excluded.has(n)
-		b.pressed.connect(_on_pick.bind(n))
+		b.button_pressed = n in _picked
+		var struck := not open.has(n)
+		var marked := marks.has(n)
+		if struck:
+			b.modulate.a = 0.25
+		elif marked:
+			b.modulate = Color(Style.ALERT, 0.6)
+		b.disabled = not can_guess or struck or (marked and not _mark_mode)
+		b.pressed.connect(_on_memo.bind(n))
 		_memo.add_child(b)
+	_warn.text = tr("MULTI_WARN") % _picked.size() if _picked.size() > 1 else ""
+
+
+## 뒷면 기록 중 하나라도 될 수 있는 번호(DP 기준, 자동 지우기).
+func open_numbers() -> Dictionary:
+	var open := {}
+	var hidden: Array[int] = []
+	for i in _k.hideouts.size():
+		if not _k.hideouts[i].revealed:
+			hidden.append(i)
+	if hidden.is_empty():
+		return open
+	var d := Deduce.run(_k, null, 0)
+	for i in hidden:
+		for c in range(1, Cards.LAST):
+			if d.possible(i, c):
+				open[c] = true
+	return open
 
 
 func _draw_hand() -> void:
@@ -289,7 +351,8 @@ func _draw_actions() -> void:
 	_pass.visible = session.human == S.STAFF
 	_pass.disabled = _moves_of(A.PASS).is_empty()
 	_guess.visible = session.human == S.CHIEF
-	_guess.disabled = _picked < 0
+	_guess.disabled = _picked.is_empty()
+	_guess.text = tr("BTN_GUESS") if _picked.size() <= 1 else tr("BTN_GUESS_N") % _picked.size()
 	_status.text = _status_text()
 
 
@@ -355,13 +418,42 @@ func _draw_overlay() -> void:
 
 func _play(mv: Dictionary) -> void:
 	if session.play(mv):
-		_picked = -1
+		_picked.clear()
 		refresh()
 
 
-func _on_pick(n: int) -> void:
-	_picked = -1 if _picked == n else n
+func _on_memo(n: int) -> void:
+	if _mark_mode:
+		if marks.has(n):
+			marks.erase(n)
+		else:
+			marks[n] = true
+		_picked.erase(n)
+	elif n in _picked:
+		_picked.erase(n)
+	elif session.m.phase == Match.Phase.MANHUNT:
+		_picked.assign([n])
+	else:
+		_picked.append(n)
 	refresh()
+
+
+func set_mark_mode(on: bool) -> void:
+	_mark_mode = on
+	refresh()
+
+
+## 새로 생긴 짚기 결과를 줄 위에 잠깐 띄운다.
+func _announce() -> void:
+	var h := session.m.history
+	for i in range(_shown_history, h.size()):
+		if h[i].action == A.GUESS:
+			_banner.text = describe(h[i])
+			_banner.modulate = Style.ALERT if h[i].hit else Style.INK
+			var tw := _banner.create_tween()
+			tw.tween_interval(BANNER_TIME)
+			tw.tween_property(_banner, ^"modulate:a", 0.0, 0.4)
+	_shown_history = h.size()
 
 
 func _on_pass() -> void:
@@ -371,8 +463,10 @@ func _on_pass() -> void:
 
 
 func _on_guess() -> void:
-	if _picked >= 0:
-		_play({ side = session.human, action = A.GUESS, numbers = [_picked] as Array[int] })
+	if not _picked.is_empty():
+		var numbers: Array[int] = _picked.duplicate()
+		numbers.sort()
+		_play({ side = session.human, action = A.GUESS, numbers = numbers })
 
 
 # ── 도우미 ────────────────────────────────────────────

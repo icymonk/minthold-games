@@ -101,3 +101,84 @@ func test_revealed_sprint_cards_are_shown_and_struck() -> void:
 	assert_str(six.text).is_equal("6")
 	assert_bool(six.disabled).is_true()
 	Game.role = before
+
+
+## 사원이 2를 내고 쉰 뒤, 팀장(사람)이 5·6을 뽑은 판.
+func _chief_table() -> Control:
+	Game.role = Game.Role.CHIEF
+	Game.rng = RngStreams.new(1)
+	var t: Control = auto_free(TABLE.instantiate())
+	add_child(t)
+	var m := Match.setup([1, 2, 3, 42], [[4, 5, 6], [15, 16], [29, 30]])
+	assert_bool(m.apply({ side = S.STAFF, action = Match.Action.PLACE, card = 2, sprints = [] as Array[int] })).is_true()
+	assert_bool(m.apply({ side = S.STAFF, action = Match.Action.PASS })).is_true()
+	for i in 2:
+		assert_bool(m.apply({ side = S.CHIEF, action = Match.Action.DRAW, zone = 0 })).is_true()
+	t.session.m = m
+	t.refresh()
+	return t
+
+
+func _memo_button(t: Control, n: int) -> Button:
+	return t._memo.get_child(n - 1)
+
+
+func test_memo_strikes_impossible_numbers() -> void:
+	var before: int = Game.role
+	var t := _chief_table()
+	for n in [1, 2, 3]:
+		assert_bool(_memo_button(t, n).disabled).is_false()
+	for n in [4, 5, 20]:
+		assert_bool(_memo_button(t, n).disabled).is_true()
+	Game.role = before
+
+
+func test_multi_guess_sends_every_pick() -> void:
+	var before: int = Game.role
+	var t := _chief_table()
+	t._on_memo(3)
+	t._on_memo(1)
+	assert_str(t._warn.text).is_not_empty()
+	t._on_guess()
+	var last: Dictionary = t.session.m.history[-1]
+	assert_array(last.numbers).is_equal([1, 3])
+	assert_bool(last.hit).is_false()
+	assert_str(t._banner.text).is_not_empty()
+	Game.role = before
+
+
+func test_manhunt_keeps_single_pick() -> void:
+	var before: int = Game.role
+	var t := _chief_table()
+	t.session.m.phase = Match.Phase.MANHUNT
+	t._on_memo(1)
+	t._on_memo(2)
+	assert_array(t._picked).is_equal([2])
+	Game.role = before
+
+
+func test_manual_marks_lock_numbers() -> void:
+	var before: int = Game.role
+	var t := _chief_table()
+	t._on_memo(3)
+	t.set_mark_mode(true)
+	t._on_memo(3)
+	assert_bool(t.marks.has(3)).is_true()
+	assert_array(t._picked).is_empty()
+	t.set_mark_mode(false)
+	assert_bool(_memo_button(t, 3).disabled).is_true()
+	t.set_mark_mode(true)
+	t._on_memo(3)
+	assert_bool(t.marks.has(3)).is_false()
+	Game.role = before
+
+
+func test_hit_flips_card() -> void:
+	var before: int = Game.role
+	var t := _chief_table()
+	t._on_memo(2)
+	t._on_guess()
+	assert_bool(t.session.m.history[-1].hit).is_true()
+	var card: Control = t._row.get_child(1)
+	assert_float(card.scale.x).is_less(1.0)
+	Game.role = before
