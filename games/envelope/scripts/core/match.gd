@@ -28,6 +28,7 @@ var rng: RandomNumberGenerator
 var pending: Array[Dictionary] = []
 var armed := {}            # 구두쇠 uid → 낸 seat (다음 차례 시작에 발동)
 var seen: Array = []       # seat → { uid: true } 그 자리가 앞면을 본 적 있는 카드
+var located: Array = []    # seat → { uid: 마지막으로 그 카드를 쥐고 있던 걸 안 seat }
 var sniffs: Array[int] = []  # seat → 눈치왕으로 알게 된 범인 자리 (-1 없음, NO_HINT 모름)
 var _effect := {}
 
@@ -60,6 +61,7 @@ static func from_hands(hands_by_kind: Array, play_rng: RandomNumberGenerator = n
 			m.kinds.append(kind)
 		m.hands.append(hand)
 		m.seen.append({})
+		m.located.append({})
 		for uid in hand:
 			m._see(s, uid)
 		m.sniffs.append(NO_HINT)
@@ -283,6 +285,7 @@ func _advance() -> void:
 		C.HR:
 			for u in hands[a[seat]]:
 				_see(seat, u)
+				located[seat][u] = a[seat]
 		C.SNIFFER:
 			var newbie: int = a.keys()[0]
 			sniffs[seat] = newbie if a[newbie] else seat_holding(C.THIEF)
@@ -298,12 +301,16 @@ func _advance() -> void:
 			hands[t].erase(a[t])
 			_to_hand(seat, a[t])
 			_to_hand(t, a[seat])
+			located[seat][a[seat]] = t
+			located[t][a[t]] = seat
 		C.BROADCAST:
 			var ring: Array = _effect.ring
 			for s in ring:
 				hands[s].erase(a[s])
 			for i in ring.size():
-				_to_hand(ring[(i + 1) % ring.size()], a[ring[i]])
+				var to: int = ring[(i + 1) % ring.size()]
+				_to_hand(to, a[ring[i]])
+				located[ring[i]][a[ring[i]]] = to
 		C.SUPPLIES:
 			var u: int = a[seat]
 			for s in players:
@@ -322,6 +329,7 @@ func _advance() -> void:
 				return
 			hands[seat].erase(a[seat])
 			_to_hand(_effect.target, a[seat])
+			located[seat][a[seat]] = _effect.target
 		C.QUITTER:
 			var slot: int = a[seat].slot
 			var card: int = a[seat].card
