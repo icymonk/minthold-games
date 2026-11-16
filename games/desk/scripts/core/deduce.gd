@@ -117,7 +117,8 @@ func _build() -> void:
 			a[h.card] = 1
 		else:
 			for c in range(1, Cards.LAST):
-				if not excl.has(c) and not _missed_single(c, i) and _zone_room(Cards.zone_of(c), i):
+				if not excl.has(c) and not _missed_single(c, i) and _zone_room(Cards.zone_of(c), i) \
+						and _clues_allow(c, i):
 					a[c] = 1
 		allowed.append(a)
 		var bonus: int = 2 * h.sprint_count
@@ -125,7 +126,7 @@ func _build() -> void:
 			bonus = 0
 			for x in h.sprints:
 				bonus += Cards.sprint_of(x)
-		steps.append(Cards.BASE_STEP + bonus)
+		steps.append(Cards.BASE_STEP + bonus + h.get(&"bonus", 0))
 
 
 func _missed_single(c: int, i: int) -> bool:
@@ -133,6 +134,28 @@ func _missed_single(c: int, i: int) -> bool:
 		if ms.numbers.size() == 1 and ms.numbers[0] == c and i < ms.before:
 			return true
 	return false
+
+
+## 사건 단서 중 기록 하나만 보고 판단할 수 있는 것.
+## BELOW는 0장·전부일 때만 여기서 걸고, 나머지는 표본에서 센다.
+func _clues_allow(c: int, i: int) -> bool:
+	for cl in know.clues:
+		match cl.kind:
+			Knowledge.Clue.ZONE when cl.index == i:
+				if Cards.zone_of(c) != cl.zone:
+					return false
+			Knowledge.Clue.PARITY when cl.index == i:
+				if (c % 2 == 1) != cl.odd:
+					return false
+			Knowledge.Clue.HAND when i < cl.before:
+				if c == cl.card:
+					return false
+			Knowledge.Clue.BELOW when i < cl.before:
+				if cl.count == 0 and c < cl.number:
+					return false
+				if cl.count == cl.before - 1 and c >= cl.number:
+					return false
+	return true
 
 
 ## 뒷면 i번이 구역 z 카드여도 그 뒤 어느 시점에서든 받은 장수를 넘지 않는가.
@@ -185,6 +208,9 @@ func _dp() -> void:
 
 
 func _needs_sampling() -> bool:
+	for cl in know.clues:
+		if cl.kind == Knowledge.Clue.BELOW:
+			return true
 	for ms in know.misses:
 		if ms.numbers.size() > 1:
 			return true
@@ -247,6 +273,14 @@ func _pick(w: PackedFloat64Array, lo: int, hi: int, rng: RandomNumberGenerator) 
 
 
 func _path_ok(path: PackedInt32Array) -> bool:
+	for cl in know.clues:
+		if cl.kind == Knowledge.Clue.BELOW:
+			var below := 0
+			for j in range(1, mini(cl.before, path.size())):
+				if path[j] < cl.number:
+					below += 1
+			if below != cl.count:
+				return false
 	for ms in know.misses:
 		if ms.numbers.size() < 2:
 			continue

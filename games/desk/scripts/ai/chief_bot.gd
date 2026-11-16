@@ -51,7 +51,7 @@ func _guess(k: Knowledge, moves: Array[Dictionary]) -> Dictionary:
 	var sure := d.sure()
 	if not sure.is_empty():
 		var nums: Array[int] = sure
-		if k.phase == Match.Phase.MANHUNT:
+		if k.phase == Match.Phase.MANHUNT or k.limits[Match.Side.CHIEF].get(&"one_guess", false):
 			nums = [sure[0]]
 		return { side = side, action = A.GUESS, numbers = nums }
 	var odds := d.odds()

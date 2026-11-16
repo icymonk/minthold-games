@@ -60,7 +60,7 @@ var _reaction := &""
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	var streams: RngStreams = Game.rng if Game.rng != null else RngStreams.new(Game.run_seed)
-	session = Session.new(Game.side(), streams, Game.level)
+	session = Session.new(Game.side(), streams, Game.level, Game.events)
 	_timer = Timer.new()
 	_timer.one_shot = true
 	_timer.wait_time = AI_DELAY
@@ -110,6 +110,8 @@ func describe(rec: Dictionary) -> String:
 		A.DRAW:
 			var who := _side_name(rec.side)
 			var zone := tr("ZONE_%d" % rec.zone)
+			if rec.has(&"event"):
+				return tr("LOG_EVENT") % [who, tr("EVENT_%d" % rec.event)] + clue_text(rec)
 			if rec.side == me:
 				return tr("LOG_DRAW_SEEN") % [who, zone, _time(rec.card)]
 			return tr("LOG_DRAW_HIDDEN") % [who, zone]
@@ -126,7 +128,25 @@ func describe(rec: Dictionary) -> String:
 			var names := PackedStringArray()
 			for n in rec.numbers:
 				names.append(_time(n))
-			return tr("LOG_GUESS") % [", ".join(names), tr("HIT" if rec.hit else "MISS")]
+			var line: String = tr("LOG_GUESS") % [", ".join(names), tr("HIT" if rec.hit else "MISS")]
+			if rec.has(&"below"):
+				line += tr("LOG_BELOW") % [_time(rec.below.number), rec.below.count]
+			return line
+	return ""
+
+
+## 사건 단서 한 줄(양쪽 모두 아는 정보).
+func clue_text(rec: Dictionary) -> String:
+	if not rec.has(&"clue"):
+		return ""
+	var c: Dictionary = rec.clue
+	match rec.event:
+		Events.Id.BADGE:
+			return tr("CLUE_ZONE") % [c.index, tr("ZONE_%d" % c.zone)]
+		Events.Id.CCTV:
+			return tr("CLUE_PARITY") % [c.index, tr("ODD" if c.odd else "EVEN")]
+		Events.Id.TIP_OFF:
+			return tr("CLUE_HAND") % _time(c.card)
 	return ""
 
 
@@ -330,7 +350,7 @@ func _build_rules() -> void:
 	box.custom_minimum_size = Vector2(900, 0)
 	pad.add_child(box)
 	box.add_child(_text(tr("RULES_TITLE"), 32, true))
-	var body := _text(tr("RULES_BODY"), 20)
+	var body := _text(tr("RULES_BODY") + ("\n" + tr("RULES_EVENTS") if session.m.events_on else ""), 20)
 	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(body)
 	box.add_child(_big_button(tr("CLOSE"), show_rules.bind(false)))
@@ -398,6 +418,12 @@ func _draw_row() -> void:
 		if h.card == Knowledge.HIDDEN:
 			box.add_child(Art.picture(Art.EMPTY_CHAIR, Vector2(CARD_SIZE.x - 16, 72)))
 			box.add_child(_text(tr("CARD_BACK"), 28, true))
+			for cl in _k.clues:
+				if cl.get(&"index", -1) == i:
+					var tag := tr("ZONE_%d" % cl.zone) if cl.kind == Knowledge.Clue.ZONE else tr("ODD" if cl.odd else "EVEN")
+					var clue := _text(tag, 16, true)
+					clue.modulate = Style.ALERT
+					box.add_child(clue)
 			var span := hint_range(i)
 			if span.x > 0:
 				var hint := _text(tr("RANGE_HINT") % [span.x, span.y], 16)
@@ -552,6 +578,27 @@ func _draw_actions() -> void:
 
 
 func _status_text() -> String:
+	var notes := effect_notes()
+	var s := _base_status()
+	return s if notes.is_empty() else s + "  ·  " + "  ·  ".join(notes)
+
+
+## 지금 차례인 쪽에 걸린 사건 효과.
+func effect_notes() -> PackedStringArray:
+	var out := PackedStringArray()
+	var m := session.m
+	if m.is_over():
+		return out
+	var l: Dictionary = m.limits[m.side]
+	for key in [&"no_place", &"one_guess", &"no_draw", &"corridor"]:
+		if l.get(key, false):
+			out.append(tr("EFFECT_" + String(key).to_upper()))
+	if m.bonus() > 0:
+		out.append(tr("EFFECT_BONUS") % m.bonus())
+	return out
+
+
+func _base_status() -> String:
 	if session.is_over():
 		return ""
 	if not session.waiting_for_human():
@@ -780,7 +827,7 @@ func _on_memo(n: int) -> void:
 		_picked.erase(n)
 	elif n in _picked:
 		_picked.erase(n)
-	elif session.m.phase == Match.Phase.MANHUNT:
+	elif session.m.phase == Match.Phase.MANHUNT or session.m.limited(S.CHIEF, &"one_guess"):
 		_picked.assign([n])
 	else:
 		_picked.append(n)
@@ -798,6 +845,12 @@ func _announce() -> void:
 	for i in range(_shown_history, h.size()):
 		_sound_of(h[i])
 		_reaction = &""
+		if h[i].has(&"event"):
+			_banner.text = tr("EVENT_%d" % h[i].event) + " — " + tr("EVENT_%d_DESC" % h[i].event)
+			_banner.modulate = Style.INK
+			var te := _banner.create_tween()
+			te.tween_interval(BANNER_TIME * 1.5)
+			te.tween_property(_banner, ^"modulate:a", 0.0, 0.4)
 		if h[i].action == A.GUESS:
 			_reaction = &"chief_cheer0" if h[i].hit else &"staff_cheer0"
 			_banner.text = describe(h[i])

@@ -7,8 +7,8 @@ var human: int
 var bot: Bot
 
 
-func _init(human_side: int, streams: RngStreams, level: Bot.Level = Bot.Level.NORMAL, persona: Bot.Persona = Bot.Persona.CAREFUL) -> void:
-	m = Match.deal(streams.deal)
+func _init(human_side: int, streams: RngStreams, level: Bot.Level = Bot.Level.NORMAL, events := false, persona: Bot.Persona = Bot.Persona.CAREFUL) -> void:
+	m = Match.deal(streams.deal, events)
 	human = human_side
 	if human == Match.Side.STAFF:
 		bot = ChiefBot.new(streams.bots, persona, level)
