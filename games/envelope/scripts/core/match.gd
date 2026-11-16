@@ -4,8 +4,12 @@ extends RefCounted
 ## 카드는 판 안에서 고유 번호(uid)로 다룬다. `kinds[uid]`가 카드 종류(Cards.Id).
 
 signal moved(move: Dictionary)
+signal asked(request: Dictionary)
 
 enum Action { PLAY, ENVELOPE, NOTE }
+
+const C := Cards.Id
+const NO_HINT := -2
 
 var players: int
 var target: int
@@ -19,6 +23,13 @@ var out: Array[bool] = []
 var turn := 0
 var history: Array[Dictionary] = []
 var rng: RandomNumberGenerator
+## 능력이 고르기를 기다리는 동안 쌓이는 결정 요청. 비어 있어야 다음 행동을 할 수 있다.
+## { seat, ask: StringName, options: Array, by: 능력을 쓴 seat, kind: 능력 카드 종류 }
+var pending: Array[Dictionary] = []
+var armed := {}            # 구두쇠 uid → 낸 seat (다음 차례 시작에 발동)
+var seen: Array = []       # seat → { uid: true } 그 자리가 앞면을 본 적 있는 카드
+var sniffs: Array[int] = []  # seat → 눈치왕으로 알게 된 범인 자리 (-1 없음, NO_HINT 모름)
+var _effect := {}
 
 
 ## 섞어서 똑같이 나누고, 총무를 가진 사람부터 시작한다.
@@ -48,6 +59,10 @@ static func from_hands(hands_by_kind: Array, play_rng: RandomNumberGenerator = n
 			hand.append(m.kinds.size())
 			m.kinds.append(kind)
 		m.hands.append(hand)
+		m.seen.append({})
+		for uid in hand:
+			m._see(s, uid)
+		m.sniffs.append(NO_HINT)
 		m.face_up.append([] as Array[int])
 		m.notes.append([] as Array[int])
 		m.out.append(hand.size() <= 1)
@@ -70,12 +85,19 @@ func seat_holding(card_kind: int) -> int:
 
 
 func is_over() -> bool:
-	return not out.has(false)
+	return pending.is_empty() and not out.has(false)
+
+
+func request_for(seat: int) -> Dictionary:
+	for r in pending:
+		if r.seat == seat:
+			return r
+	return {}
 
 
 func legal_moves(seat: int) -> Array[Dictionary]:
 	var moves: Array[Dictionary] = []
-	if is_over() or seat != turn:
+	if is_over() or seat != turn or not pending.is_empty():
 		return moves
 	for uid in hands[seat]:
 		if not Cards.playable(kinds[uid]):
@@ -90,7 +112,7 @@ func legal_moves(seat: int) -> Array[Dictionary]:
 
 func is_legal(move: Dictionary) -> bool:
 	var seat: int = move.get(&"seat", -1)
-	if is_over() or seat != turn:
+	if is_over() or seat != turn or not pending.is_empty():
 		return false
 	var uid: int = move.get(&"card", -1)
 	if not uid in hands[seat] or not Cards.playable(kinds[uid]):
@@ -112,21 +134,204 @@ func apply(move: Dictionary) -> bool:
 	match move.action:
 		Action.PLAY:
 			face_up[seat].append(uid)
+			for p in players:
+				_see(p, uid)
 		Action.ENVELOPE:
 			envelope.append(uid)
 		Action.NOTE:
 			notes[move.to].append(uid)
 	history.append(move)
-	_end_turn(seat)
+	if move.action == Action.PLAY:
+		_begin_ability(seat, uid)
+	if pending.is_empty():
+		_end_turn(seat)
 	moved.emit(move)
+	_announce()
 	return true
 
 
+## 결정 요청에 답한다. 요청이 없거나 보기에 없는 답이면 false.
+func answer(seat: int, choice: Variant) -> bool:
+	var req := request_for(seat)
+	if req.is_empty() or not req.options.has(choice):
+		return false
+	pending.erase(req)
+	_effect.answers[seat] = choice
+	history.append({ seat = seat, ask = req.ask, answer = choice })
+	if pending.is_empty():
+		_advance()
+		_announce()
+	return true
+
+
+## 듣는 쪽이 신호 안에서 바로 answer()해도 남은 요청을 빠뜨리지 않는다.
+func _announce() -> void:
+	for r in pending.duplicate():
+		if pending.has(r):
+			asked.emit(r)
+
+
 func _end_turn(seat: int) -> void:
+	_effect = {}
 	if hands[seat].size() <= 1:
 		out[seat] = true
-	if not is_over():
-		turn = _next_seat(seat)
+	if not out.has(false):
+		return
+	turn = _next_seat(seat)
+	_check_miser(turn)
+
+
+func _check_miser(seat: int) -> void:
+	for uid in face_up[seat]:
+		if armed.get(uid, -1) == seat:
+			armed.erase(uid)
+			if not envelope.is_empty():
+				_effect = { kind = C.MISER, seat = seat, step = &"", answers = {} }
+				_ask(seat, &"MISER_TAKE", range(envelope.size()))
+				return
+
+
+func _see(seat: int, uid: int) -> void:
+	seen[seat][uid] = true
+
+
+func _ask(seat: int, ask: StringName, options: Array) -> void:
+	pending.append({ seat = seat, ask = ask, options = options, by = _effect.seat, kind = _effect.kind })
+
+
+func _others(seat: int) -> Array:
+	return range(players).filter(func(s: int) -> bool: return s != seat)
+
+
+func _to_hand(seat: int, uid: int) -> void:
+	hands[seat].append(uid)
+	placed_by.erase(uid)
+	_see(seat, uid)
+
+
+## 기획서 3장 능력표. 고를 것이 없으면 능력은 건너뛴다.
+func _begin_ability(seat: int, uid: int) -> void:
+	var k := kinds[uid]
+	_effect = { kind = k, seat = seat, step = &"", answers = {} }
+	match k:
+		C.BUDDY:
+			var opts := []
+			for from in players:
+				for n in notes[from]:
+					for to in players:
+						if to != from:
+							opts.append({ note = n, to = to })
+			if not opts.is_empty():
+				_ask(seat, &"NOTE_MOVE", opts)
+		C.MISER:
+			armed[uid] = seat
+		C.ACCOUNTANT:
+			for u in envelope:
+				_see(seat, u)
+		C.HR:
+			_ask(seat, &"PEEK_HAND", _others(seat))
+		C.SNIFFER:
+			var newbie := seat_holding(C.NEWBIE)
+			if newbie >= 0 and newbie != seat:
+				_ask(newbie, &"CLAIM", [false, true])
+			else:
+				sniffs[seat] = seat_holding(C.THIEF)
+		C.BUSYBODY:
+			_ask(seat, &"SWAP_TARGET", _others(seat))
+		C.BROADCAST:
+			var ring := range(players).filter(func(s: int) -> bool: return hands[s].size() >= 2)
+			if ring.size() >= 2:
+				_effect.ring = ring
+				for s in ring:
+					_ask(s, &"PASS", hands[s].duplicate())
+		C.SUPPLIES:
+			var opts := []
+			for s in _others(seat):
+				for u in face_up[s]:
+					if kinds[u] != C.SUPPLIES:
+						opts.append(u)
+			if not opts.is_empty():
+				_ask(seat, &"TAKE_FACE_UP", opts)
+		C.BOSS:
+			_ask(seat, &"DRAW_FROM", _others(seat))
+		C.QUITTER:
+			var opts := []
+			for slot in envelope.size():
+				for u in hands[seat]:
+					opts.append({ slot = slot, card = u })
+			if not opts.is_empty():
+				_ask(seat, &"ENVELOPE_SWAP", opts)
+
+
+func _advance() -> void:
+	var seat: int = _effect.seat
+	var a: Dictionary = _effect.answers
+	_effect.answers = {}
+	match _effect.kind:
+		C.BUDDY:
+			var n: int = a[seat].note
+			for s in players:
+				notes[s].erase(n)
+			notes[a[seat].to].append(n)
+		C.MISER:
+			var e: int = envelope[a[seat]]
+			envelope.remove_at(a[seat])
+			_to_hand(seat, e)
+			_effect = {}
+			_check_miser(seat)
+			return
+		C.HR:
+			for u in hands[a[seat]]:
+				_see(seat, u)
+		C.SNIFFER:
+			var newbie: int = a.keys()[0]
+			sniffs[seat] = newbie if a[newbie] else seat_holding(C.THIEF)
+		C.BUSYBODY:
+			if _effect.step == &"":
+				_effect.step = &"give"
+				_effect.target = a[seat]
+				_ask(seat, &"SWAP_GIVE", hands[seat].duplicate())
+				_ask(_effect.target, &"SWAP_GIVE", hands[_effect.target].duplicate())
+				return
+			var t: int = _effect.target
+			hands[seat].erase(a[seat])
+			hands[t].erase(a[t])
+			_to_hand(seat, a[t])
+			_to_hand(t, a[seat])
+		C.BROADCAST:
+			var ring: Array = _effect.ring
+			for s in ring:
+				hands[s].erase(a[s])
+			for i in ring.size():
+				_to_hand(ring[(i + 1) % ring.size()], a[ring[i]])
+		C.SUPPLIES:
+			var u: int = a[seat]
+			for s in players:
+				face_up[s].erase(u)
+			armed.erase(u)
+			_to_hand(seat, u)
+		C.BOSS:
+			if _effect.step == &"":
+				var t: int = a[seat]
+				var drawn: int = hands[t][rng.randi_range(0, hands[t].size() - 1)]
+				hands[t].erase(drawn)
+				_to_hand(seat, drawn)
+				_effect.step = &"give"
+				_effect.target = t
+				_ask(seat, &"GIVE_BACK", hands[seat].duplicate())
+				return
+			hands[seat].erase(a[seat])
+			_to_hand(_effect.target, a[seat])
+		C.QUITTER:
+			var slot: int = a[seat].slot
+			var card: int = a[seat].card
+			var e: int = envelope[slot]
+			hands[seat].erase(card)
+			envelope[slot] = card
+			placed_by[card] = seat
+			_to_hand(seat, e)
+	if pending.is_empty():
+		_end_turn(seat)
 
 
 func _next_seat(from: int) -> int:
