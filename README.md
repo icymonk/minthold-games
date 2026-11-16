@@ -11,6 +11,7 @@ Minthold 인디 게임 모노레포 (Godot 4 + GDScript).
 | [looseend](games/looseend) | 끝이 어디야? (Loose End) | (준비 중) |
 | [envelope](games/envelope) | 봉투는 돌고 돈다 (Pass the Envelope) | https://minthold-envelope.web.app |
 | [postage](games/postage) | 우표 붙이는 우체국 (Postage Paid) | (준비 중) |
+| [hive](games/hive) | 꿀 따는 계절 (Honey Season) | (준비 중) |
 
 ## 규칙
 
