@@ -3,7 +3,7 @@ extends Bot
 ## AI 팀장. 뽑기는 사원이 곧 쓸 번호가 든 더미를 막고(길막), 짚기는 Deduce 확률이 가장 높은 번호를 고른다.
 ## 확실한 번호가 있으면 한꺼번에 짚는다.
 
-const SAMPLES := 300
+const SAMPLES := { Bot.Level.EASY: 60, Bot.Level.NORMAL: 200, Bot.Level.HARD: 300 }
 ## 눈치: 가장 최근 뒷면 기록 쪽 번호에 더 기운다.
 const RECENT_BOOST := 0.5
 const DRAW_WINDOW := 6
@@ -11,8 +11,8 @@ const DRAW_WINDOW := 6
 const A := Match.Action
 
 
-func _init(r: RandomNumberGenerator, p: Bot.Persona = Bot.Persona.CAREFUL) -> void:
-	super(Match.Side.CHIEF, r, p)
+func _init(r: RandomNumberGenerator, p: Bot.Persona = Bot.Persona.CAREFUL, l: Bot.Level = Bot.Level.HARD) -> void:
+	super(Match.Side.CHIEF, r, p, l)
 
 
 func choose(k: Knowledge, moves: Array[Dictionary]) -> Dictionary:
@@ -47,7 +47,7 @@ func _draw(k: Knowledge, moves: Array[Dictionary]) -> Dictionary:
 
 
 func _guess(k: Knowledge, moves: Array[Dictionary]) -> Dictionary:
-	var d := Deduce.run(k, rng, SAMPLES)
+	var d := Deduce.run(k, rng, SAMPLES[level])
 	var sure := d.sure()
 	if not sure.is_empty():
 		var nums: Array[int] = sure

@@ -56,3 +56,21 @@ func test_staff_spends_passed_cards_on_sprints_first() -> void:
 	k.hand.assign([4, 9, 12, 15, 42])
 	k.hideouts.assign([_hideout(0), _hideout(10)])
 	assert_array(StaffBot.new(_rng(1)).sprints_for(k, 15)).is_equal([9])
+
+
+func test_levels_blunder_only_below_hard() -> void:
+	for side in [S.STAFF, S.CHIEF]:
+		var b: Dictionary = Bot.BLUNDER[side]
+		assert_float(b[Bot.Level.HARD]).is_equal(0.0)
+		assert_float(b[Bot.Level.EASY]).is_greater(b[Bot.Level.NORMAL])
+		assert_float(b[Bot.Level.NORMAL]).is_greater(0.0)
+	var m := Match.deal(_rng(3))
+	var moves := m.legal_moves(S.STAFF)
+	var k := Knowledge.of(m, S.STAFF)
+	var easy := StaffBot.new(_rng(1), Bot.Persona.CAREFUL, Bot.Level.EASY)
+	var want := StaffBot.new(_rng(1)).choose(k, moves)
+	var differs := 0
+	for i in 40:
+		if easy.pick(k, moves) != want:
+			differs += 1
+	assert_int(differs).is_greater(0)

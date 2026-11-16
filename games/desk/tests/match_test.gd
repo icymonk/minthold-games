@@ -35,11 +35,11 @@ func _setup(hand: Array) -> Match:
 func test_deal_gives_start_hand_and_leaves_decks() -> void:
 	var m := Match.deal(_rng(1))
 	var hand: Array[int] = m.hands[S.STAFF]
-	assert_int(hand.size()).is_equal(9)
+	assert_int(hand.size()).is_equal(11)
 	for c in [1, 2, 3, 42]:
 		assert_bool(c in hand).is_true()
-	assert_int(m.decks[0].size()).is_equal(8)
-	assert_int(m.decks[1].size()).is_equal(12)
+	assert_int(m.decks[0].size()).is_equal(7)
+	assert_int(m.decks[1].size()).is_equal(11)
 	assert_int(m.decks[2].size()).is_equal(13)
 	assert_int(m.hands[S.CHIEF].size()).is_equal(0)
 	assert_int(m.hideouts.size()).is_equal(1)
@@ -170,9 +170,9 @@ func test_multi_guess_reveals_only_if_all_right() -> void:
 
 
 func test_escape_without_manhunt_when_chief_close() -> void:
-	# 앞면 최고 번호가 29보다 크면 42를 내는 순간 사원 승리
+	# 앞면 최고 번호가 MANHUNT_MAX보다 크면 42를 내는 순간 사원 승리
 	var m := Match.setup([1, 31, 33, 36, 39, 42], [[4, 5], [15, 16], [29, 30]])
-	m.hideouts.append({ card = 30, sprints = [] as Array[int], revealed = true })
+	m.hideouts.append({ card = 32, sprints = [] as Array[int], revealed = true })
 	_place(m, 33)
 	_place(m, 36)
 	_draw(m, S.CHIEF, 0)
@@ -181,7 +181,7 @@ func test_escape_without_manhunt_when_chief_close() -> void:
 	assert_int(m.hidden_count()).is_equal(0)
 	assert_int(m.winner).is_equal(S.CHIEF)
 	var m2 := Match.setup([1, 31, 33, 36, 39, 42], [[4, 5], [15, 16], [29, 30]])
-	m2.hideouts.append({ card = 30, sprints = [] as Array[int], revealed = true })
+	m2.hideouts.append({ card = 32, sprints = [] as Array[int], revealed = true })
 	_place(m2, 33)
 	_place(m2, 36)
 	_draw(m2, S.CHIEF, 0)

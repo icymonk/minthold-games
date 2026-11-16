@@ -371,3 +371,18 @@ func test_result_stamp_matches_winner() -> void:
 	assert_bool(Game.played.has(&"stamp")).is_true()
 	Game.role = before
 
+
+func test_easy_chief_sees_ranges_only_on_easy() -> void:
+	var before_role: int = Game.role
+	var before_level: int = Game.level
+	Game.level = Bot.Level.EASY
+	var t := _chief_table()
+	assert_int(t.session.bot.level).is_equal(Bot.Level.EASY)
+	assert_that(t.hint_range(1)).is_equal(Vector2i(1, 3))
+	assert_that(t.hint_range(0)).is_equal(Vector2i.ZERO)
+	Game.level = Bot.Level.HARD
+	t.refresh()
+	assert_that(t.hint_range(1)).is_equal(Vector2i.ZERO)
+	Game.level = before_level
+	Game.role = before_role
+

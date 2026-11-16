@@ -8,14 +8,16 @@ const LAST := 42
 const START_MINUTE := 17 * 60 + 18
 const BASE_STEP := 3
 ## 사원이 42를 냈을 때 앞면 기록의 가장 큰 번호가 이 값 이하면 마지막 추궁(기획서 3.3).
-const MANHUNT_MAX := 29
+## 3-2: 29 → 31로 꼼꼼 vs 꼼꼼 사원 승률 57% → 49%.
+const MANHUNT_MAX := 31
 const ZONE_RANGES := {
 	Zone.FLOOR: Vector2i(4, 14),
 	Zone.BUILDING: Vector2i(15, 28),
 	Zone.OUTSIDE: Vector2i(29, 41),
 }
 const START_HAND: Array[int] = [1, 2, 3, LAST]
-const START_DRAWS := { Zone.FLOOR: 3, Zone.BUILDING: 2 }
+## 3-2 시뮬레이터(꼼꼼 vs 꼼꼼 1500판)로 3·2장에서 사원 승률 26% → 4·3장에서 55%.
+const START_DRAWS := { Zone.FLOOR: 4, Zone.BUILDING: 3 }
 
 
 static func time_text(n: int) -> String:
