@@ -6,6 +6,7 @@ const A := Match.Action
 const AI_DELAY := 0.7
 const CARD_SIZE := Vector2(150, 200)
 const LOG_LINES := 8
+const RESULT_STEPS := 3
 ## 화면 위에서 바로 고르는 결정 요청. 나머지는 보기 목록 창으로 받는다.
 const SEAT_ASKS := [&"PEEK_HAND", &"SWAP_TARGET", &"DRAW_FROM"]
 const HAND_ASKS := [&"SWAP_GIVE", &"PASS", &"GIVE_BACK"]
@@ -24,6 +25,7 @@ var _envelope_label: Label
 var _slots: HFlowContainer
 var _banner: Label
 var _shown_events := 0
+var result_step := 0
 var _target_label: Label
 var _desk: PanelContainer
 var _desk_box: VBoxContainer
@@ -325,42 +327,85 @@ func _show_request(req: Dictionary) -> void:
 		opts.add_child(b)
 
 
+## 결산 연출(기획서 2.1): 봉투 개봉 → 감사 → 정체 공개를 한 단계씩.
 func _show_result(r: Dictionary) -> void:
 	var list := _dialog()
-	list.add_child(_text(40, true, tr("RESULT_TITLE")))
-	var fund_key := "RESULT_FUND_OK" if r.funded else "RESULT_FUND_FAIL"
-	list.add_child(_text(26, false, tr(fund_key) % [money(r.fund), money(r.target)]))
-	for s in _k_players():
-		var role: int = r.roles[s]
-		var row := tr("RESULT_ROW") % [_seat_name(s), tr(Cards.name_key(role)) if role >= 0 else "-", r.suspicion[s]]
-		if r.confined[s]:
-			row += " · " + tr("RESULT_CONFINED")
-		var l := _text(24, s in r.winners, row)
-		if s in r.winners:
-			l.add_theme_color_override(&"font_color", Style.STAMP)
-		list.add_child(l)
+	list.custom_minimum_size = Vector2(760, 0)
+	list.add_child(_text(22, false, tr("RESULT_STEP") % [result_step + 1, RESULT_STEPS]))
+	match result_step:
+		0:
+			list.add_child(_text(40, true, tr("RESULT_OPEN")))
+			var total := 0
+			var row := HFlowContainer.new()
+			for kind in r.envelope_kinds:
+				total += Cards.amount(kind)
+				row.add_child(_chip_text("%s %s" % [tr(Cards.name_key(kind)), money(Cards.amount(kind))], true))
+			list.add_child(row)
+			list.add_child(_stamp(tr("RESULT_FUND_OK" if r.funded else "RESULT_FUND_FAIL") % [money(r.fund), money(r.target)], r.funded))
+		1:
+			list.add_child(_text(40, true, tr("RESULT_AUDIT")))
+			for s in _k_players():
+				var parts := PackedStringArray()
+				for kind in r.note_kinds[s]:
+					parts.append("%d" % Cards.amount(kind))
+				var line := tr("RESULT_AUDIT_ROW") % [_seat_name(s), r.suspicion[s], " + ".join(parts) if not parts.is_empty() else "-"]
+				if r.confined[s]:
+					list.add_child(_stamp(line + " · " + tr("RESULT_CONFINED"), false))
+				else:
+					list.add_child(_text(24, false, line))
+			if not r.confined.has(true):
+				list.add_child(_text(24, true, tr("RESULT_NOBODY_CAUGHT")))
+		_:
+			list.add_child(_text(40, true, tr("RESULT_REVEAL")))
+			for s in _k_players():
+				var role: int = r.roles[s]
+				var line := tr("RESULT_ROW") % [_seat_name(s), tr(Cards.name_key(role)) if role >= 0 else "-", tr("WIN_%s" % Cards.Win.keys()[Cards.win(role)]) if role >= 0 else ""]
+				if s in r.winners:
+					list.add_child(_stamp(line, true))
+				else:
+					list.add_child(_text(24, false, line))
+			list.add_child(_text(30, true, ending_text(r)))
+			if r.no_thief:
+				list.add_child(_text(22, false, tr("RESULT_NO_THIEF")))
+			if Session.HUMAN in r.winners:
+				list.add_child(_stamp(tr("RESULT_YOU_WIN"), true))
+			else:
+				list.add_child(_text(26, true, tr("RESULT_YOU_LOSE")))
+	if result_step < RESULT_STEPS - 1:
+		_dialog_button(list, tr("RESULT_NEXT"), func() -> void:
+			result_step += 1
+			refresh(), true)
+		return
+	_dialog_button(list, tr("RESULT_AGAIN"), func() -> void: Game.start_match(), true)
+	_dialog_button(list, tr("RESULT_SAME_SEED"), func() -> void: Game.start_match(Game.run_seed))
+	_dialog_button(list, tr("BACK_TO_TITLE"), func() -> void: Game.goto(&"title"))
+
+
+func ending_text(r: Dictionary) -> String:
 	if r.winners.is_empty():
-		list.add_child(_text(28, true, tr("RESULT_NOBODY")))
-	else:
-		var names := PackedStringArray()
-		for s in r.winners:
-			names.append(_seat_name(s))
-		list.add_child(_text(28, true, tr("RESULT_WINNERS") % ", ".join(names)))
-	if r.no_thief:
-		list.add_child(_text(22, false, tr("RESULT_NO_THIEF")))
-	var again := Button.new()
-	again.text = tr("RESULT_AGAIN")
-	again.theme_type_variation = &"AccentButton"
-	again.custom_minimum_size = Vector2(0, 64)
-	again.add_theme_font_size_override(&"font_size", 26)
-	again.pressed.connect(func() -> void: Game.start_match())
-	list.add_child(again)
-	var back := Button.new()
-	back.text = tr("BACK_TO_TITLE")
-	back.custom_minimum_size = Vector2(0, 64)
-	back.add_theme_font_size_override(&"font_size", 26)
-	back.pressed.connect(func() -> void: Game.goto(&"title"))
-	list.add_child(back)
+		return tr("RESULT_NOBODY")
+	var names := PackedStringArray()
+	for s in r.winners:
+		names.append(_seat_name(s))
+	return tr("RESULT_WINNERS") % ", ".join(names)
+
+
+func _stamp(value: String, good: bool) -> Label:
+	var l := _text(26, true, value)
+	l.add_theme_color_override(&"font_color", Color.WHITE)
+	l.add_theme_stylebox_override(&"normal", _pad(Style.box(Style.PARTITION.darkened(0.35) if good else Style.STAMP, 8), 10))
+	return l
+
+
+func _dialog_button(list: Container, label: String, on_pressed: Callable, accent := false) -> void:
+	var b := Button.new()
+	b.text = label
+	if accent:
+		b.theme_type_variation = &"AccentButton"
+	b.custom_minimum_size = Vector2(0, 64)
+	b.add_theme_font_size_override(&"font_size", 26)
+	b.pressed.connect(on_pressed)
+	list.add_child(b)
 
 
 ## 놓을 수 있는 곳을 빛낸다(끄는 중이거나 카드를 골랐을 때).

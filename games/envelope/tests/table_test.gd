@@ -67,8 +67,46 @@ func test_table_draws_whole_game_and_result() -> void:
 		t.refresh()
 		assert_bool(t.session.is_over()).is_true()
 		assert_int(t._overlay.get_child_count()).is_greater(0)
+		for step in t.get_script().RESULT_STEPS:
+			assert_int(t.result_step).is_equal(step)
+			var labels := _labels(t._overlay)
+			assert_bool(labels.has(tr("RESULT_STEP") % [step + 1, t.get_script().RESULT_STEPS])).is_true()
+			var next := _button(t._overlay, tr("RESULT_NEXT"))
+			if step < t.get_script().RESULT_STEPS - 1:
+				next.pressed.emit()
+			else:
+				assert_object(next).is_null()
+				assert_object(_button(t._overlay, tr("RESULT_AGAIN"))).is_not_null()
+				assert_bool(labels.has(t.ending_text(t.session.result()))).is_true()
 		t._timer.stop()
 		remove_child(t)
+
+
+func test_settlement_lists_envelope_and_note_kinds() -> void:
+	var C := Cards.Id
+	var m := Match.from_hands([[C.CHAIR, C.HR], [C.THIEF, C.ACCOUNTANT], [C.MISER, C.BUSYBODY]])
+	m.turn = 0
+	m.apply({ seat = 0, action = Match.Action.ENVELOPE, card = m.hands[0][1] })
+	m.apply({ seat = 1, action = Match.Action.NOTE, card = m.hands[1][1], to = 2 })
+	m.apply({ seat = 2, action = Match.Action.ENVELOPE, card = m.hands[2][1] })
+	var r := m.resolve()
+	assert_array(r.envelope_kinds).contains_exactly([C.HR, C.BUSYBODY])
+	assert_array(r.note_kinds[2]).contains_exactly([C.ACCOUNTANT])
+	assert_array(r.note_kinds[0]).is_empty()
+
+
+func _labels(root: Node) -> PackedStringArray:
+	var out := PackedStringArray()
+	for n in root.find_children("*", "Label", true, false):
+		out.append((n as Label).text)
+	return out
+
+
+func _button(root: Node, label: String) -> Button:
+	for n in root.find_children("*", "Button", true, false):
+		if (n as Button).text == label:
+			return n
+	return null
 
 
 func test_drop_on_envelope_plays_selected_card() -> void:
