@@ -9,6 +9,7 @@ Minthold 인디 게임 모노레포 (Godot 4 + GDScript).
 | [rooster](games/rooster) | 닭이 울기 전에 (Before the Rooster Crows) | https://minthold-rooster.web.app |
 | [haul](games/haul) | 막차 택배 (Haul Order) | https://minthold-haul.web.app |
 | [looseend](games/looseend) | 끝이 어디야? (Loose End) | (준비 중) |
+| [envelope](games/envelope) | 봉투는 돌고 돈다 (Pass the Envelope) | https://minthold-envelope.web.app |
 | [postage](games/postage) | 우표 붙이는 우체국 (Postage Paid) | (준비 중) |
 
 ## 규칙
