@@ -395,6 +395,8 @@ func resolve() -> Dictionary:
 		fund = fund, target = target, funded = funded,
 		suspicion = suspicion, confined = confined, roles = roles,
 		no_thief = not roles.has(Cards.Id.THIEF),
+		envelope_kinds = envelope.map(func(u: int) -> int: return kinds[u]),
+		note_kinds = notes.map(func(ns: Array) -> Array: return ns.map(func(u: int) -> int: return kinds[u])),
 		winners = winners, priority = won_priority,
 	}
 

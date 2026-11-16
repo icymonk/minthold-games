@@ -65,7 +65,7 @@ OPT_CLAIM_NO,가만히 있는다,Stay quiet
 RESULT_TITLE,결산,Results
 RESULT_FUND_OK,봉투 %s / 목표 %s: 모금 성공,Envelope %s / goal %s: funded
 RESULT_FUND_FAIL,봉투 %s / 목표 %s: 모금 실패,Envelope %s / goal %s: short
-RESULT_ROW,%s: %s · 쪽지 %d점,%s: %s · suspicion %d
+RESULT_ROW,"%s: %s (%s)","%s: %s (%s)"
 RESULT_CONFINED,걸림,caught
 RESULT_WINNERS,이긴 사람: %s,Winners: %s
 RESULT_NOBODY,선물은 없었다. 모두 졌다.,There was no gift. Everyone loses.
@@ -76,3 +76,19 @@ TABLE_NOTE_PILE,"쪽지: %s","Notes: %s"
 TABLE_HINT,"눈치: 범인은 %s","Hunch: the Skimmer is %s"
 TABLE_HINT_NONE,아무도 아님,nobody
 MONEY_ZERO,0원,$0
+RESULT_STEP,"결산 %d / %d","Results %d / %d"
+RESULT_OPEN,봉투 개봉,Opening the Envelope
+RESULT_AUDIT,감사,The Audit
+RESULT_AUDIT_ROW,"%s: 쪽지 %d점 (%s)","%s: suspicion %d (%s)"
+RESULT_NOBODY_CAUGHT,의심이 모두 같아 아무도 걸리지 않았다,"Suspicion is tied, nobody is caught"
+RESULT_REVEAL,정체 공개,The Reveal
+RESULT_NEXT,다음,Next
+RESULT_SAME_SEED,같은 판 다시,Replay This Deal
+RESULT_YOU_WIN,내가 이겼다!,You win!
+RESULT_YOU_LOSE,나는 졌다,You lose
+WIN_CONFINED,걸리면 승리,wins if caught
+WIN_NOT_CONFINED,안 걸리면 승리,wins if not caught
+WIN_THIEF_WINS,봉투 털이가 이기면 승리,wins with the Skimmer
+WIN_FUND_FAILED,모금 실패면 승리,wins if the fund fails
+WIN_FUND_OK,모금 성공이면 승리,wins if funded
+WIN_NOBODY_WON,아무도 못 이기면 승리,wins if nobody else does
