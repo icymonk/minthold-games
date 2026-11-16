@@ -86,10 +86,26 @@ static func is_ally(kind: StringName) -> bool:
 	return ALLIES.has(kind) or FORMS.has(kind)
 
 
+## 칸 모양에 맞춰 그린 그림. 변신 형태도 자기 그림이 있다.
 static func texture(kind: StringName) -> Texture2D:
-	if FORMS.has(kind):
-		kind = FORMS[kind]["base"]
 	if not _textures.has(kind):
-		var dir := "yokai" if ALLIES.has(kind) else "enemies"
+		var dir := "yokai" if is_ally(kind) else "enemies"
 		_textures[kind] = load("res://assets/%s/%s.png" % [dir, kind])
 	return _textures[kind]
+
+
+## 카드·정보 패널용 정사각 그림. 변신 형태는 모양 그림을 그대로 쓴다.
+static func icon(kind: StringName) -> Texture2D:
+	if not ALLIES.has(kind):
+		return texture(kind)
+	var key := StringName("icon_" + kind)
+	if not _textures.has(key):
+		_textures[key] = load("res://assets/yokai/icons/%s.png" % kind)
+	return _textures[key]
+
+
+## 그림이 그려진 기준(회전 전) 모양.
+static func base_cells(kind: StringName) -> Array[Vector2i]:
+	var out: Array[Vector2i] = []
+	out.assign((ALLIES[kind] if ALLIES.has(kind) else FORMS[kind])["cells"])
+	return out

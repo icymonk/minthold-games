@@ -282,6 +282,7 @@ func _bar(pos: Vector2, width: float, st: Dictionary) -> void:
 func _draw_ally(u: BattleSim.Unit, st: Dictionary) -> void:
 	Ink.draw_paper_shape(self, BAG_POS, u.cells, CELL)
 	Ink.draw_portrait(self, BAG_POS, u.cells, CELL, u.kind)
+	Ink.draw_shape(self, BAG_POS, u.cells, CELL, Color(0, 0, 0, 0), Ink.INK, 3)
 	var c := BAG_POS + Ink.centroid(u.cells) * CELL
 	_bar(c + Vector2(-38, 30), 76, st)
 	Ink.draw_badge(self, c + Vector2(-24, -30), st["atk"], Ink.VERMILION, null, 15)
