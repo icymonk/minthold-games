@@ -2,7 +2,7 @@ extends Control
 ## 전투 재생 화면. BattleSim이 미리 계산한 이벤트를 시간 순서대로 보여 준다.
 
 const BAG_POS := Vector2(100, 392)
-const CELL := 96.0
+const CELL := 88.0
 const ENEMY_X0 := 860.0
 const ENEMY_GAP := 130.0
 const LOG_RECT := Rect2(80, 830, 1060, 220)
@@ -225,7 +225,7 @@ func _draw() -> void:
 	_draw_gauge(clampf(shown / limit, 0, 1), maxi(ceili(limit - shown), 0))
 	Ink.draw_label(self, Vector2(70, 300), tr("NIGHT_LABEL") % [Game.run.night, RunState.NIGHTS], 36, Ink.CREAM, -1, HORIZONTAL_ALIGNMENT_LEFT, 8)
 	Ink.draw_label(self, Vector2(70, 338), tr("RULE_" + String(sim.procession.rule).to_upper()), 20, Ink.GOLD, 1400, HORIZONTAL_ALIGNMENT_LEFT, 6)
-	Ink.draw_bundle(self, BAG_POS, sim.bag.width, sim.bag.height, CELL)
+	Ink.draw_bundle(self, BAG_POS, sim.bag, CELL)
 	for y in sim.bag.height:
 		var cy := BAG_POS.y + (y + 0.5) * CELL
 		var bound := y == _bound_row and _time < _bound_until

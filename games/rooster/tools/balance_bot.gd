@@ -26,6 +26,11 @@ func _init() -> void:
 
 
 func _shop(run: RunState) -> void:
+	# 가장 큰 조각을 앞쪽부터 붙인다.
+	for i in range(run.plots.size() - 1, -1, -1):
+		var spot := run.bag.expand_spot(run.plots[i])
+		if not spot.is_empty() and run.expand_bag(i, spot["plot"], spot["at"]):
+			break
 	for i in run.shelf.size():
 		run.hire(i)
 	for p in run.bench.duplicate():

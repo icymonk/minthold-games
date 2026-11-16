@@ -1,19 +1,78 @@
 class_name Bag
 extends RefCounted
 ## 보따리 격자. 오른쪽이 앞(행렬이 오는 쪽), 각 줄(y)이 행렬의 길 하나다.
+## width × height는 보따리가 넓어질 수 있는 최대 범위이고, 실제로 쓸 수 있는 칸은 `open`이다.
+
+const DIRS: Array[Vector2i] = [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]
 
 var width: int
 var height: int
 var pieces: Array[Piece] = []
+## 쓸 수 있는 칸 → true.
+var open := {}
+## 특수 칸 → 종류(&"well", &"hearth").
+var special := {}
 
 
-func _init(w: int, h: int) -> void:
+func _init(w: int, h: int, full := true) -> void:
 	width = w
 	height = h
+	if full:
+		for y in h:
+			for x in w:
+				open[Vector2i(x, y)] = true
+
+
+func in_canvas(c: Vector2i) -> bool:
+	return c.x >= 0 and c.y >= 0 and c.x < width and c.y < height
 
 
 func in_bounds(c: Vector2i) -> bool:
-	return c.x >= 0 and c.y >= 0 and c.x < width and c.y < height
+	return open.has(c)
+
+
+## 조각을 at에 붙일 수 있는지: 범위 안의 빈 땅이고, 한 칸 이상 지금 보따리와 맞닿아야 한다.
+func can_expand(plot: Plot, at: Vector2i) -> bool:
+	var touches := false
+	for c in plot.cells:
+		var w := c + at
+		if not in_canvas(w) or open.has(w):
+			return false
+		for d in DIRS:
+			if open.has(w + d):
+				touches = true
+	return touches
+
+
+func expand(plot: Plot, at: Vector2i) -> bool:
+	if not can_expand(plot, at):
+		return false
+	for c in plot.cells:
+		open[c + at] = true
+		if plot.special.has(c):
+			special[c + at] = plot.special[c]
+	return true
+
+
+## 어떤 방향으로든 조각을 붙일 자리가 있으면 그 자리({"plot", "at"})를, 없으면 빈 사전을 준다. 오른쪽(앞)부터 찾는다.
+func expand_spot(plot: Plot) -> Dictionary:
+	var p := plot.copy()
+	for r in 4:
+		for x in range(width - 1, -1, -1):
+			for y in height:
+				if can_expand(p, Vector2i(x, y)):
+					return {"plot": p, "at": Vector2i(x, y)}
+		p.rotate_cw()
+	return {}
+
+
+## 요괴가 올라선 특수 칸 종류들.
+func specials_under(p: Piece) -> Array[StringName]:
+	var out: Array[StringName] = []
+	for c in p.world_cells():
+		if special.has(c) and special[c] not in out:
+			out.append(special[c])
+	return out
 
 
 func piece_at(c: Vector2i) -> Piece:
@@ -52,7 +111,7 @@ func touching(a: Piece, b: Piece) -> bool:
 		return false
 	var bc := b.world_cells()
 	for c in a.world_cells():
-		for d in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+		for d in DIRS:
 			if c + d in bc:
 				return true
 	return false

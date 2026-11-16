@@ -105,14 +105,29 @@ static func draw_paper(ci: CanvasItem, r: Rect2, tint := Color.WHITE, border := 
 
 
 ## 보따리(보자기) 판: 짙은 남색 천에 크림색 바느질선.
-static func draw_bundle(ci: CanvasItem, origin: Vector2, w: int, h: int, cs: float) -> void:
-	var r := Rect2(origin, Vector2(w, h) * cs)
-	ci.draw_style_box(box(Color(NIGHT_DEEP, 0.9), 16, Color(CREAM, 0.5), 2, 10), r.grow(18))
-	_dashed_rect(ci, r.grow(9), Color(CREAM, 0.35), 2.0)
-	for y in h:
-		for x in w:
-			var cell := Rect2(origin + Vector2(x, y) * cs, Vector2(cs, cs)).grow(-4)
+const SPECIAL_COLORS := {&"well": Color(0.32, 0.55, 0.88), &"hearth": Color(0.90, 0.42, 0.20)}
+
+
+## 보따리의 쓸 수 있는 칸과 특수 칸을 그린다. 바깥 테두리는 칸 모양을 따라간다.
+static func draw_bundle(ci: CanvasItem, origin: Vector2, bag: Bag, cs: float) -> void:
+	var cells: Array[Vector2i] = []
+	cells.assign(bag.open.keys())
+	for c in cells:
+		ci.draw_rect(Rect2(origin + Vector2(c) * cs, Vector2(cs, cs)).grow(12), Color(NIGHT_DEEP, 0.9))
+	_outline(ci, origin, cells, cs, Color(CREAM, 0.45), 2)
+	for c in cells:
+		var cell := Rect2(origin + Vector2(c) * cs, Vector2(cs, cs)).grow(-4)
+		if bag.special.has(c):
+			draw_special_cell(ci, cell, bag.special[c])
+		else:
 			ci.draw_style_box(box(Color(CREAM, 0.06), 6, Color(CREAM, 0.12), 1), cell)
+
+
+static func draw_special_cell(ci: CanvasItem, cell: Rect2, kind: StringName) -> void:
+	var col: Color = SPECIAL_COLORS[kind]
+	ci.draw_style_box(box(Color(col, 0.22), 6, Color(col, 0.8), 2), cell)
+	var label := TranslationServer.translate("CELL_" + String(kind).to_upper())
+	ci.draw_string(bold(), cell.position + Vector2(0, cell.size.y - 8), label, HORIZONTAL_ALIGNMENT_CENTER, cell.size.x, int(clampf(cell.size.y * 0.26, 13, 20)), col.darkened(0.15))
 
 
 static func _dashed_rect(ci: CanvasItem, r: Rect2, color: Color, width: float) -> void:

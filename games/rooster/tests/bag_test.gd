@@ -121,3 +121,30 @@ func test_evolution_needs_room() -> void:
 	assert_array(bag.pieces).contains_exactly([fox, food])
 	assert_int(fox.eaten).is_equal(0)
 	assert_int(fox.atk).is_equal(2)
+
+
+func test_plot_must_touch_edge_and_keeps_special_on_rotate() -> void:
+	var bag := Bag.new(4, 2, false)
+	bag.open[Vector2i(3, 0)] = true
+	var plot := Plot.new()
+	plot.cells.assign([Vector2i(0, 0), Vector2i(1, 0)])
+	plot.special[Vector2i(1, 0)] = &"well"
+	assert_bool(bag.can_expand(plot, Vector2i(0, 1))).is_false()
+	assert_bool(bag.can_expand(plot, Vector2i(3, 0))).is_false()
+	plot.rotate_cw()
+	assert_array(plot.cells).contains_exactly_in_any_order([Vector2i(0, 0), Vector2i(0, 1)])
+	assert_str(String(plot.special[Vector2i(0, 1)])).is_equal("well")
+	assert_bool(bag.expand(plot, Vector2i(2, 0))).is_true()
+	assert_str(String(bag.special[Vector2i(2, 1)])).is_equal("well")
+
+
+func test_special_cell_buffs_matching_family() -> void:
+	var bag := Bag.new(3, 1)
+	bag.special[Vector2i(0, 0)] = &"hearth"
+	var fire := Piece.create(&"foxfire")
+	var water := Piece.create(&"ureong")
+	bag.place(fire, Vector2i(0, 0))
+	assert_int(Synergy.bonuses(bag)[fire.id]["atk"]).is_equal(2)
+	bag.remove(fire)
+	bag.place(water, Vector2i(0, 0))
+	assert_int(Synergy.bonuses(bag)[water.id]["atk"]).is_equal(0)

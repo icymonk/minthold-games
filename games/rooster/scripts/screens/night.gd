@@ -6,7 +6,8 @@ const CARD := Vector2(200, 286)
 const CARD_GAP := 18.0
 const SHELF_Y := 392.0
 const BAG_POS := Vector2(80, 560)
-const CELL := 96.0
+const CELL := 80.0
+const PLOT_CELL := 54.0
 const BENCH_RECT := Rect2(760, 540, 580, 290)
 const BENCH_CELL := 52.0
 const SELL_RECT := Rect2(760, 850, 580, 96)
@@ -31,6 +32,11 @@ var _toast := ""
 var _toast_until := 0.0
 var _overlay: Control
 var _ci: CanvasItem
+var _plot_i := -1
+var _plot: Plot
+var _plot_grab := Vector2i.ZERO
+var _refresh_btn: Button
+var _skip_btn: Button
 
 
 func _ready() -> void:
@@ -39,7 +45,8 @@ func _ready() -> void:
 	_font = get_theme_default_font()
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	_add_button(tr("MARKET_REFRESH") % RunState.REFRESH_COST, Rect2(1170, 210, 180, 72), _on_refresh)
+	_refresh_btn = _add_button(tr("MARKET_REFRESH") % RunState.REFRESH_COST, Rect2(1170, 210, 180, 72), _on_refresh)
+	_skip_btn = _add_button(tr("PLOT_SKIP") % RunState.SKIP_PLOT_COINS, Rect2(_plot_rect(3).position + Vector2(0, 100), Vector2(CARD.x * 2 + CARD_GAP, 72)), _on_skip_plots)
 	var fight := _add_button(tr("NIGHT_FIGHT"), FIGHT_RECT, _on_fight)
 	fight.theme_type_variation = &"AccentButton"
 	fight.add_theme_font_size_override(&"font_size", 36)
@@ -62,6 +69,8 @@ func _add_button(text: String, rect: Rect2, cb: Callable) -> Button:
 
 
 func _process(_delta: float) -> void:
+	_skip_btn.visible = not run.plots.is_empty()
+	_refresh_btn.visible = run.plots.is_empty()
 	queue_redraw()
 	_overlay.queue_redraw()
 
@@ -76,6 +85,10 @@ func _on_refresh() -> void:
 		_toast_msg("TOAST_NO_COINS")
 
 
+func _on_skip_plots() -> void:
+	run.skip_plots()
+
+
 func _on_fight() -> void:
 	if run.bag.pieces.is_empty():
 		_toast_msg("TOAST_EMPTY_BAG")
@@ -88,6 +101,10 @@ func _on_fight() -> void:
 
 func _card_rect(i: int) -> Rect2:
 	return Rect2(SHELF_POS + Vector2(i * (CARD.x + CARD_GAP), 0), CARD)
+
+
+func _plot_rect(i: int) -> Rect2:
+	return _card_rect(i)
 
 
 func _cell_at(pos: Vector2) -> Vector2i:
@@ -130,8 +147,11 @@ func _bench_piece_at(pos: Vector2) -> Piece:
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		_mouse = event.position
-		if _drag == null and event.button_mask & MOUSE_BUTTON_MASK_LEFT and _press_pos.distance_to(_mouse) > 8:
-			if _card >= 0:
+		if _drag == null and _plot == null and event.button_mask & MOUSE_BUTTON_MASK_LEFT and _press_pos.distance_to(_mouse) > 8:
+			if _plot_i >= 0:
+				_plot = run.plots[_plot_i].copy()
+				_plot_grab = _plot.cells[0]
+			elif _card >= 0:
 				_begin_shop_drag(_card)
 			elif _selected != null:
 				_begin_drag(_selected, _press_pos)
@@ -145,6 +165,10 @@ func _gui_input(event: InputEvent) -> void:
 			_press(event.position)
 		elif _drag:
 			_drop(event.position)
+		elif _plot:
+			_drop_plot(event.position)
+		else:
+			_plot_i = -1
 
 
 func _unhandled_key_input(event: InputEvent) -> void:
@@ -155,7 +179,16 @@ func _unhandled_key_input(event: InputEvent) -> void:
 func _press(pos: Vector2) -> void:
 	_press_pos = pos
 	_card = -1
+	_plot_i = -1
+	if not run.plots.is_empty():
+		for i in run.plots.size():
+			if _plot_rect(i).has_point(pos):
+				_plot_i = i
+				_selected = null
+				return
 	for i in run.shelf.size():
+		if not run.plots.is_empty():
+			break
 		if _card_rect(i).has_point(pos) and run.shelf[i] != &"":
 			_card = i
 			_selected = null
@@ -214,7 +247,22 @@ func _drop_from_shop(pos: Vector2, p: Piece) -> void:
 			_selected = hired
 
 
+func _drop_plot(pos: Vector2) -> void:
+	var plot := _plot
+	var i := _plot_i
+	_plot = null
+	_plot_i = -1
+	if not _bag_rect().grow(CELL).has_point(pos):
+		return
+	if not run.expand_bag(i, plot, _cell_at(pos) - _plot_grab):
+		_toast_msg("TOAST_PLOT_EDGE")
+
+
 func _rotate() -> void:
+	if _plot:
+		_plot.rotate_cw()
+		_plot_grab = _plot.cells[0]
+		return
 	var p := _drag if _drag else _selected
 	if p == null:
 		return
@@ -342,6 +390,9 @@ func _draw_shelf() -> void:
 	var shelf := Ink.ui("shelf.png")
 	var shelf_w := 5 * (CARD.x + CARD_GAP) + 70
 	draw_texture_rect(shelf, Rect2(Vector2(SHELF_POS.x - 45, SHELF_Y - 14), Vector2(shelf_w, shelf_w * shelf.get_height() / shelf.get_width())), false)
+	if not run.plots.is_empty():
+		_draw_plots()
+		return
 	for i in run.shelf.size():
 		var r := _card_rect(i)
 		var kind := run.shelf[i]
@@ -373,12 +424,36 @@ func _draw_shelf() -> void:
 	_text(Vector2(1170, 188), tr("MARKET_CLICK"), 18, Color(Ink.CREAM, 0.7))
 
 
+func _draw_plots() -> void:
+	for i in run.plots.size():
+		var r := _plot_rect(i)
+		var plot := run.plots[i]
+		Ink.draw_paper(self, r, Color.WHITE if i != _plot_i or _plot == null else Color(1, 1, 1, 0.4))
+		var origin := r.position + Vector2((CARD.x - plot.size().x * PLOT_CELL) / 2, 40)
+		_draw_plot_cells(self, origin, plot, PLOT_CELL, Color(Ink.INK, 0.15))
+		Ink.draw_label(self, r.position + Vector2(0, 230), tr("PLOT_CELLS") % plot.cells.size(), 26, Ink.INK, CARD.x, HORIZONTAL_ALIGNMENT_CENTER)
+		for c in plot.special:
+			var k := String(plot.special[c]).to_upper()
+			draw_multiline_string(_font, r.position + Vector2(10, 258), tr("CELL_" + k + "_DESC"), HORIZONTAL_ALIGNMENT_CENTER, CARD.x - 20, 16, 2, Color(Ink.INK, 0.8))
+	Ink.draw_label(self, Vector2(1170, 150), tr("PLOT_TITLE"), 30)
+	draw_multiline_string(_font, Vector2(1170, 188), tr("PLOT_HINT"), HORIZONTAL_ALIGNMENT_LEFT, 360, 18, -1, Color(Ink.CREAM, 0.75))
+
+
+func _draw_plot_cells(ci: CanvasItem, origin: Vector2, plot: Plot, cs: float, fill: Color) -> void:
+	for c in plot.cells:
+		var cell := Rect2(origin + Vector2(c) * cs, Vector2(cs, cs)).grow(-3)
+		if plot.special.has(c):
+			Ink.draw_special_cell(ci, cell, plot.special[c])
+		else:
+			ci.draw_style_box(Ink.box(fill, 6, Color(Ink.INK, 0.5), 2), cell)
+
+
 func _draw_bag() -> void:
 	var bag := run.bag
 	Ink.draw_label(self, BAG_POS + Vector2(-10, -36), tr("BAG_TITLE"), 28)
-	Ink.draw_bundle(self, BAG_POS, bag.width, bag.height, CELL)
+	Ink.draw_bundle(self, BAG_POS, bag, CELL)
 	for y in bag.height:
-		var c := BAG_POS + Vector2(bag.width * CELL + 34, y * CELL + CELL / 2)
+		var c := BAG_POS + Vector2(bag.width * CELL + 28, y * CELL + CELL / 2)
 		draw_colored_polygon(PackedVector2Array([c + Vector2(-8, 0), c + Vector2(8, -10), c + Vector2(8, 10)]), Color(Ink.VERMILION, 0.85))
 	Ink.draw_label(self, BAG_POS + Vector2(-10, bag.height * CELL + 56), tr("BAG_FRONT"), 17, Color(Ink.CREAM, 0.8), -1, HORIZONTAL_ALIGNMENT_LEFT, 6)
 	for p in bag.pieces:
@@ -511,6 +586,14 @@ func _draw_info() -> void:
 
 
 func _draw_drag() -> void:
+	if _plot:
+		var at := _cell_at(_mouse) - _plot_grab
+		if _bag_rect().grow(CELL).has_point(_mouse):
+			var ok := run.bag.can_expand(_plot, at)
+			_draw_plot_cells(_ci, BAG_POS + Vector2(at) * CELL, _plot, CELL, Color(Ink.JADE if ok else Ink.VERMILION, 0.45))
+		else:
+			_draw_plot_cells(_ci, _mouse - (Vector2(_plot_grab) + Vector2(0.5, 0.5)) * CELL, _plot, CELL, Color(Ink.CREAM, 0.4))
+		return
 	if _drag == null or not _moved:
 		return
 	var p := _drag

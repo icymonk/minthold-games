@@ -13,15 +13,21 @@ const REFRESH_COST := 1
 const SELL_REFUND := 1
 const BENCH_MAX := 6
 const BAG_HEIGHT := 4
-const BAG_WIDTH := 5
-const BAG_WIDE_NIGHT := 4
+## 보따리가 넓어질 수 있는 최대 가로 칸.
+const BAG_WIDTH := 8
+## 시작 보따리: 앞(오른쪽) 3줄을 채우고, 무작위로 4칸을 더 붙인다. 판마다 모양이 다르다.
+const BAG_START_COLS := 3
+const BAG_START_GROW := 4
+const SKIP_PLOT_COINS := 1
 
 var seed: int
 var night: int = 1
 var lanterns: int = START_LANTERNS
 var rng: RngStreams
 var coins := 0
-var bag := Bag.new(BAG_WIDTH, BAG_HEIGHT)
+var bag := Bag.new(BAG_WIDTH, BAG_HEIGHT, false)
+## 이번 밤에 고를 수 있는 보따리 조각. 고르거나 건너뛰면 비운다.
+var plots: Array[Plot] = []
 var bench: Array[Piece] = []
 var shelf: Array[StringName] = []
 var procession: Procession
@@ -30,14 +36,31 @@ var procession: Procession
 func _init(run_seed: int) -> void:
 	seed = run_seed
 	rng = RngStreams.new(run_seed)
+	_start_bag()
 	start_night()
 
 
-## 밤 시작: 엽전 지급(이월 상한), 보따리 확장, 진열대 갱신, 이번 행렬 결정.
+func _start_bag() -> void:
+	for y in BAG_HEIGHT:
+		for x in range(BAG_WIDTH - BAG_START_COLS, BAG_WIDTH):
+			bag.open[Vector2i(x, y)] = true
+	for i in BAG_START_GROW:
+		var edge: Array[Vector2i] = []
+		for c in bag.open:
+			for d in Bag.DIRS:
+				var n: Vector2i = c + d
+				if bag.in_canvas(n) and not bag.open.has(n) and n not in edge:
+					edge.append(n)
+		edge.sort()
+		bag.open[edge[rng.bag.randi_range(0, edge.size() - 1)]] = true
+
+
+## 밤 시작: 엽전 지급(이월 상한), 보따리 조각 제안(둘째 밤부터), 진열대 갱신, 이번 행렬 결정.
 func start_night() -> void:
 	coins = mini(coins, CARRY_MAX) + INCOME
-	if night >= BAG_WIDE_NIGHT:
-		bag.width = BAG_WIDTH + 1
+	plots.clear()
+	if night > 1:
+		plots = Plot.offers(rng.bag)
 	_roll_shelf()
 	procession = Procession.for_night(night, BAG_HEIGHT, rng.events)
 
@@ -81,6 +104,24 @@ func hire_to_bag(slot: int, cells: Array[Vector2i], at: Vector2i) -> Piece:
 	shelf[slot] = &""
 	bag.place(p, at)
 	return p
+
+
+## 제안된 조각 i를 (돌린 모양 plot으로) at에 붙인다. 붙이면 남은 제안은 사라진다.
+func expand_bag(i: int, plot: Plot, at: Vector2i) -> bool:
+	if i < 0 or i >= plots.size() or plot.cells.size() != plots[i].cells.size():
+		return false
+	if not bag.expand(plot, at):
+		return false
+	plots.clear()
+	return true
+
+
+## 조각을 고르지 않으면 엽전을 조금 받는다.
+func skip_plots() -> void:
+	if plots.is_empty():
+		return
+	plots.clear()
+	coins += SKIP_PLOT_COINS
 
 
 ## 보따리나 대기 줄에 있는 요괴끼리 먹인다. 대기 줄에서 먹힌 요괴는 줄에서 빠진다.

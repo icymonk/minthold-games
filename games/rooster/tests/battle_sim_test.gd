@@ -29,9 +29,10 @@ func test_three_starters_beat_night_one() -> void:
 	var wins := 0
 	for s in 20:
 		var run := RunState.new(s)
-		run.bag.place(Piece.create(&"haetae"), Vector2i(3, 1))
-		run.bag.place(Piece.create(&"mongdal"), Vector2i(1, 1))
-		run.bag.place(Piece.create(&"dokkaebi"), Vector2i(2, 2))
+		run.bag = Bag.new(RunState.BAG_WIDTH, RunState.BAG_HEIGHT)
+		run.bag.place(Piece.create(&"haetae"), Vector2i(6, 1))
+		run.bag.place(Piece.create(&"mongdal"), Vector2i(4, 1))
+		run.bag.place(Piece.create(&"dokkaebi"), Vector2i(5, 2))
 		if run.fight().won:
 			wins += 1
 	assert_int(wins).is_greater(14)
