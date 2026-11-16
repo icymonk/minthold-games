@@ -261,3 +261,9 @@ func test_moved_signal_records_drawn_card() -> void:
 	_draw(m, S.CHIEF, 2)
 	assert_int(got.size()).is_equal(3)
 	assert_int(got[-1].card).is_equal(30)
+
+
+func test_place_without_sprints_key() -> void:
+	var m := _setup([1, 2, 3, 42])
+	assert_bool(m.apply({ side = S.STAFF, action = Match.Action.PLACE, card = 2 })).is_true()
+	assert_int(m.last_card()).is_equal(2)

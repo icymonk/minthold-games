@@ -170,7 +170,7 @@ func apply(move: Dictionary) -> bool:
 		Action.PASS:
 			_begin_turn(Side.CHIEF)
 		Action.PLACE:
-			_place(move.card, _ints(move.sprints))
+			_place(move.card, _ints(move.get(&"sprints", [])))
 		Action.GUESS:
 			record.hit = _guess(_ints(move.numbers))
 	history.append(record)
