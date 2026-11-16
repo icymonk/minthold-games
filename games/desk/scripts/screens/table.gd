@@ -60,7 +60,7 @@ var _reaction := &""
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	var streams: RngStreams = Game.rng if Game.rng != null else RngStreams.new(Game.run_seed)
-	session = Session.new(Game.side(), streams, Game.level, Game.events)
+	session = Session.new(Game.side(), streams, Game.level, Game.match_events)
 	_timer = Timer.new()
 	_timer.one_shot = true
 	_timer.wait_time = AI_DELAY
@@ -178,6 +178,8 @@ func _build() -> void:
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(spacer)
+	if Game.in_week and Game.week != null:
+		top.add_child(_text(day_text(), 20, true))
 	var back := Button.new()
 	back.text = tr("BACK_TO_TITLE")
 	back.add_theme_font_size_override(&"font_size", 20)
@@ -697,10 +699,20 @@ func _draw_overlay() -> void:
 	var buttons := HBoxContainer.new()
 	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
 	buttons.add_theme_constant_override(&"separation", 12)
-	var again := _big_button(tr("RESULT_AGAIN"), func() -> void: Game.start_match())
-	again.theme_type_variation = &"AccentButton"
-	buttons.add_child(again)
-	buttons.add_child(_big_button(tr("RESULT_SAME"), func() -> void: Game.start_match(Game.run_seed)))
+	if Game.in_week and Game.week != null:
+		box.add_child(_centered(week_text(), 24, true))
+		var next: Button
+		if Game.week.is_done():
+			next = _big_button(tr("RESULT_NEW_WEEK"), func() -> void: Game.start_week())
+		else:
+			next = _big_button(tr("RESULT_NEXT_DAY") % tr("DAY_%d" % Game.week.day()), Game.play_day)
+		next.theme_type_variation = &"AccentButton"
+		buttons.add_child(next)
+	else:
+		var again := _big_button(tr("RESULT_AGAIN"), func() -> void: Game.start_match())
+		again.theme_type_variation = &"AccentButton"
+		buttons.add_child(again)
+		buttons.add_child(_big_button(tr("RESULT_SAME"), func() -> void: Game.start_match(Game.run_seed)))
 	buttons.add_child(_big_button(tr("BACK_TO_TITLE"), func() -> void: Game.goto(&"title")))
 	box.add_child(buttons)
 	var rules := Button.new()
@@ -710,6 +722,24 @@ func _draw_overlay() -> void:
 	rules.pressed.connect(show_rules.bind(true))
 	box.add_child(rules)
 	_result_rules = rules
+
+
+## 상단: "수요일 · 3/5" (금요일이면 사건 카드 표시).
+func day_text() -> String:
+	var d := mini(Game.week.day(), Week.DAYS - 1)
+	var s := tr("TABLE_DAY") % [tr("DAY_%d" % d), d + 1, Week.DAYS]
+	return s + (tr("TABLE_EVENTS") if Game.week.events_on(d) else "")
+
+
+## 결과 화면: 이번 주 성적과(다 끝났으면) 평가.
+func week_text() -> String:
+	var w := Game.week
+	var key := "WEEK_SCORE_STAFF" if w.side == S.STAFF else "WEEK_SCORE_CHIEF"
+	var s := tr(key) % [w.score(), w.day()]
+	if w.is_done():
+		var who := "STAFF" if w.side == S.STAFF else "CHIEF"
+		s += " — " + tr("WEEK_GRADE_%s_%d" % [who, w.grade()])
+	return s
 
 
 func _centered(s: String, size: int, bold := false) -> Label:
@@ -860,6 +890,7 @@ func _announce() -> void:
 			tw.tween_property(_banner, ^"modulate:a", 0.0, 0.4)
 	if _shown_history < h.size() and session.is_over():
 		Game.sfx(&"stamp", 0.4)
+		Game.finish_match(session.m)
 	_shown_history = h.size()
 
 

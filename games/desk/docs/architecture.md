@@ -58,6 +58,7 @@ docs/
 - `godot --headless -s tools/sim.gd -- --games 2000 --chief careful --staff careful`: AI끼리 돌려 역할별 승률, 평균 차례 수, 마지막 추궁 발생·성공률, 뛰기 카드 사용량을 출력한다.
 - 목표(꼼꼼 vs 꼼꼼): 사원 승률 45~55%, 평균 12~18차례.
 - 뛰기 값·처음 손패를 바꾸면 다시 돌린다.
+- 한 주·기록: `Week`(5판 시드·금요일 사건·평가)와 `Stats`(역할별 누적)는 순수 클래스이고, `Game.finish_match()`가 판이 끝날 때 한 번 갱신해 `user://desk.cfg`의 `[record]`에 저장한다.
 - 사건 카드: `--events 1`. `Events`가 종류·돕는 쪽을, `Match`가 효과(`limits`/`pending`)를, `Knowledge.clues`가 공개 단서를 맡고 `Deduce`가 단서를 확률에 반영한다.
 - 난이도: `--chief-level`/`--staff-level easy|normal|hard`(기본 hard). 낮을수록 정해진 확률(`Bot.BLUNDER`, 쪽마다 따로)로 아무 합법 수를 두고, 팀장은 추론 표본도 줄인다.
 

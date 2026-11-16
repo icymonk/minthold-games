@@ -23,6 +23,8 @@ var draws_left := 0
 var turns: Array[int] = [0, 0]        # side → 시작한 차례 수
 var placed_this_turn := 0
 var winner := NONE
+## 마지막 추궁까지 갔는지.
+var manhunted := false
 var history: Array[Dictionary] = []
 ## 사건 카드(선택 규칙). limits = 쪽마다 이번 차례에 걸린 효과, pending = 그 쪽 다음 차례에 걸 효과.
 ## 키: no_place, one_guess, no_draw, corridor(bool), bonus, extra_draws(int)
@@ -294,6 +296,7 @@ func _on_escape() -> void:
 	if hidden_count() > 0 and highest <= Cards.MANHUNT_MAX:
 		side = Side.CHIEF
 		phase = Phase.MANHUNT
+		manhunted = true
 		draws_left = 0
 	else:
 		_finish(Side.STAFF)
