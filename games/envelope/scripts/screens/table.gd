@@ -38,6 +38,8 @@ var _hint: Label
 var _log: Label
 var _overlay: Control
 var _timer: Timer
+var _was_my_turn := false
+var _sounded_step := -1
 
 
 func _ready() -> void:
@@ -85,6 +87,10 @@ func refresh() -> void:
 	_draw_log()
 	_draw_overlay()
 	_paint_zones()
+	var mine := session.waiting_for_human() and not session.is_over()
+	if mine and not _was_my_turn:
+		Sfx.play(&"turn")
+	_was_my_turn = mine
 	if not session.is_over() and not session.waiting_for_human() and _timer.is_stopped():
 		_timer.start()
 
@@ -128,9 +134,14 @@ func _build() -> void:
 	_envelope_label = _text(34, true)
 	_envelope_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_envelope_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	var env_art := Control.new()
+	env_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	env_art.draw.connect(func() -> void: Art.envelope(env_art, Rect2(Vector2.ZERO, env_art.size)))
+	env_art.resized.connect(env_art.queue_redraw)
+	_envelope.add_child(env_art)
 	var env_box := VBoxContainer.new()
 	env_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	env_box.alignment = BoxContainer.ALIGNMENT_CENTER
+	env_box.alignment = BoxContainer.ALIGNMENT_END
 	env_box.add_child(_envelope_label)
 	_slots = HFlowContainer.new()
 	_slots.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -212,11 +223,19 @@ func _draw_seats() -> void:
 		var box := VBoxContainer.new()
 		box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		p.add_child(box)
-		box.add_child(_text(28, true, _seat_name(s)))
+		var head := HBoxContainer.new()
+		head.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		head.add_theme_constant_override(&"separation", 10)
+		head.add_child(Portrait.new(s, -1, 64))
+		var who := VBoxContainer.new()
+		who.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		who.add_child(_text(28, true, _seat_name(s)))
 		var info := tr("TABLE_SEAT_INFO") % [_k.hand_counts[s], _k.notes[s].size()]
 		if _k.out[s]:
 			info += " · " + tr("TABLE_OUT")
-		box.add_child(_text(20, false, info))
+		who.add_child(_text(20, false, info))
+		head.add_child(who)
+		box.add_child(head)
 		_add_face_up(box, s)
 		_add_notes(box, s)
 		var seen := seen_in_hand(s)
@@ -229,7 +248,7 @@ func _draw_seats() -> void:
 
 func _draw_middle() -> void:
 	_target_label.text = tr("TABLE_TARGET") % money(_k.target)
-	_envelope_label.text = "✉ " + tr("TABLE_ENVELOPE") % _k.envelope.size()
+	_envelope_label.text = tr("TABLE_ENVELOPE") % _k.envelope.size()
 	_clear(_slots)
 	var picking := _asking([&"MISER_TAKE"])
 	for i in _k.envelope.size():
@@ -263,19 +282,18 @@ func _draw_hand() -> void:
 		b.custom_minimum_size = CARD_SIZE
 		b.toggle_mode = true
 		b.button_pressed = uid == _selected
-		b.add_theme_font_size_override(&"font_size", 22)
 		var sub := money(Cards.amount(kind)) if Cards.playable(kind) else tr("CARD_LOCKED")
-		b.text = "%s\n\n%s" % [tr(Cards.name_key(kind)), sub]
-		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		b.accessibility_name = "%s, %s" % [tr(Cards.name_key(kind)), sub]
 		b.tooltip_text = HelpPanel.ability(kind)
+		for st in [&"normal", &"hover", &"pressed", &"disabled", &"hover_pressed"]:
+			b.add_theme_stylebox_override(st, StyleBoxEmpty.new())
+		var face := CardFace.new(kind, tr(Cards.name_key(kind)), sub, Style.STAMP if kind == C.THIEF else Style.INK)
 		b.disabled = not my_turn or not Cards.playable(kind)
 		if _asking(HAND_ASKS):
 			b.disabled = not uid in _k.request.options
-		if kind == C.THIEF:
-			b.add_theme_color_override(&"font_disabled_color", Style.STAMP)
+		face.lit = _asking(HAND_ASKS) and not b.disabled
+		b.add_child(face)
 		b.pressed.connect(_on_card_pressed.bind(uid))
-		if _asking(HAND_ASKS) and not b.disabled:
-			b.add_theme_stylebox_override(&"normal", Style.box(Color(Style.PARTITION, 0.45), 12, Style.INK, 2))
 		b.set_drag_forwarding(_card_drag.bind(uid, b), Callable(), Callable())
 		_hand.add_child(b)
 
@@ -316,6 +334,7 @@ func _draw_log() -> void:
 		_shown_events = session.events.size()
 		var last: Dictionary = session.events[-1]
 		_banner.text = describe(last)
+		_sound_for(last)
 		if last.seat != Session.HUMAN:
 			_flash(_banner)
 			if _seat_panels.has(last.seat):
@@ -359,6 +378,9 @@ func _show_request(req: Dictionary) -> void:
 func _show_result(r: Dictionary) -> void:
 	var list := _dialog()
 	list.custom_minimum_size = Vector2(760, 0)
+	if _sounded_step != result_step:
+		_sounded_step = result_step
+		_result_sound(r)
 	list.add_child(_text(22, false, tr("RESULT_STEP") % [result_step + 1, RESULT_STEPS]))
 	match result_step:
 		0:
@@ -418,6 +440,28 @@ func _show_result(r: Dictionary) -> void:
 	_dialog_button(list, tr("BACK_TO_TITLE"), func() -> void: Game.goto(&"title"))
 
 
+func _sound_for(mv: Dictionary) -> void:
+	match mv.action:
+		A.ENVELOPE:
+			Sfx.play(&"rustle")
+			_bump(_envelope)
+		A.NOTE:
+			Sfx.play(&"peel")
+		_:
+			Sfx.play(&"card")
+
+
+func _result_sound(r: Dictionary) -> void:
+	match result_step:
+		0:
+			Sfx.play(&"stamp")
+		1:
+			if r.confined.has(true):
+				Sfx.play(&"stamp")
+		_:
+			Sfx.play(&"win" if Session.HUMAN in r.winners else &"lose")
+
+
 func ending_text(r: Dictionary) -> String:
 	if r.winners.is_empty():
 		return tr("RESULT_NOBODY")
@@ -431,6 +475,12 @@ func _stamp(value: String, good: bool) -> Label:
 	var l := _text(26, true, value)
 	l.add_theme_color_override(&"font_color", Color.WHITE)
 	l.add_theme_stylebox_override(&"normal", _pad(Style.box(Style.PARTITION.darkened(0.35) if good else Style.STAMP, 8), 10))
+	l.resized.connect(func() -> void: l.pivot_offset = l.size / 2)
+	l.scale = Vector2(1.6, 1.6)
+	l.modulate.a = 0.0
+	var tw := create_tween().set_parallel()
+	tw.tween_property(l, ^"scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tw.tween_property(l, ^"modulate:a", 1.0, 0.12)
 	return l
 
 
@@ -453,12 +503,12 @@ func _paint_zones() -> void:
 	for s in _seat_panels:
 		var lit: bool = active or (_asking(SEAT_ASKS) and s in _k.request.options)
 		_paint(_seat_panels[s], lit, s == session.m.turn and not session.is_over())
-	_paint(_envelope, (active and not _picking_desk) or _asking([&"MISER_TAKE"]), false)
+	_paint(_envelope, (active and not _picking_desk) or _asking([&"MISER_TAKE"]), false, Color(0, 0, 0, 0))
 	_paint(_desk, active and not _picking_desk, session.m.turn == Session.HUMAN and not session.is_over())
 
 
-func _paint(p: PanelContainer, lit: bool, turn: bool) -> void:
-	var bg := Color(Style.PARTITION, 0.45) if lit else Color.WHITE
+func _paint(p: PanelContainer, lit: bool, turn: bool, base := Color.WHITE) -> void:
+	var bg := Color(Style.PARTITION, 0.45) if lit else base
 	var border := Style.STAMP if turn else Color(Style.INK, 0.3)
 	p.add_theme_stylebox_override(&"panel", _pad(Style.box(bg, 14, border, 4 if turn else 2)))
 
@@ -616,7 +666,12 @@ func _text(size: int, bold := false, value := "") -> Label:
 
 
 func _chip(kind: int) -> Label:
-	return _chip_text(tr(Cards.name_key(kind)), true)
+	var l := _chip_text(tr(Cards.name_key(kind)), true)
+	var sb: StyleBoxFlat = l.get_theme_stylebox(&"normal")
+	sb.border_color = Art.band(kind)
+	sb.border_width_left = 8
+	sb.content_margin_left += 6
+	return l
 
 
 func _chip_text(value: String, known: bool) -> Label:
@@ -651,11 +706,20 @@ func _add_face_up(box: Container, s: int) -> void:
 func _add_notes(box: Container, s: int) -> void:
 	if _k.notes[s].is_empty():
 		return
-	var parts := PackedStringArray()
+	var row := HFlowContainer.new()
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_theme_constant_override(&"h_separation", 6)
+	row.add_child(_text(20, false, tr("TABLE_NOTE_PILE") % ""))
 	for uid in _k.notes[s]:
 		var kind := _k.kind_of(uid)
-		parts.append("?" if kind < 0 else "%d" % Cards.amount(kind))
-	box.add_child(_text(20, false, tr("TABLE_NOTE_PILE") % " ".join(parts)))
+		var note := _text(20, true, "?" if kind < 0 else "%d" % Cards.amount(kind))
+		note.custom_minimum_size = Vector2(34, 34)
+		note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		note.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		note.add_theme_color_override(&"font_color", Color.WHITE)
+		note.add_theme_stylebox_override(&"normal", Style.box(Style.STAMP, 3))
+		row.add_child(note)
+	box.add_child(row)
 
 
 ## 그 자리 손에 있는 걸 본(엿본·건넨) 카드. 지금도 거기 있다는 보장은 없다.
@@ -676,6 +740,13 @@ func _holding_maybe(s: int, uid: int) -> bool:
 	return _k.hand_counts[s] > 0
 
 
+## 봉투에 카드가 들어가면 살짝 부푼다.
+func _bump(c: Control) -> void:
+	c.pivot_offset = c.size / 2
+	c.scale = Vector2(1.06, 1.06)
+	create_tween().tween_property(c, ^"scale", Vector2.ONE, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
 func _flash(c: CanvasItem) -> void:
 	var base := c.modulate
 	c.modulate = Color(1.25, 1.1, 0.8, base.a)
@@ -685,7 +756,7 @@ func _flash(c: CanvasItem) -> void:
 func _action_button(label: String, on_pressed: Callable) -> void:
 	var b := Button.new()
 	b.text = label
-	b.custom_minimum_size = Vector2(150, 60)
+	b.custom_minimum_size = Vector2(180, 60)
 	b.add_theme_font_size_override(&"font_size", 24)
 	b.pressed.connect(on_pressed)
 	_actions.add_child(b)

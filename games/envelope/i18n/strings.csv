@@ -125,3 +125,5 @@ LEAGUE_STATUS,"리그 %d / %d판 · 이번 판 +%d · 사내 평판 %d","League 
 LEAGUE_DONE,"리그 끝! 사내 평판 %d (최고 %d)","League over! Reputation %d (best %d)"
 LEAGUE_NEXT,다음 판,Next Game
 LEAGUE_AGAIN,리그 다시,New League
+TITLE_SOUND_ON,소리: 켬,Sound: On
+TITLE_SOUND_OFF,소리: 끔,Sound: Off
