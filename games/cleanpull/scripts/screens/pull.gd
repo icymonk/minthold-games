@@ -1,5 +1,6 @@
 extends Control
 ## 1-2 당기기 화면: 식탁보 끝을 잡고 휙 끌면 PullSim 결과를 슬로모션과 와장창으로 보여 준다.
+## 1-3 콘솔식 큰 화면: 큰 속도 게이지, 그림 버튼, 결과 도장, 첫 판 단계별 안내.
 
 enum State { READY, DRAGGING, PULLING, DONE }
 
@@ -33,6 +34,19 @@ const SOFT := [&"cake", &"jelly"]
 const ROOM := preload("res://assets/art/room.jpg")
 const CHAIR := preload("res://assets/art/chair.png")
 const HAND := preload("res://assets/art/kenney/hand.svg")
+const ICON_HOME := preload("res://assets/art/kenney/icon_home.png")
+const ICON_RETRY := preload("res://assets/art/kenney/icon_retry.png")
+const ICON_NEXT := preload("res://assets/art/kenney/icon_next.png")
+const ICON_FAST := preload("res://assets/art/kenney/icon_fast.png")
+const PLATE := preload("res://assets/art/plate.png")
+const SAFE_GREEN := Color("#6FC3A8")
+const GAUGE_SIZE := Vector2(960, 64)
+const BUTTON_SIZE := Vector2(300, 170)
+const COACH_STEPS := [
+	{"id": &"grab", "text": "COACH_GRAB", "icon": HAND, "wait": &"grabbed"},
+	{"id": &"yank", "text": "COACH_YANK", "icon": ICON_NEXT, "wait": &"pulled"},
+	{"id": &"gauge", "text": "COACH_GAUGE", "icon": ICON_FAST, "wait": &"tap"},
+]
 const SFX := {
 	&"glass_break": preload("res://assets/sfx/glass_break.ogg"),
 	&"glass_clink": preload("res://assets/sfx/glass_clink.ogg"),
@@ -63,9 +77,10 @@ var _hand_tween: Tween
 var _gauge: Control
 var _gauge_value := 0.0
 var _title: Label
-var _sub: Label
-var _setup_label: Label
-var _buttons: HBoxContainer
+var _stamp: Label
+var _stages: Control
+var _buttons: VBoxContainer
+var _coach: Coach
 var _drag_pos := Vector2.ZERO
 var _pulls := 0
 var _tag_spots: Array[Vector2] = []
@@ -78,6 +93,11 @@ func _ready() -> void:
 	resized.connect(_layout)
 	_layout()
 	lay_table(0)
+	_coach = Coach.new()
+	_coach.rect_of = _coach_rect
+	_coach.finished.connect(func() -> void: if state == State.DONE: (_buttons.get_child(1) as Button).grab_focus())
+	add_child(_coach)
+	_coach.start(&"pull", COACH_STEPS)
 
 
 func _exit_tree() -> void:
@@ -107,8 +127,9 @@ func lay_table(index: int) -> void:
 	_title.text = tr("PULL_HINT")
 	_title.modulate = Style.LINEN
 	_title.scale = Vector2.ONE
-	_sub.text = tr("PULL_TIP")
-	_setup_label.text = tr("PULL_SETUP") % [setup_index + 1, SETUPS.size()]
+	_title.position.y = 150
+	_stamp.visible = false
+	_stages.queue_redraw()
 	_buttons.visible = false
 	_show_hand(_pulls == 0)
 
@@ -132,6 +153,7 @@ func _gui_input(event: InputEvent) -> void:
 			_drag_pos = _to_stage(button.position)
 			_show_hand(false)
 			_sfx(&"pick")
+			_coach.notify(&"grabbed")
 		elif not button.pressed and state == State.DRAGGING:
 			_flick.move(button.position, _now())
 			if _flick.tugged():
@@ -172,7 +194,9 @@ func pull(p: PullSim.Pull) -> void:
 	_gauge_value = p.speed
 	_gauge.queue_redraw()
 	_title.text = ""
-	_sub.text = tr("PULL_STATS") % [roundi(p.speed), roundi(p.angle), roundi(p.wobble * 100.0)]
+	_show_hand(false)
+	_coach.notify(&"pulled")
+	_coach.pause()
 	Engine.time_scale = SLOW_MO if p.speed >= 450.0 else 1.0
 	_sfx(&"whoosh")
 	var cloth_time := (TABLE_CM + FLAP_CM + 120.0) / maxf(p.speed, 60.0)
@@ -211,21 +235,38 @@ func pull(p: PullSim.Pull) -> void:
 func _finish() -> void:
 	state = State.DONE
 	var stayed := results.filter(func(r: PullSim.Result) -> bool: return r.outcome == PullSim.Outcome.STAYED).size()
-	if stayed == results.size():
-		_title.text = tr("PULL_CLEAN")
-		_title.modulate = Style.CANDLE
+	var clean := stayed == results.size()
+	_stamp_in(tr("STAMP_CLEAN") if clean else tr("STAMP_CRASH"), Style.CANDLE if clean else Style.CRASH)
+	_title.text = "" if clean else tr("PULL_LEFT") % [stayed, results.size()]
+	_title.position.y = _stamp.position.y + _stamp.size.y + 40.0
+	_title.modulate = Style.LINEN
+	if clean:
 		_sfx(&"chime")
 		_confetti()
 	else:
-		_title.text = tr("PULL_CRASH") % [stayed, results.size()]
-		_title.modulate = Style.CRASH
 		_sfx(&"error")
-	_title.pivot_offset = _title.size / 2.0
-	_title.scale = Vector2(1.6, 1.6)
-	create_tween().tween_property(_title, ^"scale", Vector2.ONE, 0.35).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	_buttons.visible = true
-	_gauge.visible = false
+	_buttons.modulate.a = 0.0
+	create_tween().tween_property(_buttons, ^"modulate:a", 1.0, 0.3).set_delay(0.3)
 	(_buttons.get_child(1) as Button).grab_focus()
+	_coach.resume()
+
+
+## 결과 도장: 크게 찍히듯 줄어들며 내려앉는다.
+func _stamp_in(text: String, color: Color) -> void:
+	_stamp.text = text
+	_stamp.add_theme_color_override(&"font_color", color)
+	(_stamp.get_theme_stylebox(&"normal") as StyleBoxFlat).border_color = color
+	_stamp.visible = true
+	_stamp.reset_size()
+	_stamp.pivot_offset = _stamp.size / 2.0
+	_stamp.position = Vector2((size.x - _stamp.size.x) / 2.0, size.y * 0.2)
+	_stamp.scale = Vector2(2.6, 2.6)
+	_stamp.modulate.a = 0.0
+	var tw := create_tween().set_parallel()
+	tw.tween_property(_stamp, ^"scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tw.tween_property(_stamp, ^"modulate:a", 1.0, 0.12)
+	tw.chain().tween_callback(_shake.bind(10.0))
 
 
 func _fall(sprite: Sprite2D, r: PullSim.Result, delay: float) -> void:
@@ -270,10 +311,10 @@ func _smash(sprite: Sprite2D, r: PullSim.Result, breaks: bool) -> void:
 	_shake(18.0 if breaks else 8.0)
 	if not breaks:
 		_sfx(&"thud" if kind in SOFT else &"plate_clink")
-		_tag(tr("TAG_TIPPED"), sprite, Style.CRASH)
+		_crack(sprite)
 		return
 	_sfx(&"thud" if kind in SOFT else (&"glass_break" if kind in GLASS else &"plate_break"))
-	_tag(tr("TAG_BROKEN"), sprite, Style.CRASH)
+	_crack(sprite)
 	var at := sprite.position + Vector2(0, -8)
 	sprite.visible = false
 	var color: Color = SHARD_COLORS.get(kind, Style.LINEN)
@@ -308,21 +349,58 @@ func _tag(text: String, sprite: Sprite2D, color: Color) -> void:
 	var label := Label.new()
 	label.text = text
 	label.add_theme_font_override(&"font", Style.bold())
-	label.add_theme_font_size_override(&"font_size", 40)
+	label.add_theme_font_size_override(&"font_size", 56)
 	label.add_theme_color_override(&"font_color", color)
 	label.add_theme_color_override(&"font_outline_color", Style.NIGHT_DEEP)
-	label.add_theme_constant_override(&"outline_size", 12)
+	label.add_theme_constant_override(&"outline_size", 14)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.size = Vector2(300, 60)
-	var top := minf(sprite.position.y - sprite.texture.get_height() * sprite.scale.y, TABLE_Y - 80.0)
-	label.position = Vector2(clampf(sprite.position.x, 150, SIZE.x - 150) - 150, top - 70)
-	for spot in _tag_spots:
-		if absf(spot.x - label.position.x) < 260 and absf(spot.y - label.position.y) < 70:
-			label.position.y = spot.y - 70
-	_tag_spots.append(label.position)
+	label.size = Vector2(300, 80)
+	label.position = _tag_spot(sprite) - Vector2(150, 40)
 	_props.add_child(label)
 	var tw := label.create_tween()
 	tw.tween_property(label, ^"position:y", label.position.y - 40, 0.5).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
+## 그릇 위 빈자리. 이웃 표시와 겹치면 위로 올린다.
+func _tag_spot(sprite: Sprite2D) -> Vector2:
+	var top := minf(sprite.position.y - sprite.texture.get_height() * sprite.scale.y, TABLE_Y - 80.0)
+	var x := sprite.position.x
+	if sprite.position.y > TABLE_Y + 20.0:
+		top = TABLE_Y - 80.0
+		x = _x(TABLE_CM) - 40.0
+	var spot := Vector2(clampf(x, 150, SIZE.x - 150), top - 40)
+	for other in _tag_spots:
+		if absf(other.x - spot.x) < 260 and absf(other.y - spot.y) < 90:
+			spot.y = other.y - 90
+	_tag_spots.append(spot)
+	return spot
+
+
+## 깨진 그릇 표시: 빨간 폭발 모양에 금 간 줄.
+func _crack(sprite: Sprite2D) -> void:
+	var mark := Node2D.new()
+	mark.position = _tag_spot(sprite)
+	var burst := PackedVector2Array()
+	for i in 16:
+		burst.append(Vector2.from_angle(i * TAU / 16.0) * (52.0 if i % 2 == 0 else 32.0))
+	var outline := Polygon2D.new()
+	outline.polygon = burst
+	outline.color = Style.NIGHT_DEEP
+	outline.scale = Vector2(1.15, 1.15)
+	mark.add_child(outline)
+	var fill := Polygon2D.new()
+	fill.polygon = burst
+	fill.color = Style.CRASH
+	mark.add_child(fill)
+	var crack := Line2D.new()
+	crack.points = PackedVector2Array([Vector2(-6, -30), Vector2(6, -10), Vector2(-8, 4), Vector2(8, 16), Vector2(-2, 30)])
+	crack.width = 8
+	crack.default_color = Style.LINEN
+	crack.joint_mode = Line2D.LINE_JOINT_ROUND
+	mark.add_child(crack)
+	_props.add_child(mark)
+	mark.scale = Vector2.ZERO
+	mark.create_tween().tween_property(mark, ^"scale", Vector2.ONE, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
 func _confetti() -> void:
@@ -510,39 +588,50 @@ func _band(rect: Rect2) -> void:
 
 
 func _build_ui() -> void:
-	var top := VBoxContainer.new()
-	top.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	top.position = Vector2(-700, 60)
-	top.custom_minimum_size = Vector2(1400, 0)
-	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(top)
-	_title = _make_label(64)
-	top.add_child(_title)
-	_sub = _make_label(30)
-	_sub.modulate = Color(Style.LINEN, 0.8)
-	top.add_child(_sub)
-	_setup_label = _make_label(26)
-	_setup_label.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	_setup_label.position = Vector2(40, 30)
-	_setup_label.modulate = Style.CANDLE
-	add_child(_setup_label)
+	_title = _make_label(72)
+	_title.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	_title.position = Vector2(-800, 150)
+	_title.custom_minimum_size = Vector2(1600, 0)
+	add_child(_title)
+	_stages = Control.new()
+	_stages.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_stages.draw.connect(_draw_stages)
+	add_child(_stages)
+	_stamp = _make_label(160)
+	_stamp.add_theme_constant_override(&"outline_size", 18)
+	var frame := Style.box(Color(Style.NIGHT_DEEP, 0.55), 28, Style.CANDLE, 10)
+	frame.set_content_margin_all(28)
+	frame.content_margin_left = 64
+	frame.content_margin_right = 64
+	_stamp.add_theme_stylebox_override(&"normal", frame)
+	_stamp.rotation = deg_to_rad(-6)
+	add_child(_stamp)
 	_gauge = Control.new()
 	_gauge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_gauge.draw.connect(_draw_gauge)
 	add_child(_gauge)
-	_buttons = HBoxContainer.new()
-	_buttons.add_theme_constant_override(&"separation", 24)
-	_buttons.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
-	_buttons.position = Vector2(-460, -150)
+	_buttons = VBoxContainer.new()
+	_buttons.add_theme_constant_override(&"separation", 32)
 	add_child(_buttons)
-	for spec: Array in [["BACK_TO_TITLE", func() -> void: Game.goto(&"title")], ["PULL_RETRY", func() -> void: lay_table(setup_index)], ["PULL_NEXT", func() -> void: lay_table(setup_index + 1)]]:
-		var b := Button.new()
-		b.text = tr(spec[0])
-		b.custom_minimum_size = Vector2(290, 76)
-		b.add_theme_font_size_override(&"font_size", 28)
-		b.pressed.connect(spec[1])
-		_buttons.add_child(b)
+	for spec: Array in [[ICON_HOME, "BTN_HOME", func() -> void: Game.goto(&"title")], [ICON_RETRY, "BTN_RETRY", func() -> void: lay_table(setup_index)], [ICON_NEXT, "BTN_NEXT", func() -> void: lay_table(setup_index + 1)]]:
+		_buttons.add_child(_icon_button(spec[0], tr(spec[1]), spec[2]))
 	(_buttons.get_child(2) as Button).theme_type_variation = &"AccentButton"
+
+
+## 그림이 먼저 보이고 아래에 짧은 한 단어가 붙는 큰 버튼.
+func _icon_button(icon: Texture2D, text: String, on_pressed: Callable) -> Button:
+	var b := Button.new()
+	b.icon = icon
+	b.text = text
+	b.expand_icon = true
+	b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	b.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
+	b.custom_minimum_size = BUTTON_SIZE
+	b.add_theme_font_override(&"font", Style.bold())
+	b.add_theme_font_size_override(&"font_size", 40)
+	b.add_theme_constant_override(&"icon_max_width", 88)
+	b.pressed.connect(on_pressed)
+	return b
 
 
 func _make_label(font_size: int) -> Label:
@@ -556,20 +645,55 @@ func _make_label(font_size: int) -> Label:
 	return label
 
 
-## 오른쪽 위 속도 막대. 초록 칸까지 차면 안전하다.
+## 아래 가운데 큰 속도 막대. 빨강은 느림, 초록 칸까지 차면 안전하다.
 func _draw_gauge() -> void:
-	var rect := Rect2(0, 0, 360, 26)
+	var rect := Rect2(Vector2.ZERO, GAUGE_SIZE)
 	var safe := rect.size.x * SAFE_SPEED / GAUGE_MAX
-	var font := Style.bold()
-	_gauge.draw_string(font, Vector2(0, -14), tr("PULL_GAUGE"), HORIZONTAL_ALIGNMENT_LEFT, -1, 24, Style.LINEN)
-	_gauge.draw_rect(rect.grow(4), Style.NIGHT_DEEP)
-	_gauge.draw_rect(Rect2(0, 0, safe, rect.size.y), Color(Style.CRASH, 0.35))
-	_gauge.draw_rect(Rect2(safe, 0, rect.size.x - safe, rect.size.y), Color("#6FC3A8", 0.35))
-	var fill := clampf(_gauge_value / GAUGE_MAX, 0.0, 1.0) * rect.size.x
-	_gauge.draw_rect(Rect2(0, 0, fill, rect.size.y), Style.CRASH.lerp(Color("#6FC3A8"), clampf(_gauge_value / SAFE_SPEED, 0, 1)))
-	_gauge.draw_line(Vector2(safe, -6), Vector2(safe, rect.size.y + 6), Style.LINEN, 3)
-	_gauge.draw_string(font, Vector2(0, rect.size.y + 32), tr("PULL_GAUGE_SLOW"), HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color(Style.LINEN, 0.7))
-	_gauge.draw_string(font, Vector2(safe + 8, rect.size.y + 32), tr("PULL_GAUGE_FAST"), HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color("#6FC3A8"))
+	var ratio := clampf(_gauge_value / GAUGE_MAX, 0.0, 1.0)
+	var in_safe := _gauge_value >= SAFE_SPEED
+	_gauge.draw_rect(rect.grow(10), Style.NIGHT_DEEP)
+	_gauge.draw_rect(Rect2(0, 0, safe, rect.size.y), Color(Style.CRASH, 0.3))
+	_gauge.draw_rect(Rect2(safe, 0, rect.size.x - safe, rect.size.y), Color(SAFE_GREEN, 0.3))
+	var fill := ratio * rect.size.x
+	_gauge.draw_rect(Rect2(0, 0, fill, rect.size.y), Style.CRASH.lerp(SAFE_GREEN, clampf(_gauge_value / SAFE_SPEED, 0, 1)))
+	var mid := rect.size.y / 2.0
+	for k in 3:
+		var cx := safe + (rect.size.x - safe) * (0.25 + k * 0.25)
+		var chevron := PackedVector2Array([Vector2(cx - 12, mid - 18), Vector2(cx + 8, mid), Vector2(cx - 12, mid + 18)])
+		_gauge.draw_polyline(chevron, Color(Style.LINEN, 0.95 if in_safe else 0.45), 7)
+	_gauge.draw_line(Vector2(safe, -18), Vector2(safe, rect.size.y + 18), Style.LINEN, 6)
+	if fill > 0.0:
+		_gauge.draw_rect(Rect2(fill - 5, -14, 10, rect.size.y + 28), Style.LINEN)
+	if in_safe:
+		_gauge.draw_rect(rect.grow(10), Color(SAFE_GREEN, 0.8), false, 6)
+
+
+## 왼쪽 위 상차림 진행: 지난 판은 채운 점, 지금 판은 접시 그림.
+func _draw_stages() -> void:
+	for i in SETUPS.size():
+		var c := Vector2(40 + i * 96, 40)
+		if i == setup_index:
+			_stages.draw_circle(c, 44, Style.CANDLE)
+			_stages.draw_circle(c, 38, Style.NIGHT_DEEP)
+			_stages.draw_texture_rect(PLATE, Rect2(c - Vector2(30, 30), Vector2(60, 60)), false)
+		elif i < setup_index:
+			_stages.draw_circle(c, 22, Style.CANDLE)
+		else:
+			_stages.draw_circle(c, 22, Color(Style.LINEN, 0.25))
+		if i < SETUPS.size() - 1:
+			_stages.draw_line(c + Vector2(48 if i == setup_index else 26, 0), c + Vector2(96 - (48 if i + 1 == setup_index else 26), 0), Color(Style.LINEN, 0.25), 6)
+
+
+func _coach_rect(step: StringName) -> Rect2:
+	var grab := Rect2(_grab_rect().position + _stage.position, _grab_rect().size).grow(12)
+	match step:
+		&"grab":
+			return grab
+		&"yank":
+			return grab.merge(Rect2(grab.position + Vector2(grab.size.x, 0), Vector2(300, grab.size.y)))
+		&"gauge":
+			return Rect2(_gauge.position, GAUGE_SIZE).grow(36)
+	return Rect2()
 
 
 func _stage_origin() -> Vector2:
@@ -578,5 +702,7 @@ func _stage_origin() -> Vector2:
 
 func _layout() -> void:
 	_stage.position = _stage_origin()
-	_gauge.position = _stage.position + Vector2(TABLE_X + TABLE_CM * S + 30, TABLE_Y - 230)
-	_gauge.size = Vector2(360, 60)
+	_gauge.size = GAUGE_SIZE
+	_gauge.position = Vector2((size.x - GAUGE_SIZE.x) / 2.0, size.y * 0.95 - GAUGE_SIZE.y - 10)
+	_stages.position = Vector2(size.x * 0.05, size.y * 0.05)
+	_buttons.position = Vector2(size.x * 0.95 - BUTTON_SIZE.x, size.y * 0.95 - BUTTON_SIZE.y * 3 - 64)

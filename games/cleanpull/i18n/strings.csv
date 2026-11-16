@@ -4,20 +4,17 @@ TITLE_SUBTITLE,"그릇은 그대로, 식탁보만 쫙","Leave the dishes, take t
 TITLE_NEW_RUN,투어 시작,Start Tour
 TITLE_SEED,시드,Seed
 TITLE_LANGUAGE,English,한국어
-BACK_TO_TITLE,제목으로,Back to Title
-PULL_HINT,식탁보 끝을 잡고 오른쪽으로 휙!,Grab the cloth's edge and yank it right!
-PULL_TIP,빠르고 수평으로 당길수록 그릇이 그대로 남아요,Fast and level keeps the dishes still
-PULL_GAUGE,당기는 속도,Pull speed
-PULL_GAUGE_SLOW,느림,Slow
-PULL_GAUGE_FAST,안전,Safe
-PULL_SETUP,상차림 %d/%d,Table %d/%d
-PULL_CLEAN,깔끔하게 빠졌다!,CLEAN PULL!
-PULL_CRASH,와장창! %d/%d개 남음,CRASH! %d/%d left
-PULL_STATS,속도 %d · 각도 %d° · 멈칫 %d%%,Speed %d · Angle %d° · Hitch %d%%
-PULL_RETRY,다시 당기기,Pull Again
-PULL_NEXT,다음 상차림,Next Table
+PULL_HINT,끝을 잡고 오른쪽으로 휙!,Grab the edge and yank right!
 TAG_PERFECT,완벽!,Perfect!
 TAG_NEAR_EDGE,아슬아슬!,Close call!
 TAG_MIRACLE,기적!,Miracle!
-TAG_BROKEN,와장창,Smash!
-TAG_TIPPED,넘어짐,Tipped
+PULL_LEFT,%d/%d 남음,%d/%d left
+STAMP_CLEAN,CLEAN!,CLEAN!
+STAMP_CRASH,와장창!,SMASH!
+BTN_HOME,나가기,Quit
+BTN_RETRY,다시,Retry
+BTN_NEXT,다음,Next
+COACH_GRAB,여기를 잡아요,Grab here
+COACH_YANK,오른쪽으로 휙!,Yank it right!
+COACH_GAUGE,초록까지 빠르게,Fast into the green
+COACH_SKIP,건너뛰기,Skip

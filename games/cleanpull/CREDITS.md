@@ -6,6 +6,7 @@
 | 의자·식당 배경 (`assets/art/chair.png`, `room.jpg`, 3D 모델을 구움) | [Kenney Furniture Kit](https://kenney.nl/assets/furniture-kit) | CC0 |
 | 버튼·패널 | [Kenney UI Pack](https://kenney.nl/assets/ui-pack) | CC0 |
 | 손가락 포인터 | [Kenney Cursor Pack](https://kenney.nl/assets/cursor-pack) | CC0 |
+| 집·다시·다음 아이콘 (`assets/art/kenney/icon_*.png`) | [Kenney Game Icons](https://kenney.nl/assets/game-icons) | CC0 |
 | 그릇 깨짐·부딪힘·버튼 효과음 | [Kenney Impact Sounds](https://kenney.nl/assets/impact-sounds), [Interface Sounds](https://kenney.nl/assets/interface-sounds) | CC0 |
 | 글꼴 Pretendard | [orioncactus/pretendard](https://github.com/orioncactus/pretendard) | OFL-1.1 |
 
