@@ -2,6 +2,7 @@ extends ScreenBase
 
 var _seed_input: LineEdit
 var _players_button: Button
+var help: HelpPanel
 
 
 func _ready() -> void:
@@ -20,7 +21,10 @@ func _ready() -> void:
 	var start := _button(tr("TITLE_START"), _on_start)
 	start.theme_type_variation = &"AccentButton"
 	start.grab_focus()
+	_button(tr("TITLE_HELP"), func() -> void: help.open())
 	_button(tr("TITLE_LANGUAGE"), _on_toggle_language)
+	help = HelpPanel.new()
+	add_child(help)
 
 
 func _refresh_players() -> void:

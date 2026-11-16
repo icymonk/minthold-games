@@ -10,9 +10,30 @@ const SCREENS := {
 const MIN_PLAYERS := 3
 const MAX_PLAYERS := 6
 
+const SETTINGS := "user://settings.cfg"
+
 var players := 5
+var settings_path := SETTINGS
+var seen_intro := false
 var run_seed := 0
 var rng: RngStreams
+
+
+func _ready() -> void:
+	load_settings()
+
+
+func load_settings() -> void:
+	var cfg := ConfigFile.new()
+	seen_intro = cfg.load(settings_path) == OK and cfg.get_value("play", "seen_intro", false)
+
+
+func mark_intro_seen() -> void:
+	seen_intro = true
+	var cfg := ConfigFile.new()
+	cfg.load(settings_path)
+	cfg.set_value("play", "seen_intro", true)
+	cfg.save(settings_path)
 
 
 func start_match(seed_value: int = -1) -> void:

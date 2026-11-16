@@ -3,6 +3,10 @@ extends GdUnitTestSuite
 const TABLE := preload("res://scenes/screens/table.tscn")
 
 
+func before_test() -> void:
+	Game.seen_intro = true
+
+
 func _human_bot(s: Session) -> Bot:
 	return Bot.new(Session.HUMAN, RandomNumberGenerator.new())
 
