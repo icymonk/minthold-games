@@ -11,6 +11,22 @@ func _init() -> void:
 	var games: int = int(args.get("games", "1000"))
 	var players: int = int(args.get("players", "5"))
 	var base_seed: int = int(args.get("seed", "1"))
+	if args.has("target"):
+		Cards.tune[&"target"] = int(args.target)
+	for knob in ["add", "remove"]:
+		if args.has(knob):
+			var ids: Array[int] = []
+			for key in String(args[knob]).split(",", false):
+				ids.append(Cards.Id[key])
+			Cards.tune[StringName(knob)] = ids
+	for pair in String(args.get("bot", "")).split(",", false):
+		var kv := pair.split("=")
+		Bot.tune[StringName(kv[0])] = float(kv[1])
+	var size := Cards.deck(players).size()
+	if size % players != 0:
+		printerr("덱 %d장을 %d명에게 똑같이 나눌 수 없다." % [size, players])
+		quit(1)
+		return
 	var stats := run(games, players, base_seed)
 	print(JSON.stringify(stats, "  "))
 	quit()

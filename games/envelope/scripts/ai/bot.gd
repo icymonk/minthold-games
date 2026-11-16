@@ -15,6 +15,9 @@ var rng: RandomNumberGenerator
 var keep := -1
 
 
+## 시뮬레이터 전용 덮어쓰기: { habit, follow, herd }.
+static var tune := {}
+
 func _init(s: int, r: RandomNumberGenerator, p: Persona = Persona.CAREFUL) -> void:
 	seat = s
 	rng = r
@@ -93,9 +96,8 @@ func thief_belief(k: Knowledge, s: int) -> float:
 		if k.kind_of(uid) == C.THIEF and not k.envelope.has(uid):
 			return 0.85 if k.located[uid] == s else 0.05
 	var b := 1.0 / maxf(1.0, k.players - 1)
-	b += _note_habit(k, s) * 0.3
-	if persona == Persona.FOLLOWER:
-		b += suspicion_estimate(k, s) * 0.1
+	b += _note_habit(k, s) * tune.get(&"habit", 0.3)
+	b += suspicion_estimate(k, s) * (tune.get(&"follow", 0.1) if persona == Persona.FOLLOWER else tune.get(&"herd", 0.05))
 	return b
 
 
