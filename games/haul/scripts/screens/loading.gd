@@ -240,6 +240,8 @@ func _undo_last() -> void:
 
 
 func _depart() -> void:
+	if _depart_button.disabled:
+		return
 	_return_held()
 	Game.sfx(&"engine")
 	if _guide:
@@ -271,6 +273,7 @@ func _refresh() -> void:
 		Game.sfx(&"chime")
 	_undo_button.disabled = _undo.is_empty()
 	_rotate_button.disabled = _held == null
+	_depart_button.disabled = _guide != null and _guide.step != LoadingGuide.Step.DEPART
 	if _guide and _guide.step != LoadingGuide.Step.DONE:
 		_card_label.text = tr(_guide.text_key(_shift))
 		_next_button.visible = _guide.is_manual()
