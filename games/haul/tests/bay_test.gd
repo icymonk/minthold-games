@@ -121,3 +121,20 @@ func test_copy_is_independent() -> void:
 	bay.unload(1)
 	assert_int(snap.free_cells()).is_equal(31)
 	assert_int(bay.free_cells()).is_equal(32)
+
+
+func test_fragile_breaks_when_slid_under_overhang() -> void:
+	var bay := Bay.new()
+	bay.place(_box(1), Vector2i(0, 0))
+	bay.place(_box(2, &"2x1"), Vector2i(0, 1))  # (1,0) 위로 처마
+	var glass := _box(3, &"1x1", 0, [Box.Trait.FRAGILE])
+	assert_array(bay.place(glass, Vector2i(1, 0)).broken).contains([3])
+
+
+func test_place_same_box_twice_is_rejected() -> void:
+	var bay := Bay.new()
+	var box := _box(1)
+	bay.place(box, Vector2i(0, 0))
+	assert_int(bay.place(box, Vector2i(5, 0)).error).is_equal(Bay.Fail.ALREADY_IN_BAY)
+	bay.unload(1)
+	assert_int(bay.free_cells()).is_equal(32)

@@ -3,7 +3,7 @@ extends RefCounted
 ## 트럭 짐칸을 옆에서 본 단면 격자. x=0은 운전석 쪽 벽, x=width-1 오른쪽이 뒷문, y=0이 바닥.
 ## 상자는 문에서 밀어 넣고(그 높이의 길이 열려 있어야 함) 중력으로 떨어진다.
 
-enum Fail { OK, OUT_OF_BOUNDS, BLOCKED, NOT_ON_HEAVY, NOT_IN_BAY, COVERED, PATH_BLOCKED }
+enum Fail { OK, OUT_OF_BOUNDS, BLOCKED, NOT_ON_HEAVY, NOT_IN_BAY, COVERED, PATH_BLOCKED, ALREADY_IN_BAY }
 
 var width: int
 var height: int
@@ -31,6 +31,8 @@ func is_free(cell: Vector2i, ignore_id := -1) -> bool:
 ## 상자를 origin 높이로 문에서 밀어 넣었을 때 떨어져 멈추는 자리. 못 넣으면 Error를 담아 돌려준다.
 ## 결과: {error, origin, fall}
 func preview(box: Box, origin: Vector2i) -> Dictionary:
+	if boxes.has(box.id):
+		return {error = Fail.ALREADY_IN_BAY}
 	for c in box.cells:
 		var p := origin + c
 		if p.x < 0 or p.y < 0 or p.x >= width or p.y >= height:
@@ -52,7 +54,7 @@ func place(box: Box, origin: Vector2i) -> Dictionary:
 		return p
 	_put(box, p.origin)
 	var broken: Array[int] = []
-	if box.has(Box.Trait.FRAGILE) and p.fall > 1:
+	if box.has(Box.Trait.FRAGILE) and (p.fall > 1 or not _boxes_above(box, p.origin).is_empty()):
 		_break(box, broken)
 	for below in _boxes_below(box, p.origin):
 		if below.has(Box.Trait.FRAGILE):
@@ -166,6 +168,15 @@ func _boxes_below(box: Box, origin: Vector2i) -> Array[Box]:
 		var under := box_at(origin + c + Vector2i(0, -1))
 		if under != null and not under in out:
 			out.append(under)
+	return out
+
+
+func _boxes_above(box: Box, origin: Vector2i) -> Array[Box]:
+	var out: Array[Box] = []
+	for c in box.cells:
+		var over := box_at(origin + c + Vector2i(0, 1))
+		if over != null and over != box and not over in out:
+			out.append(over)
 	return out
 
 
