@@ -305,7 +305,7 @@ func _draw_memo() -> void:
 			b.modulate.a = 0.25
 		elif marked:
 			b.modulate = Color(Style.ALERT, 0.6)
-		b.disabled = not can_guess or struck or (marked and not _mark_mode)
+		b.disabled = struck or (not _mark_mode and (not can_guess or marked))
 		b.pressed.connect(_on_memo.bind(n))
 		_memo.add_child(b)
 	_warn.text = tr("MULTI_WARN") % _picked.size() if _picked.size() > 1 else ""

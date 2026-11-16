@@ -182,3 +182,18 @@ func test_hit_flips_card() -> void:
 	var card: Control = t._row.get_child(1)
 	assert_float(card.scale.x).is_less(1.0)
 	Game.role = before
+
+
+func test_marks_work_outside_guess_phase() -> void:
+	var before: int = Game.role
+	var t := _chief_table()
+	t.session.m.side = S.STAFF
+	t.session.m.phase = Match.Phase.ACT
+	t._timer.paused = true
+	t.refresh()
+	assert_bool(_memo_button(t, 3).disabled).is_true()
+	t.set_mark_mode(true)
+	assert_bool(_memo_button(t, 3).disabled).is_false()
+	t._on_memo(3)
+	assert_bool(t.marks.has(3)).is_true()
+	Game.role = before
