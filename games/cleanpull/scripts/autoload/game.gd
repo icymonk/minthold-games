@@ -5,7 +5,7 @@ signal screen_changed(scene: PackedScene)
 
 const SCREENS := {
 	&"title": preload("res://scenes/screens/title.tscn"),
-	&"tour": preload("res://scenes/screens/tour.tscn"),
+	&"pull": preload("res://scenes/screens/pull.tscn"),
 }
 
 var run_seed := 0
@@ -15,7 +15,7 @@ var rng: RngStreams
 func start_run(seed_value: int = -1) -> void:
 	run_seed = seed_value if seed_value >= 0 else randi()
 	rng = RngStreams.new(run_seed)
-	goto(&"tour")
+	goto(&"pull")
 
 
 func goto(screen: StringName) -> void:

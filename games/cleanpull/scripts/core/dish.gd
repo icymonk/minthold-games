@@ -7,7 +7,7 @@ const CATALOG := {
 	&"soup_bowl": {"chips": 15, "width": 16.0, "height": 7.0, "grip": 0.35},
 	&"mug": {"chips": 15, "width": 9.0, "height": 10.0, "grip": 0.4},
 	&"wine_glass": {"chips": 40, "width": 7.0, "height": 20.0, "grip": 0.3},
-	&"candlestick": {"chips": 30, "width": 8.0, "height": 25.0, "grip": 0.35},
+	&"wine_bottle": {"chips": 30, "width": 8.0, "height": 30.0, "grip": 0.35},
 	&"vase": {"chips": 35, "width": 12.0, "height": 28.0, "grip": 0.4},
 	&"cake": {"chips": 50, "width": 26.0, "height": 14.0, "grip": 0.25},
 	&"jelly": {"chips": 25, "width": 12.0, "height": 9.0, "grip": 0.5},
