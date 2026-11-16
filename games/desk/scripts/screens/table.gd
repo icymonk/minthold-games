@@ -38,6 +38,12 @@ var _log: Label
 var _pass: Button
 var _guess: Button
 var _overlay: Control
+var _result_row: HFlowContainer
+var _rules: Control
+var _tip_panel: PanelContainer
+var _tip_label: Label
+var _tip_key := &""
+var _manhunt_bar: Label
 var _timer: Timer
 
 
@@ -78,6 +84,7 @@ func refresh() -> void:
 	_draw_hand()
 	_draw_actions()
 	_draw_log()
+	_draw_tip()
 	_draw_overlay()
 	if not session.is_over() and not session.waiting_for_human() and _timer.is_stopped():
 		_timer.start()
@@ -142,6 +149,11 @@ func _build() -> void:
 	back.text = tr("BACK_TO_TITLE")
 	back.add_theme_font_size_override(&"font_size", 20)
 	back.pressed.connect(func() -> void: Game.goto(&"title"))
+	var rules_btn := Button.new()
+	rules_btn.text = tr("RULES_BTN")
+	rules_btn.add_theme_font_size_override(&"font_size", 20)
+	rules_btn.pressed.connect(show_rules.bind(true))
+	top.add_child(rules_btn)
 	top.add_child(back)
 
 	var mid := HBoxContainer.new()
@@ -158,6 +170,9 @@ func _build() -> void:
 	_banner = _text("", 24, true)
 	_banner.modulate.a = 0.0
 	row_head.add_child(_banner)
+	_manhunt_bar = _text(tr("MANHUNT_BANNER"), 26, true)
+	_manhunt_bar.modulate = Style.ALERT
+	row_head.add_child(_manhunt_bar)
 	row_box.add_child(row_head)
 	_row = HFlowContainer.new()
 	_row.add_theme_constant_override(&"h_separation", 8)
@@ -199,6 +214,23 @@ func _build() -> void:
 	log_box.add_child(_log)
 	low.add_child(log_box)
 
+	_tip_panel = PanelContainer.new()
+	_tip_panel.add_theme_stylebox_override(&"panel", Style.box(Style.POSTIT, 10))
+	var tip_row := HBoxContainer.new()
+	tip_row.add_theme_constant_override(&"separation", 16)
+	_tip_label = _text("", 22)
+	_tip_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_tip_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	tip_row.add_child(_tip_label)
+	var skip := Button.new()
+	skip.text = tr("TIP_SKIP")
+	skip.add_theme_font_size_override(&"font_size", 18)
+	skip.pressed.connect(func() -> void:
+		Game.skip_tips()
+		refresh())
+	tip_row.add_child(skip)
+	_tip_panel.add_child(tip_row)
+	col.add_child(_tip_panel)
 	_status = _text("", 28, true)
 	col.add_child(_status)
 	var bottom := HBoxContainer.new()
@@ -238,6 +270,45 @@ func _build() -> void:
 	_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_overlay.visible = false
 	add_child(_overlay)
+	_build_rules()
+
+
+func _build_rules() -> void:
+	_rules = Control.new()
+	_rules.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_rules.visible = false
+	add_child(_rules)
+	var shade := ColorRect.new()
+	shade.color = Color(Style.INK, 0.55)
+	shade.set_anchors_preset(Control.PRESET_FULL_RECT)
+	shade.gui_input.connect(func(e: InputEvent) -> void:
+		if e is InputEventMouseButton and e.pressed:
+			show_rules(false))
+	_rules.add_child(shade)
+	var center := CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_rules.add_child(center)
+	var panel := PanelContainer.new()
+	panel.add_theme_stylebox_override(&"panel", Style.box(Color.WHITE, 16))
+	center.add_child(panel)
+	var pad := MarginContainer.new()
+	for side in [&"margin_left", &"margin_right", &"margin_top", &"margin_bottom"]:
+		pad.add_theme_constant_override(side, 28)
+	panel.add_child(pad)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override(&"separation", 16)
+	box.custom_minimum_size = Vector2(900, 0)
+	pad.add_child(box)
+	box.add_child(_text(tr("RULES_TITLE"), 32, true))
+	var body := _text(tr("RULES_BODY"), 20)
+	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(body)
+	box.add_child(_big_button(tr("CLOSE"), show_rules.bind(false)))
+
+
+func show_rules(on: bool) -> void:
+	_rules.visible = on
 
 
 # ── 그리기 ────────────────────────────────────────────
@@ -285,7 +356,9 @@ func _draw_row() -> void:
 		card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		var face: bool = h.revealed
 		var bg := Color.WHITE if face else Style.PARTITION
-		card.add_theme_stylebox_override(&"panel", Style.box(bg, 10, Color(Style.INK, 0.4), 2))
+		var hunted := session.m.phase == Match.Phase.MANHUNT and not face and not session.is_over()
+		var edge := Style.box(bg, 10, Style.ALERT, 4) if hunted else Style.box(bg, 10, Color(Style.INK, 0.4), 2)
+		card.add_theme_stylebox_override(&"panel", edge)
 		var box := VBoxContainer.new()
 		box.alignment = BoxContainer.ALIGNMENT_CENTER
 		if h.card == Knowledge.HIDDEN:
@@ -447,25 +520,95 @@ func _draw_overlay() -> void:
 	var panel := PanelContainer.new()
 	panel.add_theme_stylebox_override(&"panel", Style.box(Color.WHITE, 16))
 	center.add_child(panel)
+	var pad := MarginContainer.new()
+	for side in [&"margin_left", &"margin_right", &"margin_top", &"margin_bottom"]:
+		pad.add_theme_constant_override(side, 32)
+	panel.add_child(pad)
 	var box := VBoxContainer.new()
-	box.add_theme_constant_override(&"separation", 20)
-	box.custom_minimum_size = Vector2(640, 0)
-	panel.add_child(box)
+	box.add_theme_constant_override(&"separation", 18)
+	box.custom_minimum_size = Vector2(760, 0)
+	pad.add_child(box)
 	var won := session.m.winner == session.human
-	box.add_child(_text(tr("RESULT_WIN" if won else "RESULT_LOSE"), 56, true))
-	box.add_child(_text(tr("RESULT_STAFF" if session.m.winner == S.STAFF else "RESULT_CHIEF"), 26))
-	for l in box.get_children():
-		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	var m := session.m
+	box.add_child(_centered(tr("RESULT_WIN" if won else "RESULT_LOSE"), 56, true))
+	box.add_child(_centered(tr("RESULT_STAFF" if m.winner == S.STAFF else "RESULT_CHIEF"), 26))
+	var hits := 0
+	var misses := 0
+	for rec in m.history:
+		if rec.action == A.GUESS:
+			if rec.hit:
+				hits += 1
+			else:
+				misses += 1
+	box.add_child(_centered(tr("RESULT_STATS") % [m.turns[S.STAFF], hits, misses], 22))
+	box.add_child(_centered(tr("RESULT_ROW"), 20, true))
+	_result_row = HFlowContainer.new()
+	_result_row.alignment = FlowContainer.ALIGNMENT_CENTER
+	_result_row.add_theme_constant_override(&"h_separation", 6)
+	_result_row.add_theme_constant_override(&"v_separation", 6)
+	for i in range(1, m.hideouts.size()):
+		var h: Dictionary = m.hideouts[i]
+		var caught: bool = h.revealed and h.card != Cards.LAST
+		var chip := PanelContainer.new()
+		chip.custom_minimum_size = Vector2(64, 60)
+		chip.add_theme_stylebox_override(&"panel", Style.box(Style.ALERT if caught else Style.PARTITION, 8))
+		var l := _centered("%s\n%d" % [Cards.time_text(h.card), h.card], 16)
+		l.modulate = Color.WHITE
+		chip.add_child(l)
+		_result_row.add_child(chip)
+	box.add_child(_result_row)
+	box.add_child(_centered(tr("RESULT_SEED") % Game.run_seed, 16))
+	var buttons := HBoxContainer.new()
+	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
+	buttons.add_theme_constant_override(&"separation", 12)
 	var again := _big_button(tr("RESULT_AGAIN"), func() -> void: Game.start_match())
 	again.theme_type_variation = &"AccentButton"
-	box.add_child(again)
-	box.add_child(_big_button(tr("BACK_TO_TITLE"), func() -> void: Game.goto(&"title")))
+	buttons.add_child(again)
+	buttons.add_child(_big_button(tr("RESULT_SAME"), func() -> void: Game.start_match(Game.run_seed)))
+	buttons.add_child(_big_button(tr("BACK_TO_TITLE"), func() -> void: Game.goto(&"title")))
+	box.add_child(buttons)
+
+
+func _centered(s: String, size: int, bold := false) -> Label:
+	var l := _text(s, size, bold)
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	return l
+
+
+## 첫 판 안내(기획서 6장). 지금 상황에 맞는 안내 중 아직 안 본 것.
+func current_tip() -> StringName:
+	if Game.tips_off or not session.waiting_for_human():
+		return &""
+	var m := session.m
+	var key := &""
+	match m.phase:
+		Match.Phase.DRAW:
+			key = &"TIP_STAFF_DRAW" if session.human == S.STAFF else &"TIP_CHIEF_DRAW"
+		Match.Phase.MANHUNT:
+			key = &"TIP_CHIEF_MANHUNT"
+		_:
+			if session.human == S.CHIEF:
+				key = &"TIP_CHIEF_MEMO"
+			elif m.is_first_turn(S.STAFF):
+				key = &"TIP_STAFF_FIRST"
+			else:
+				key = &"TIP_STAFF_SLOT"
+	return &"" if Game.tips_seen.has(key) else key
+
+
+func _draw_tip() -> void:
+	_tip_key = current_tip()
+	_tip_panel.visible = _tip_key != &""
+	_tip_label.text = tr(_tip_key) if _tip_panel.visible else ""
+	_manhunt_bar.visible = session.m.phase == Match.Phase.MANHUNT and not session.is_over()
 
 
 # ── 입력 ──────────────────────────────────────────────
 
 func _play(mv: Dictionary) -> void:
 	if session.play(mv):
+		if _tip_key != &"":
+			Game.mark_tip(_tip_key)
 		_picked.clear()
 		refresh()
 
