@@ -88,3 +88,19 @@ func test_drop_on_envelope_plays_selected_card() -> void:
 	t._do(Match.Action.ENVELOPE, -1)
 	assert_bool(uid in s.view().envelope).is_true()
 	t._timer.stop()
+
+
+func test_note_move_options_are_distinct() -> void:
+	Game.players = 3
+	Game.rng = RngStreams.new(1)
+	var t: Control = auto_free(TABLE.instantiate())
+	add_child(t)
+	t._timer.stop()
+	var m: Match = t.session.m
+	m.notes[1].append_array([100, 101])
+	m.placed_by[100] = 0
+	m.placed_by[101] = 2
+	t._k = t.session.view()
+	var a: String = t.option_text(&"NOTE_MOVE", { note = 100, to = 2 })
+	var b: String = t.option_text(&"NOTE_MOVE", { note = 101, to = 2 })
+	assert_str(a).is_not_equal(b)

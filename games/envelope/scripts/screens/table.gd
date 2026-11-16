@@ -347,7 +347,9 @@ func option_text(ask: StringName, o: Variant) -> String:
 		&"CLAIM":
 			return tr("OPT_CLAIM_YES") if o else tr("OPT_CLAIM_NO")
 		&"NOTE_MOVE":
-			return tr("OPT_NOTE_MOVE") % [_seat_name(_note_owner(o.note)), _seat_name(o.to)]
+			var owner := _note_owner(o.note)
+			var nth: int = _k.notes[owner].find(o.note) + 1
+			return tr("OPT_NOTE_MOVE") % [_seat_name(owner), nth, _seat_name(_k.placed_by.get(o.note, owner)), _seat_name(o.to)]
 		&"TAKE_FACE_UP":
 			return tr("OPT_FACE_UP") % [_seat_name(_face_up_owner(o)), tr(Cards.name_key(_k.kind_of(o)))]
 		&"ENVELOPE_SWAP":

@@ -58,7 +58,7 @@ REQ_DRAW_FROM,카드를 뽑아 올 사람,Draw from whom
 REQ_GIVE_BACK,돌려줄 카드,Card to give back
 REQ_ENVELOPE_SWAP,봉투 카드와 바꿀 내 카드,Swap an envelope card with
 OPT_SLOT,봉투 %d번째,Envelope slot %d
-OPT_NOTE_MOVE,%s 앞 쪽지 → %s,Note on %s → %s
+OPT_NOTE_MOVE,"%s 앞 %d번째 쪽지 (놓은 사람: %s) → %s","%s's note #%d (from %s) → %s"
 OPT_FACE_UP,%s 앞 %s,%s's %s
 OPT_ENVELOPE_SWAP,봉투 %d번째 ↔ 내 %s,Slot %d ↔ my %s
 OPT_CLAIM_YES,범인인 척한다,Pretend
