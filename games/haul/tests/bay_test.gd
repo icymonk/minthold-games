@@ -138,3 +138,12 @@ func test_place_same_box_twice_is_rejected() -> void:
 	assert_int(bay.place(box, Vector2i(5, 0)).error).is_equal(Bay.Fail.ALREADY_IN_BAY)
 	bay.unload(1)
 	assert_int(bay.free_cells()).is_equal(32)
+
+
+func test_blockers_and_out_of_order() -> void:
+	var bay := Bay.new()
+	bay.place(_box(1, &"1x1", 1), Vector2i(0, 0))  # 첫 집인데 맨 안쪽
+	bay.place(_box(2, &"1x1", 3), Vector2i(1, 0))  # 앞을 막음, 늦은 집
+	bay.place(_box(3, &"1x1", 0), Vector2i(0, 1))  # 위를 막음, 더 이른 집
+	assert_array(bay.blockers(1)).contains_exactly_in_any_order([2, 3])
+	assert_array(bay.out_of_order()).contains_exactly([2])

@@ -9,6 +9,15 @@ const CARDBOARD := Color("#C8955C")
 const TAPE := Color("#E8D9B5")
 const ALERT := Color("#E0523F")
 const FROZEN := Color("#7CC6E8")
+## 배송 집 색(색약 구분용 Okabe–Ito 계열). 번호와 함께 쓴다.
+const STOPS: Array[Color] = [
+	Color("#E69F00"), Color("#56B4E9"), Color("#009E73"), Color("#F0E442"),
+	Color("#0072B2"), Color("#D55E00"), Color("#CC79A7"), Color("#B8B8B8"),
+]
+
+
+static func stop_color(stop: int) -> Color:
+	return STOPS[(stop - 1) % STOPS.size()]
 
 static var _bold: Font
 
