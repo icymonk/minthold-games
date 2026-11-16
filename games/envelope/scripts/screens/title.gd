@@ -21,6 +21,8 @@ func _ready() -> void:
 	var start := _button(tr("TITLE_START"), _on_start)
 	start.theme_type_variation = &"AccentButton"
 	start.grab_focus()
+	_button(tr("TITLE_LEAGUE") % League.GAMES, Game.start_league)
+	_button(tr("TITLE_RECORDS"), func() -> void: Game.goto(&"records"))
 	_button(tr("TITLE_HELP"), func() -> void: help.open())
 	_button(tr("TITLE_LANGUAGE"), _on_toggle_language)
 	help = HelpPanel.new()
@@ -39,6 +41,7 @@ func _on_cycle_players() -> void:
 
 func _on_start() -> void:
 	var text := _seed_input.text.strip_edges()
+	Game.league = null
 	Game.start_match(int(text) if text.is_valid_int() else -1)
 
 

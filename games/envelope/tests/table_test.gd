@@ -3,8 +3,20 @@ extends GdUnitTestSuite
 const TABLE := preload("res://scenes/screens/table.tscn")
 
 
+var _records_path: String
+
+
 func before_test() -> void:
 	Game.seen_intro = true
+	Game.league = null
+	_records_path = Game.records_path
+	Game.records_path = "user://test_table_records.cfg"
+
+
+func after_test() -> void:
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(Game.records_path))
+	Game.records_path = _records_path
+	Game.load_records()
 
 
 func _human_bot(s: Session) -> Bot:

@@ -114,3 +114,14 @@ ABILITY_BROADCAST,모두 1장씩 골라 왼쪽 사람에게 넘긴다 (1장 남�
 ABILITY_SUPPLIES,다른 사람 앞의 앞면 카드 1장(비품 담당 제외)을 내 손으로 가져온다,Take a face-up card (not a Supply Clerk) from someone else's desk into your hand
 ABILITY_BOSS,"다른 사람 손에서 무작위 1장을 뽑고, 그 사람에게 1장 돌려준다 (뽑은 것도 가능)","Draw a random card from someone's hand, then give them one back (it can be the same card)"
 ABILITY_QUITTER,봉투 속 1장(위치만 보고)과 내 손 1장을 바꾼다,Swap a card in your hand with one in the envelope (you only see its position)
+TITLE_LEAGUE,리그 시작 (%d판),Start League (%d games)
+TITLE_RECORDS,기록,Records
+RECORDS_TITLE,기록,Records
+RECORDS_EMPTY,아직 끝낸 판이 없다,No finished games yet
+RECORDS_ROW,"%s: %d판 %d승 (%d%%)","%s: %d played, %d won (%d%%)"
+RECORDS_TOTAL,"전체: %d판 %d승","Total: %d played, %d won"
+RECORDS_BEST,최고 사내 평판: %d,Best office reputation: %d
+LEAGUE_STATUS,"리그 %d / %d판 · 이번 판 +%d · 사내 평판 %d","League %d / %d · this game +%d · reputation %d"
+LEAGUE_DONE,"리그 끝! 사내 평판 %d (최고 %d)","League over! Reputation %d (best %d)"
+LEAGUE_NEXT,다음 판,Next Game
+LEAGUE_AGAIN,리그 다시,New League

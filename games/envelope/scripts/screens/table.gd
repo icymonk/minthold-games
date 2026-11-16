@@ -26,6 +26,8 @@ var _slots: HFlowContainer
 var _banner: Label
 var _shown_events := 0
 var result_step := 0
+var recorded := false
+var league_points := 0
 var help: HelpPanel
 var _target_label: Label
 var _desk: PanelContainer
@@ -323,6 +325,9 @@ func _draw_log() -> void:
 func _draw_overlay() -> void:
 	_clear(_overlay)
 	if session.is_over():
+		if not recorded:
+			recorded = true
+			league_points = Game.record(session.result(), Session.HUMAN)
 		_show_result(session.result())
 	elif session.waiting_for_human() and not _k.request.is_empty() and not _on_board(_k.request.ask):
 		_show_request(_k.request)
@@ -394,13 +399,22 @@ func _show_result(r: Dictionary) -> void:
 				list.add_child(_stamp(tr("RESULT_YOU_WIN"), true))
 			else:
 				list.add_child(_text(26, true, tr("RESULT_YOU_LOSE")))
+			if Game.league != null:
+				list.add_child(_text(26, true, tr("LEAGUE_STATUS") % [Game.league.played(), League.GAMES, league_points, Game.league.total()]))
+				if Game.league.done():
+					list.add_child(_stamp(tr("LEAGUE_DONE") % [Game.league.total(), Game.records.best], true))
 	if result_step < RESULT_STEPS - 1:
 		_dialog_button(list, tr("RESULT_NEXT"), func() -> void:
 			result_step += 1
 			refresh(), true)
 		return
-	_dialog_button(list, tr("RESULT_AGAIN"), func() -> void: Game.start_match(), true)
-	_dialog_button(list, tr("RESULT_SAME_SEED"), func() -> void: Game.start_match(Game.run_seed))
+	if Game.league != null and not Game.league.done():
+		_dialog_button(list, tr("LEAGUE_NEXT"), func() -> void: Game.start_match(), true)
+	elif Game.league != null:
+		_dialog_button(list, tr("LEAGUE_AGAIN"), Game.start_league, true)
+	else:
+		_dialog_button(list, tr("RESULT_AGAIN"), func() -> void: Game.start_match(), true)
+		_dialog_button(list, tr("RESULT_SAME_SEED"), func() -> void: Game.start_match(Game.run_seed))
 	_dialog_button(list, tr("BACK_TO_TITLE"), func() -> void: Game.goto(&"title"))
 
 
