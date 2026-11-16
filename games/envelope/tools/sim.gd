@@ -22,6 +22,11 @@ func _init() -> void:
 	for pair in String(args.get("bot", "")).split(",", false):
 		var kv := pair.split("=")
 		Bot.tune[StringName(kv[0])] = float(kv[1])
+	var size := Cards.deck(players).size()
+	if size % players != 0:
+		printerr("덱 %d장을 %d명에게 똑같이 나눌 수 없다." % [size, players])
+		quit(1)
+		return
 	var stats := run(games, players, base_seed)
 	print(JSON.stringify(stats, "  "))
 	quit()
