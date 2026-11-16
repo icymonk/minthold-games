@@ -1,0 +1,10 @@
+; 그림 굽기 전용 프로젝트. 게임 프로젝트는 이 폴더의 .gdignore로 무시한다.
+config_version=5
+
+[application]
+
+config/name="desk art bake"
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"

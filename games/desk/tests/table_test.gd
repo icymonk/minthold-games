@@ -331,3 +331,43 @@ func test_result_lists_every_record() -> void:
 	assert_bool(t._rules.visible).is_true()
 	assert_int(t._rules.get_index()).is_greater(t._overlay.get_index())
 	Game.role = before
+
+
+func test_decks_and_row_use_baked_art() -> void:
+	var before: int = Game.role
+	var t := _chief_table()
+	for b in t._decks.get_children():
+		assert_object((b as Button).icon).is_not_null()
+	var back: Control = t._row.get_child(1)
+	var pics := back.find_children("*", "TextureRect", true, false)
+	assert_int(pics.size()).is_equal(1)
+	assert_object((pics[0] as TextureRect).texture).is_same(Art.EMPTY_CHAIR)
+	assert_object(t._portrait.texture).is_not_null()
+	Game.role = before
+
+
+func test_moves_make_sounds_and_poses() -> void:
+	var before: int = Game.role
+	var was_muted: bool = Game.muted
+	Game.muted = true
+	var t := _chief_table()
+	var mv := { side = S.CHIEF, action = Match.Action.GUESS, numbers = [t.session.m.hideouts[1].card] as Array[int] }
+	t._play(mv)
+	assert_array(Game.played).contains([&"ping", &"flip"])
+	assert_str(t.pose()).is_equal("chief_cheer0")
+	Game.muted = was_muted
+	Game.role = before
+
+
+func test_result_stamp_matches_winner() -> void:
+	var before: int = Game.role
+	Game.role = Game.Role.STAFF
+	Game.rng = RngStreams.new(4)
+	var t: Control = auto_free(TABLE.instantiate())
+	add_child(t)
+	_finish(t.session, t.refresh)
+	var key := "STAMP_STAFF" if t.session.m.winner == S.STAFF else "STAMP_CHIEF"
+	assert_str(t._stamp.text).is_equal(tr(key))
+	assert_bool(Game.played.has(&"stamp")).is_true()
+	Game.role = before
+

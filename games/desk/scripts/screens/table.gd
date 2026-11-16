@@ -9,6 +9,8 @@ const CELL_SIZE := Vector2(38, 34)
 const LOG_LINES := 9
 const FLIP_TIME := 0.35
 const BANNER_TIME := 1.6
+const POP_TIME := 0.25
+const PORTRAIT_SIZE := Vector2(96, 128)
 
 var session: Session
 var _k: Knowledge
@@ -46,6 +48,12 @@ var _tip_label: Label
 var _tip_key := &""
 var _manhunt_bar: Label
 var _timer: Timer
+var _portrait: TextureRect
+var _mute_btn: Button
+var _stamp: Label
+var _row_shown := 0
+## 짚기가 맞거나 틀린 뒤 잠깐 보여 줄 자세.
+var _reaction := &""
 
 
 func _ready() -> void:
@@ -87,6 +95,8 @@ func refresh() -> void:
 	_draw_log()
 	_draw_tip()
 	_draw_overlay()
+	_draw_mute()
+	_portrait.texture = Art.person(pose())
 	if not session.is_over() and not session.waiting_for_human() and _timer.is_stopped():
 		_timer.start()
 
@@ -154,6 +164,12 @@ func _build() -> void:
 	rules_btn.text = tr("RULES_BTN")
 	rules_btn.add_theme_font_size_override(&"font_size", 20)
 	rules_btn.pressed.connect(show_rules.bind(true))
+	_mute_btn = Button.new()
+	_mute_btn.add_theme_font_size_override(&"font_size", 20)
+	_mute_btn.pressed.connect(func() -> void:
+		Game.toggle_mute()
+		_draw_mute())
+	top.add_child(_mute_btn)
 	top.add_child(rules_btn)
 	top.add_child(back)
 
@@ -232,8 +248,18 @@ func _build() -> void:
 	tip_row.add_child(skip)
 	_tip_panel.add_child(tip_row)
 	col.add_child(_tip_panel)
+	var status_row := HBoxContainer.new()
+	status_row.add_theme_constant_override(&"separation", 16)
+	_portrait = Art.picture(null, PORTRAIT_SIZE)
+	_portrait.pivot_offset = Vector2(PORTRAIT_SIZE.x / 2, PORTRAIT_SIZE.y)
+	var bob := _portrait.create_tween().set_loops()
+	bob.tween_property(_portrait, ^"scale", Vector2(1.0, 1.04), 0.6).set_trans(Tween.TRANS_SINE)
+	bob.tween_property(_portrait, ^"scale", Vector2.ONE, 0.6).set_trans(Tween.TRANS_SINE)
+	status_row.add_child(_portrait)
 	_status = _text("", 28, true)
-	col.add_child(_status)
+	_status.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	status_row.add_child(_status)
+	col.add_child(status_row)
 	var bottom := HBoxContainer.new()
 	bottom.add_theme_constant_override(&"separation", 16)
 	col.add_child(bottom)
@@ -339,9 +365,14 @@ func _draw_decks() -> void:
 	for z in _k.deck_counts.size():
 		var r: Vector2i = Cards.ZONE_RANGES[z]
 		var b := Button.new()
-		b.custom_minimum_size = Vector2(150, CARD_SIZE.y)
-		b.add_theme_font_size_override(&"font_size", 20)
+		b.custom_minimum_size = Vector2(170, CARD_SIZE.y + 60)
+		b.add_theme_font_size_override(&"font_size", 18)
 		b.text = tr("DECK_LABEL") % [tr("ZONE_%d" % z), r.x, r.y, _k.deck_counts[z]]
+		b.icon = Art.ZONES[z]
+		b.expand_icon = true
+		b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		b.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
+		b.add_theme_constant_override(&"icon_max_width", 140)
 		var mv := _find(can_draw, &"zone", z)
 		b.disabled = mv.is_empty()
 		b.pressed.connect(_play.bind(mv))
@@ -363,8 +394,10 @@ func _draw_row() -> void:
 		var box := VBoxContainer.new()
 		box.alignment = BoxContainer.ALIGNMENT_CENTER
 		if h.card == Knowledge.HIDDEN:
-			box.add_child(_text(tr("CARD_BACK"), 48, true))
+			box.add_child(Art.picture(Art.EMPTY_CHAIR, Vector2(CARD_SIZE.x - 16, 72)))
+			box.add_child(_text(tr("CARD_BACK"), 28, true))
 		else:
+			box.add_child(Art.picture(Art.zone(h.card), Vector2(CARD_SIZE.x - 16, 48)))
 			box.add_child(_text(Cards.time_text(h.card), 26, true))
 			box.add_child(_text(str(h.card), 20))
 			if not face:
@@ -377,7 +410,8 @@ func _draw_row() -> void:
 		elif h.sprint_count > 0:
 			box.add_child(_text(tr("SPRINT_COUNT") % h.sprint_count, 16))
 		for l in box.get_children():
-			l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			if l is Label:
+				l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		card.add_child(box)
 		_row.add_child(card)
 		if face and i > 0 and not _flipped.has(i):
@@ -385,6 +419,14 @@ func _draw_row() -> void:
 			card.pivot_offset = CARD_SIZE / 2
 			card.scale = Vector2(0, 1)
 			card.create_tween().tween_property(card, ^"scale", Vector2.ONE, FLIP_TIME)
+		elif i >= _row_shown and _row_shown > 0:
+			card.pivot_offset = CARD_SIZE / 2
+			card.scale = Vector2(0.6, 0.6)
+			card.modulate.a = 0.0
+			var tw := card.create_tween().set_parallel()
+			tw.tween_property(card, ^"scale", Vector2.ONE, POP_TIME).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+			tw.tween_property(card, ^"modulate:a", 1.0, POP_TIME)
+	_row_shown = _k.hideouts.size()
 
 
 func _draw_memo() -> void:
@@ -463,6 +505,11 @@ func _draw_hand() -> void:
 func _card_button(c: int) -> Button:
 	var b := Button.new()
 	b.custom_minimum_size = CARD_SIZE
+	b.pivot_offset = CARD_SIZE / 2
+	b.mouse_entered.connect(func() -> void:
+		if not b.disabled:
+			b.create_tween().tween_property(b, ^"scale", Vector2(1.06, 1.06), 0.1))
+	b.mouse_exited.connect(func() -> void: b.create_tween().tween_property(b, ^"scale", Vector2.ONE, 0.1))
 	b.add_theme_font_size_override(&"font_size", 20)
 	b.text = "%s\n%d" % [Cards.time_text(c), c]
 	if Cards.sprint_of(c) > 0:
@@ -531,7 +578,23 @@ func _draw_overlay() -> void:
 	pad.add_child(box)
 	var won := session.m.winner == session.human
 	var m := session.m
-	box.add_child(_centered(tr("RESULT_WIN" if won else "RESULT_LOSE"), 56, true))
+	var head := HBoxContainer.new()
+	head.alignment = BoxContainer.ALIGNMENT_CENTER
+	head.add_theme_constant_override(&"separation", 24)
+	var staff_won := m.winner == S.STAFF
+	head.add_child(Art.picture(Art.person(&"staff_cheer0" if staff_won else &"staff_hurt"), PORTRAIT_SIZE))
+	var title := _centered(tr("RESULT_WIN" if won else "RESULT_LOSE"), 56, true)
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	head.add_child(title)
+	head.add_child(Art.picture(Art.person(&"chief_hurt" if staff_won else &"chief_cheer0"), PORTRAIT_SIZE))
+	box.add_child(head)
+	_stamp = _centered(tr("STAMP_STAFF" if staff_won else "STAMP_CHIEF"), 44, true)
+	_stamp.modulate = Style.ALERT
+	_stamp.rotation_degrees = -8.0
+	box.add_child(_stamp)
+	_stamp.resized.connect(func() -> void: _stamp.pivot_offset = _stamp.size / 2, CONNECT_ONE_SHOT)
+	_stamp.scale = Vector2(2.4, 2.4)
+	_stamp.create_tween().tween_property(_stamp, ^"scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	box.add_child(_centered(tr("RESULT_STAFF" if m.winner == S.STAFF else "RESULT_CHIEF"), 26))
 	var hits := 0
 	var misses := 0
@@ -708,13 +771,51 @@ func set_mark_mode(on: bool) -> void:
 func _announce() -> void:
 	var h := session.m.history
 	for i in range(_shown_history, h.size()):
+		_sound_of(h[i])
+		_reaction = &""
 		if h[i].action == A.GUESS:
+			_reaction = &"chief_cheer0" if h[i].hit else &"staff_cheer0"
 			_banner.text = describe(h[i])
 			_banner.modulate = Style.ALERT if h[i].hit else Style.INK
 			var tw := _banner.create_tween()
 			tw.tween_interval(BANNER_TIME)
 			tw.tween_property(_banner, ^"modulate:a", 0.0, 0.4)
+	if _shown_history < h.size() and session.is_over():
+		Game.sfx(&"stamp", 0.4)
 	_shown_history = h.size()
+
+
+func _sound_of(rec: Dictionary) -> void:
+	match rec.action:
+		A.DRAW:
+			Game.sfx(&"draw")
+		A.PASS:
+			Game.sfx(&"tick")
+		A.PLACE:
+			Game.sfx(&"step" if not rec.get(&"sprints", []).is_empty() else &"place")
+		A.GUESS:
+			Game.sfx(&"ping")
+			Game.sfx(&"flip" if rec.hit else &"miss", 0.25)
+
+
+## 지금 차례인 쪽의 자세. 짚기 직후에는 맞힌 쪽이 기뻐한다.
+func pose() -> StringName:
+	var m := session.m
+	if m.is_over():
+		return &"staff_cheer0" if m.winner == S.STAFF else &"chief_cheer0"
+	if _reaction != &"":
+		return _reaction
+	if m.side == S.STAFF:
+		if m.phase == Match.Phase.DRAW:
+			return &"staff_interact"
+		return &"staff_run0" if not _slot.is_empty() else &"staff_idle"
+	if m.phase == Match.Phase.MANHUNT:
+		return &"chief_talk"
+	return &"chief_think" if not _picked.is_empty() else &"chief_idle"
+
+
+func _draw_mute() -> void:
+	_mute_btn.text = tr("SOUND_OFF" if Game.muted else "SOUND_ON")
 
 
 func _on_pass() -> void:

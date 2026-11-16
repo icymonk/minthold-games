@@ -18,6 +18,21 @@ var tips_seen := {}
 var tips_off := false
 
 const PREFS := "user://desk.cfg"
+const SFX := {
+	&"tick": preload("res://assets/sfx/tick.ogg"),
+	&"place": preload("res://assets/sfx/place.ogg"),
+	&"draw": preload("res://assets/sfx/draw.ogg"),
+	&"flip": preload("res://assets/sfx/flip.ogg"),
+	&"step": preload("res://assets/sfx/step.ogg"),
+	&"ping": preload("res://assets/sfx/ping.ogg"),
+	&"miss": preload("res://assets/sfx/miss.ogg"),
+	&"stamp": preload("res://assets/sfx/stamp.ogg"),
+}
+
+var muted := false
+## 마지막으로 낸 효과음 이름(테스트용, 최근 것부터 몇 개만).
+var played: Array[StringName] = []
+var _players: Array[AudioStreamPlayer] = []
 
 
 func _ready() -> void:
@@ -25,6 +40,36 @@ func _ready() -> void:
 	if cfg.load(PREFS) == OK:
 		tips_seen = cfg.get_value("tips", "seen", {})
 		tips_off = cfg.get_value("tips", "off", false)
+		muted = cfg.get_value("sound", "muted", false)
+	for i in 6:
+		var p := AudioStreamPlayer.new()
+		add_child(p)
+		_players.append(p)
+
+
+func sfx(name: StringName, delay := 0.0) -> void:
+	played.push_front(name)
+	played.resize(mini(played.size(), 8))
+	if muted:
+		return
+	if delay > 0.0:
+		get_tree().create_timer(delay).timeout.connect(sfx_now.bind(name))
+	else:
+		sfx_now(name)
+
+
+func sfx_now(name: StringName) -> void:
+	for p in _players:
+		if not p.playing:
+			p.stream = SFX[name]
+			p.pitch_scale = randf_range(0.95, 1.05)
+			p.play()
+			return
+
+
+func toggle_mute() -> void:
+	muted = not muted
+	_save_prefs()
 
 
 func mark_tip(key: StringName) -> void:
@@ -41,6 +86,7 @@ func _save_prefs() -> void:
 	var cfg := ConfigFile.new()
 	cfg.set_value("tips", "seen", tips_seen)
 	cfg.set_value("tips", "off", tips_off)
+	cfg.set_value("sound", "muted", muted)
 	cfg.save(PREFS)
 
 
