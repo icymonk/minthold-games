@@ -4,5 +4,14 @@ TITLE_SUBTITLE,아침 7시 전까지 다 내려라,Deliver it all before 7 a.m.
 TITLE_NEW_RUN,근무 시작,Start Shift
 TITLE_SEED,시드,Seed
 TITLE_LANGUAGE,English,한국어
-SHIFT_PLACEHOLDER,상차 화면은 다음 PR에서 만든다 (시드 %d),Loading screen comes next (seed %d)
+SHIFT_PLACEHOLDER,"배송 화면은 다음 PR에서 만든다 (실은 상자 %d, 남긴 상자 %d)","Delivery screen comes next (loaded %d, left %d)"
 BACK_TO_TITLE,제목으로,Back to Title
+LOADING_TITLE,상차 — 먼저 갈 집 상자를 문 쪽에,Loading — first stop goes by the door
+LOADING_ROUTE,오늘 경로,Today's route
+LOADING_HELP,"클릭: 집기·놓기 / R·우클릭: 돌리기 / Z: 되돌리기 / 짐칸 상자 클릭: 다시 꺼내기","Click: pick up / place   R or right-click: rotate   Z: undo   Click a loaded box: take it out"
+LOADING_ROTATE,돌리기 (R),Rotate (R)
+LOADING_UNDO,되돌리기 (Z),Undo (Z)
+LOADING_DEPART,출발,Depart
+LOADING_DOOR,문,Door
+LOADING_CAB,운전석,Cab
+LOADING_OUT_OF_ORDER,빨간 테두리: 먼저 갈 집 상자를 막고 있음,Red outline: blocking an earlier stop

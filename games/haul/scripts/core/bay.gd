@@ -77,6 +77,33 @@ func can_unload(box_id: int) -> Fail:
 	return Fail.OK
 
 
+## 꺼낼 때 막고 있는 상자들(바로 위 + 문까지 같은 줄).
+func blockers(box_id: int) -> Array[int]:
+	var out: Array[int] = []
+	var box: Box = boxes[box_id]
+	var o: Vector2i = origins[box_id]
+	for c in box.cells:
+		var p := o + c
+		var cells: Array[Vector2i] = [p + Vector2i(0, 1)]
+		for x in range(p.x + 1, width):
+			cells.append(Vector2i(x, p.y))
+		for q in cells:
+			var owner: int = _grid.get(q, -1)
+			if owner != -1 and owner != box_id and not owner in out:
+				out.append(owner)
+	return out
+
+
+## 먼저 배송할 상자를 막고 있는(배송 순서가 더 늦은) 상자들.
+func out_of_order() -> Array[int]:
+	var out: Array[int] = []
+	for id in boxes:
+		for b in blockers(id):
+			if boxes[b].stop > boxes[id].stop and not b in out:
+				out.append(b)
+	return out
+
+
 ## 꺼낸 결과: {error, box, broken: Array[int], moved: Array[int]}
 func unload(box_id: int) -> Dictionary:
 	var e := can_unload(box_id)
