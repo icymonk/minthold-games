@@ -4,13 +4,16 @@ extends Control
 const A := Match.Action
 const S := Match.Side
 const AI_DELAY := 0.6
-const CARD_SIZE := Vector2(104, 140)
-const CELL_SIZE := Vector2(38, 34)
-const LOG_LINES := 9
+const CARD_SIZE := Vector2(132, 184)
+const HAND_CARD := Vector2(120, 160)
+const CHIEF_CARD := Vector2(96, 100)
+const MEMO_CELL := Vector2(84, 64)
+const SIDE_W := 500.0
+const LOG_LINES := 7
 const FLIP_TIME := 0.35
 const BANNER_TIME := 1.6
 const POP_TIME := 0.25
-const PORTRAIT_SIZE := Vector2(96, 128)
+const PORTRAIT_SIZE := Vector2(120, 160)
 
 var session: Session
 var _k: Knowledge
@@ -25,8 +28,17 @@ var _slot: Array[int] = []
 
 var _clock: HBoxContainer
 var _decks: HBoxContainer
-var _row: HFlowContainer
-var _memo_box: VBoxContainer
+var _row: HBoxContainer
+var _row_scroll: ScrollContainer
+var _row_panel: PanelContainer
+var _decks_panel: PanelContainer
+var _clock_panel: PanelContainer
+var _hand_panel: Container
+var _status_panel: PanelContainer
+var _log_panel: PanelContainer
+var _menu: HBoxContainer
+var _tour: Tour
+var _memo_box: PanelContainer
 var _memo: GridContainer
 var _mark_btn: Button
 var _warn: Label
@@ -68,9 +80,13 @@ func _ready() -> void:
 	add_child(_timer)
 	_build()
 	refresh()
+	_auto_tour()
 
 
 func _on_tick() -> void:
+	if _tour.is_active():
+		_timer.start()
+		return
 	session.ai_step()
 	refresh()
 
@@ -153,10 +169,7 @@ func clue_text(rec: Dictionary) -> String:
 # ── 배치 ──────────────────────────────────────────────
 
 func _build() -> void:
-	var bg := Panel.new()
-	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
-	bg.add_theme_stylebox_override(&"panel", Style.box(Style.SUNLIGHT, 0))
-	add_child(bg)
+	add_child(Style.backdrop())
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	for side in [&"margin_left", &"margin_right", &"margin_top", &"margin_bottom"]:
@@ -165,113 +178,168 @@ func _build() -> void:
 	var col := VBoxContainer.new()
 	col.add_theme_constant_override(&"separation", 16)
 	margin.add_child(col)
+	var chief := session.human == S.CHIEF
 
 	var top := HBoxContainer.new()
-	top.add_theme_constant_override(&"separation", 12)
+	top.add_theme_constant_override(&"separation", 14)
 	col.add_child(top)
-	top.add_child(_text(tr("CLOCK_TITLE"), 22, true))
-	top.add_child(_text(Cards.time_text(0), 22))
-	_clock = HBoxContainer.new()
-	_clock.add_theme_constant_override(&"separation", 2)
-	top.add_child(_clock)
-	top.add_child(_text(Cards.time_text(Cards.LAST), 22))
+	var name_label := _text(tr("GAME_TITLE"), Style.BIG, true)
+	name_label.theme_type_variation = &"NightLabel"
+	top.add_child(name_label)
+	if Game.in_week and Game.week != null:
+		var day := _text(day_text(), Style.HEAD, true)
+		day.theme_type_variation = &"NightLabel"
+		top.add_child(day)
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(spacer)
-	if Game.in_week and Game.week != null:
-		top.add_child(_text(day_text(), 20, true))
-	var back := Button.new()
-	back.text = tr("BACK_TO_TITLE")
-	back.add_theme_font_size_override(&"font_size", 20)
-	back.pressed.connect(func() -> void: Game.goto(&"title"))
-	var rules_btn := Button.new()
-	rules_btn.text = tr("RULES_BTN")
-	rules_btn.add_theme_font_size_override(&"font_size", 20)
-	rules_btn.pressed.connect(show_rules.bind(true))
-	_mute_btn = Button.new()
-	_mute_btn.add_theme_font_size_override(&"font_size", 20)
-	_mute_btn.pressed.connect(func() -> void:
+	_menu = HBoxContainer.new()
+	_menu.add_theme_constant_override(&"separation", 12)
+	top.add_child(_menu)
+	_menu.add_child(_top_button(tr("GUIDE_BTN"), start_tour))
+	_mute_btn = _top_button("", func() -> void:
 		Game.toggle_mute()
 		_draw_mute())
-	top.add_child(_mute_btn)
-	top.add_child(rules_btn)
-	top.add_child(back)
+	_menu.add_child(_mute_btn)
+	_menu.add_child(_top_button(tr("RULES_BTN"), show_rules.bind(true)))
+	_menu.add_child(_top_button(tr("BACK_TO_TITLE"), func() -> void: Game.goto(&"title")))
 
-	var mid := HBoxContainer.new()
-	mid.add_theme_constant_override(&"separation", 24)
-	col.add_child(mid)
+	_clock_panel = _panel()
+	var clock_row := HBoxContainer.new()
+	clock_row.add_theme_constant_override(&"separation", 16)
+	clock_row.add_child(_text(tr("CLOCK_TITLE"), Style.HEAD, true))
+	clock_row.add_child(_text(Cards.time_text(0), Style.HEAD))
+	_clock = HBoxContainer.new()
+	_clock.add_theme_constant_override(&"separation", 3)
+	_clock.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	clock_row.add_child(_clock)
+	clock_row.add_child(_text(Cards.time_text(Cards.LAST), Style.HEAD))
+	_clock_panel.add_child(clock_row)
+	col.add_child(_clock_panel)
+
+	var body := HBoxContainer.new()
+	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.add_theme_constant_override(&"separation", 20)
+	col.add_child(body)
+	var main := VBoxContainer.new()
+	main.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	main.add_theme_constant_override(&"separation", 20)
+	body.add_child(main)
+	var side_col := VBoxContainer.new()
+	side_col.custom_minimum_size = Vector2(SIDE_W, 0)
+	side_col.add_theme_constant_override(&"separation", 20)
+	body.add_child(side_col)
+
+	var upper := HBoxContainer.new()
+	upper.add_theme_constant_override(&"separation", 20)
+	main.add_child(upper)
+	_decks_panel = _panel()
 	_decks = HBoxContainer.new()
-	_decks.add_theme_constant_override(&"separation", 10)
-	mid.add_child(_decks)
+	_decks.add_theme_constant_override(&"separation", 12)
+	_decks_panel.add_child(_decks)
+	upper.add_child(_decks_panel)
+	_row_panel = _panel()
+	_row_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_row_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	_row_panel.set_drag_forwarding(Callable(), can_drop_row, drop_row)
 	var row_box := VBoxContainer.new()
-	row_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row_box.mouse_filter = Control.MOUSE_FILTER_PASS
 	var row_head := HBoxContainer.new()
 	row_head.add_theme_constant_override(&"separation", 24)
-	row_head.add_child(_text(tr("ROW_TITLE"), 22, true))
-	_banner = _text("", 24, true)
+	row_head.add_child(_text(tr("ROW_TITLE"), Style.HEAD, true))
+	_banner = _text("", Style.HEAD, true)
 	_banner.modulate.a = 0.0
+	_banner.clip_text = true
+	_banner.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row_head.add_child(_banner)
-	_manhunt_bar = _text(tr("MANHUNT_BANNER"), 26, true)
+	_manhunt_bar = _text(tr("MANHUNT_BANNER"), Style.HEAD, true)
 	_manhunt_bar.modulate = Style.ALERT
 	row_head.add_child(_manhunt_bar)
 	row_box.add_child(row_head)
-	_row = HFlowContainer.new()
-	_row.add_theme_constant_override(&"h_separation", 8)
-	_row.add_theme_constant_override(&"v_separation", 8)
+	_row_scroll = ScrollContainer.new()
+	_row_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_row_scroll.custom_minimum_size = Vector2(0, CARD_SIZE.y + 20)
+	_row_scroll.mouse_filter = Control.MOUSE_FILTER_PASS
+	_row = HBoxContainer.new()
+	_row.add_theme_constant_override(&"separation", 10)
 	_row.mouse_filter = Control.MOUSE_FILTER_PASS
-	row_box.add_child(_row)
-	row_box.mouse_filter = Control.MOUSE_FILTER_STOP
-	row_box.set_drag_forwarding(Callable(), can_drop_row, drop_row)
-	mid.add_child(row_box)
+	_row_scroll.add_child(_row)
+	row_box.add_child(_row_scroll)
+	_row_panel.add_child(row_box)
+	upper.add_child(_row_panel)
 
-	var low := HBoxContainer.new()
-	low.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	low.add_theme_constant_override(&"separation", 24)
-	col.add_child(low)
-	_memo_box = VBoxContainer.new()
+	var lower := HBoxContainer.new()
+	lower.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	lower.add_theme_constant_override(&"separation", 20)
+	main.add_child(lower)
+	_hand = HFlowContainer.new()
+	_hand.add_theme_constant_override(&"h_separation", 10)
+	_hand.add_theme_constant_override(&"v_separation", 10)
+	_hand_panel = _panel()
+	_hand_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_hand_panel.set_drag_forwarding(Callable(), can_drop_hand, drop_hand)
+	var hand_box := VBoxContainer.new()
+	hand_box.add_child(_text(tr("HAND_TITLE"), Style.HEAD, true))
+	hand_box.add_child(_hand)
+	_hand_panel.add_child(hand_box)
+	_memo_box = _panel()
+	_memo_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_memo_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var memo_col := VBoxContainer.new()
+	memo_col.add_theme_constant_override(&"separation", 10)
+	_memo_box.add_child(memo_col)
 	var memo_head := HBoxContainer.new()
 	memo_head.add_theme_constant_override(&"separation", 16)
-	memo_head.add_child(_text(tr("MEMO_TITLE"), 22, true))
+	memo_head.add_child(_text(tr("MEMO_TITLE"), Style.HEAD, true))
 	_mark_btn = Button.new()
 	_mark_btn.toggle_mode = true
-	_mark_btn.add_theme_font_size_override(&"font_size", 18)
 	_mark_btn.toggled.connect(func(on: bool) -> void: set_mark_mode(on))
 	memo_head.add_child(_mark_btn)
-	_memo_box.add_child(memo_head)
+	_warn = _text("", Style.BODY, true)
+	_warn.modulate = Style.ALERT
+	memo_head.add_child(_warn)
+	memo_col.add_child(memo_head)
 	_memo = GridContainer.new()
 	_memo.columns = 14
-	_memo.add_theme_constant_override(&"h_separation", 4)
-	_memo.add_theme_constant_override(&"v_separation", 4)
-	_memo_box.add_child(_memo)
-	_warn = _text("", 20)
-	_warn.modulate = Style.ALERT
-	_memo_box.add_child(_warn)
-	low.add_child(_memo_box)
-	var log_box := VBoxContainer.new()
-	log_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	log_box.add_child(_text(tr("LOG_TITLE"), 22, true))
-	_log = _text("", 20)
-	_log.modulate = Color(Style.INK, 0.8)
-	log_box.add_child(_log)
-	low.add_child(log_box)
+	_memo.add_theme_constant_override(&"h_separation", 6)
+	_memo.add_theme_constant_override(&"v_separation", 6)
+	memo_col.add_child(_memo)
+	lower.add_child(_memo_box)
+	if chief:
+		_hand_panel.remove_child(hand_box)
+		hand_box.remove_child(_hand)
+		_hand_panel.queue_free()
+		hand_box.queue_free()
+		_hand_panel = HBoxContainer.new()
+		_hand_panel.add_theme_constant_override(&"separation", 16)
+		_hand_panel.add_child(_text(tr("HAND_TITLE"), Style.BODY, true))
+		_hand.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		_hand_panel.add_child(_hand)
+		memo_col.add_child(_hand_panel)
+	else:
+		lower.add_child(_hand_panel)
+	_slot_panel = PanelContainer.new()
+	_slot_panel.custom_minimum_size = Vector2(HAND_CARD.x * 2 + 60, 0)
+	var slot_sb := Style.panel(Style.POSTIT.lightened(0.55))
+	slot_sb.border_color = Style.POSTIT
+	slot_sb.set_border_width_all(4)
+	_slot_panel.add_theme_stylebox_override(&"panel", slot_sb)
+	_slot_panel.set_drag_forwarding(Callable(), can_drop_slot, drop_slot)
+	var slot_box := VBoxContainer.new()
+	slot_box.mouse_filter = Control.MOUSE_FILTER_PASS
+	_slot_title = _text("", Style.BODY, true)
+	_slot_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_slot_title.custom_minimum_size = Vector2(HAND_CARD.x * 2 + 10, 0)
+	slot_box.add_child(_slot_title)
+	_slot_cards = HFlowContainer.new()
+	_slot_cards.mouse_filter = Control.MOUSE_FILTER_PASS
+	_slot_cards.add_theme_constant_override(&"h_separation", 8)
+	_slot_cards.add_theme_constant_override(&"v_separation", 8)
+	slot_box.add_child(_slot_cards)
+	_slot_panel.add_child(slot_box)
+	lower.add_child(_slot_panel)
 
-	_tip_panel = PanelContainer.new()
-	_tip_panel.add_theme_stylebox_override(&"panel", Style.box(Style.POSTIT, 10))
-	var tip_row := HBoxContainer.new()
-	tip_row.add_theme_constant_override(&"separation", 16)
-	_tip_label = _text("", 22)
-	_tip_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_tip_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	tip_row.add_child(_tip_label)
-	var skip := Button.new()
-	skip.text = tr("TIP_SKIP")
-	skip.add_theme_font_size_override(&"font_size", 18)
-	skip.pressed.connect(func() -> void:
-		Game.skip_tips()
-		refresh())
-	tip_row.add_child(skip)
-	_tip_panel.add_child(tip_row)
-	col.add_child(_tip_panel)
+	_status_panel = _panel(Color.WHITE)
 	var status_row := HBoxContainer.new()
 	status_row.add_theme_constant_override(&"separation", 16)
 	_portrait = Art.picture(null, PORTRAIT_SIZE)
@@ -280,48 +348,132 @@ func _build() -> void:
 	bob.tween_property(_portrait, ^"scale", Vector2(1.0, 1.04), 0.6).set_trans(Tween.TRANS_SINE)
 	bob.tween_property(_portrait, ^"scale", Vector2.ONE, 0.6).set_trans(Tween.TRANS_SINE)
 	status_row.add_child(_portrait)
-	_status = _text("", 28, true)
+	_status = _text("", Style.HEAD, true)
+	_status.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_status.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	status_row.add_child(_status)
-	col.add_child(status_row)
-	var bottom := HBoxContainer.new()
-	bottom.add_theme_constant_override(&"separation", 16)
-	col.add_child(bottom)
-	var hand_box := VBoxContainer.new()
-	hand_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	hand_box.add_child(_text(tr("HAND_TITLE"), 22, true))
-	_hand = HFlowContainer.new()
-	_hand.add_theme_constant_override(&"h_separation", 8)
-	_hand.add_theme_constant_override(&"v_separation", 8)
-	hand_box.add_child(_hand)
-	hand_box.set_drag_forwarding(Callable(), can_drop_hand, drop_hand)
-	bottom.add_child(hand_box)
-	_slot_panel = PanelContainer.new()
-	_slot_panel.custom_minimum_size = Vector2(CARD_SIZE.x * 2 + 40, 0)
-	_slot_panel.add_theme_stylebox_override(&"panel", Style.box(Color(Style.POSTIT, 0.35), 10, Style.POSTIT, 2))
-	_slot_panel.set_drag_forwarding(Callable(), can_drop_slot, drop_slot)
-	var slot_box := VBoxContainer.new()
-	slot_box.mouse_filter = Control.MOUSE_FILTER_PASS
-	_slot_title = _text("", 20, true)
-	slot_box.add_child(_slot_title)
-	_slot_cards = HFlowContainer.new()
-	_slot_cards.mouse_filter = Control.MOUSE_FILTER_PASS
-	_slot_cards.add_theme_constant_override(&"h_separation", 6)
-	_slot_cards.add_theme_constant_override(&"v_separation", 6)
-	slot_box.add_child(_slot_cards)
-	_slot_panel.add_child(slot_box)
-	bottom.add_child(_slot_panel)
+	_status_panel.add_child(status_row)
+	side_col.add_child(_status_panel)
 	_pass = _big_button(tr("BTN_PASS"), _on_pass)
-	bottom.add_child(_pass)
+	_pass.custom_minimum_size.y = 100
+	side_col.add_child(_pass)
 	_guess = _big_button(tr("BTN_GUESS"), _on_guess)
+	_guess.custom_minimum_size.y = 100
 	_guess.theme_type_variation = &"AccentButton"
-	bottom.add_child(_guess)
+	side_col.add_child(_guess)
+	_tip_panel = PanelContainer.new()
+	var tip_sb := Style.panel(Style.POSTIT, 18)
+	_tip_panel.add_theme_stylebox_override(&"panel", tip_sb)
+	var tip_col := VBoxContainer.new()
+	tip_col.add_theme_constant_override(&"separation", 8)
+	_tip_label = _text("", 26)
+	_tip_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_tip_label.custom_minimum_size = Vector2(SIDE_W - 40, 0)
+	tip_col.add_child(_tip_label)
+	var skip := Button.new()
+	skip.text = tr("TIP_SKIP")
+	skip.size_flags_horizontal = Control.SIZE_SHRINK_END
+	skip.pressed.connect(func() -> void:
+		Game.skip_tips()
+		refresh())
+	tip_col.add_child(skip)
+	_tip_panel.add_child(tip_col)
+	side_col.add_child(_tip_panel)
+	_log_panel = _panel()
+	_log_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_log_panel.clip_contents = true
+	var log_box := VBoxContainer.new()
+	log_box.add_child(_text(tr("LOG_TITLE"), Style.HEAD, true))
+	_log = _text("", 24)
+	_log.modulate = Color(Style.INK, 0.85)
+	_log.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_log.custom_minimum_size = Vector2(SIDE_W - 44, 0)
+	log_box.add_child(_log)
+	_log_panel.add_child(log_box)
+	side_col.add_child(_log_panel)
+
+	var prompt := _text(tr("PROMPT_BAR"), 22)
+	prompt.theme_type_variation = &"NightLabel"
+	prompt.modulate.a = 0.75
+	prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	col.add_child(prompt)
 
 	_overlay = Control.new()
 	_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_overlay.visible = false
 	add_child(_overlay)
 	_build_rules()
+	_tour = Tour.new()
+	add_child(_tour)
+	_tour.finished.connect(func() -> void: Game.mark_tour(session.human))
+
+
+func _panel(color := Style.SUNLIGHT) -> PanelContainer:
+	var p := PanelContainer.new()
+	p.add_theme_stylebox_override(&"panel", Style.panel(color))
+	return p
+
+
+func _top_button(s: String, on_pressed: Callable) -> Button:
+	var b := Button.new()
+	b.text = s
+	b.custom_minimum_size = Vector2(0, 64)
+	b.pressed.connect(on_pressed)
+	return b
+
+
+## 판에 들어오면 화면 곳곳을 차례로 밝혀 설명한다. [안내]로 다시 본다.
+func tour_steps() -> Array[Dictionary]:
+	var chief := session.human == S.CHIEF
+	var out: Array[Dictionary] = [
+		{ target = _clock_panel, title = tr("CLOCK_TITLE"), body = tr("TOUR_CLOCK_CHIEF" if chief else "TOUR_CLOCK_STAFF") },
+		{ target = _decks_panel, title = tr("DECKS_TITLE"), body = tr("TOUR_DECKS") },
+		{ target = _row_panel, title = tr("ROW_TITLE"), body = tr("TOUR_ROW_CHIEF" if chief else "TOUR_ROW_STAFF") },
+	]
+	if chief:
+		out.append({ target = _memo_box, title = tr("MEMO_TITLE"), body = tr("TOUR_MEMO") })
+		out.append({ target = _hand_panel, title = tr("HAND_TITLE"), body = tr("TOUR_CHIEF_HAND") })
+		out.append({ target = _guess, title = tr("BTN_GUESS"), body = tr("TOUR_GUESS") })
+	else:
+		out.append({ target = _hand_panel, title = tr("HAND_TITLE"), body = tr("TOUR_HAND") })
+		out.append({ target = _slot_panel, title = tr("TOUR_SLOT_T"), body = tr("TOUR_SLOT") })
+		out.append({ target = _pass, title = tr("BTN_PASS"), body = tr("TOUR_PASS") })
+	out.append({ target = _status_panel, title = tr("TOUR_STATUS_T"), body = tr("TOUR_STATUS") })
+	out.append({ target = _log_panel, title = tr("LOG_TITLE"), body = tr("TOUR_LOG") })
+	out.append({ target = _menu, title = tr("TOUR_TOP_T"), body = tr("TOUR_TOP") })
+	return out
+
+
+func start_tour() -> void:
+	show_rules(false)
+	_tour.start(tour_steps())
+
+
+func _auto_tour() -> void:
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if is_inside_tree() and not Game.tips_off and not Game.tour_seen.has(session.human) and not session.is_over():
+		start_tour()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if _tour.is_active():
+		return
+	if event is InputEventKey and event.pressed and not event.echo:
+		match event.keycode:
+			KEY_F1:
+				show_rules(not _rules.visible)
+			KEY_G:
+				start_tour()
+			KEY_ESCAPE:
+				if _rules.visible:
+					show_rules(false)
+				else:
+					return
+			_:
+				return
+		get_viewport().set_input_as_handled()
 
 
 func _build_rules() -> void:
@@ -349,10 +501,10 @@ func _build_rules() -> void:
 	panel.add_child(pad)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override(&"separation", 16)
-	box.custom_minimum_size = Vector2(900, 0)
+	box.custom_minimum_size = Vector2(1200, 0)
 	pad.add_child(box)
-	box.add_child(_text(tr("RULES_TITLE"), 32, true))
-	var body := _text(tr("RULES_BODY") + ("\n" + tr("RULES_EVENTS") if session.m.events_on else ""), 20)
+	box.add_child(_text(tr("RULES_TITLE"), Style.BIG, true))
+	var body := _text(tr("RULES_BODY") + ("\n" + tr("RULES_EVENTS") if session.m.events_on else ""), Style.BODY)
 	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(body)
 	box.add_child(_big_button(tr("CLOSE"), show_rules.bind(false)))
@@ -372,7 +524,8 @@ func _draw_clock() -> void:
 			known[h.card] = h.revealed
 	for n in Cards.LAST + 1:
 		var cell := Panel.new()
-		cell.custom_minimum_size = Vector2(CELL_SIZE.x * 0.6, CELL_SIZE.y)
+		cell.custom_minimum_size = Vector2(8, 48)
+		cell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		var color := Color(Style.INK, 0.08)
 		if known.has(n):
 			color = Style.ALERT if known[n] else Style.PARTITION
@@ -389,8 +542,8 @@ func _draw_decks() -> void:
 	for z in _k.deck_counts.size():
 		var r: Vector2i = Cards.ZONE_RANGES[z]
 		var b := Button.new()
-		b.custom_minimum_size = Vector2(170, CARD_SIZE.y + 60)
-		b.add_theme_font_size_override(&"font_size", 18)
+		b.custom_minimum_size = Vector2(176, CARD_SIZE.y + 56)
+		b.add_theme_font_size_override(&"font_size", 24)
 		b.text = tr("DECK_LABEL") % [tr("ZONE_%d" % z), r.x, r.y, _k.deck_counts[z]]
 		b.icon = Art.ZONES[z]
 		b.expand_icon = true
@@ -419,31 +572,31 @@ func _draw_row() -> void:
 		box.alignment = BoxContainer.ALIGNMENT_CENTER
 		if h.card == Knowledge.HIDDEN:
 			box.add_child(Art.picture(Art.EMPTY_CHAIR, Vector2(CARD_SIZE.x - 16, 72)))
-			box.add_child(_text(tr("CARD_BACK"), 28, true))
+			box.add_child(_text(tr("CARD_BACK"), Style.BIG, true))
 			for cl in _k.clues:
 				if cl.get(&"index", -1) == i:
 					var tag := tr("ZONE_%d" % cl.zone) if cl.kind == Knowledge.Clue.ZONE else tr("ODD" if cl.odd else "EVEN")
-					var clue := _text(tag, 16, true)
+					var clue := _text(tag, 22, true)
 					clue.modulate = Style.ALERT
 					box.add_child(clue)
 			var span := hint_range(i)
 			if span.x > 0:
-				var hint := _text(tr("RANGE_HINT") % [span.x, span.y], 16)
+				var hint := _text(tr("RANGE_HINT") % [span.x, span.y], 22)
 				hint.modulate = Color(Style.INK, 0.6)
 				box.add_child(hint)
 		else:
 			box.add_child(Art.picture(Art.zone(h.card), Vector2(CARD_SIZE.x - 16, 48)))
-			box.add_child(_text(Cards.time_text(h.card), 26, true))
-			box.add_child(_text(str(h.card), 20))
+			box.add_child(_text(Cards.time_text(h.card), Style.HEAD, true))
+			box.add_child(_text(str(h.card), 24))
 			if not face:
-				box.add_child(_text(tr("HIDDEN_MINE"), 16))
+				box.add_child(_text(tr("HIDDEN_MINE"), 20))
 		if not h.sprints.is_empty():
 			var nums := PackedStringArray()
 			for c in h.sprints:
 				nums.append(str(c))
-			box.add_child(_text(tr("SPRINT_CARDS") % ", ".join(nums), 16))
+			box.add_child(_text(tr("SPRINT_CARDS") % ", ".join(nums), 20))
 		elif h.sprint_count > 0:
-			box.add_child(_text(tr("SPRINT_COUNT") % h.sprint_count, 16))
+			box.add_child(_text(tr("SPRINT_COUNT") % h.sprint_count, 20))
 		for l in box.get_children():
 			if l is Label:
 				l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -461,7 +614,15 @@ func _draw_row() -> void:
 			var tw := card.create_tween().set_parallel()
 			tw.tween_property(card, ^"scale", Vector2.ONE, POP_TIME).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 			tw.tween_property(card, ^"modulate:a", 1.0, POP_TIME)
+	if _row_shown != _k.hideouts.size():
+		_scroll_row_end.call_deferred()
 	_row_shown = _k.hideouts.size()
+
+
+func _scroll_row_end() -> void:
+	await get_tree().process_frame
+	if is_instance_valid(_row_scroll):
+		_row_scroll.scroll_horizontal = int(_row_scroll.get_h_scroll_bar().max_value)
 
 
 func _draw_memo() -> void:
@@ -475,8 +636,8 @@ func _draw_memo() -> void:
 	var open := open_numbers()
 	for n in range(1, Cards.LAST):
 		var b := Button.new()
-		b.custom_minimum_size = CELL_SIZE * Vector2(1.6, 1.4)
-		b.add_theme_font_size_override(&"font_size", 18)
+		b.custom_minimum_size = MEMO_CELL
+		b.add_theme_font_size_override(&"font_size", Style.BODY)
 		b.text = str(n)
 		b.tooltip_text = _time(n)
 		b.toggle_mode = true
@@ -557,13 +718,14 @@ func _draw_hand() -> void:
 
 func _card_button(c: int) -> Button:
 	var b := Button.new()
-	b.custom_minimum_size = CARD_SIZE
-	b.pivot_offset = CARD_SIZE / 2
+	var small := session.human == S.CHIEF
+	b.custom_minimum_size = CHIEF_CARD if small else HAND_CARD
+	b.pivot_offset = b.custom_minimum_size / 2
 	b.mouse_entered.connect(func() -> void:
 		if not b.disabled:
 			b.create_tween().tween_property(b, ^"scale", Vector2(1.06, 1.06), 0.1))
 	b.mouse_exited.connect(func() -> void: b.create_tween().tween_property(b, ^"scale", Vector2.ONE, 0.1))
-	b.add_theme_font_size_override(&"font_size", 20)
+	b.add_theme_font_size_override(&"font_size", 22 if small else 26)
 	b.text = "%s\n%d" % [Cards.time_text(c), c]
 	if Cards.sprint_of(c) > 0:
 		b.text += "\n" + tr("SPRINT_VALUE") % Cards.sprint_of(c)
@@ -648,7 +810,7 @@ func _draw_overlay() -> void:
 	panel.add_child(pad)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override(&"separation", 18)
-	box.custom_minimum_size = Vector2(760, 0)
+	box.custom_minimum_size = Vector2(1000, 0)
 	pad.add_child(box)
 	var won := session.m.winner == session.human
 	var m := session.m
@@ -657,19 +819,19 @@ func _draw_overlay() -> void:
 	head.add_theme_constant_override(&"separation", 24)
 	var staff_won := m.winner == S.STAFF
 	head.add_child(Art.picture(Art.person(&"staff_cheer0" if staff_won else &"staff_hurt"), PORTRAIT_SIZE))
-	var title := _centered(tr("RESULT_WIN" if won else "RESULT_LOSE"), 56, true)
+	var title := _centered(tr("RESULT_WIN" if won else "RESULT_LOSE"), 72, true)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	head.add_child(title)
 	head.add_child(Art.picture(Art.person(&"chief_hurt" if staff_won else &"chief_cheer0"), PORTRAIT_SIZE))
 	box.add_child(head)
-	_stamp = _centered(tr("STAMP_STAFF" if staff_won else "STAMP_CHIEF"), 44, true)
+	_stamp = _centered(tr("STAMP_STAFF" if staff_won else "STAMP_CHIEF"), 56, true)
 	_stamp.modulate = Style.ALERT
 	_stamp.rotation_degrees = -8.0
 	box.add_child(_stamp)
 	_stamp.resized.connect(func() -> void: _stamp.pivot_offset = _stamp.size / 2, CONNECT_ONE_SHOT)
 	_stamp.scale = Vector2(2.4, 2.4)
 	_stamp.create_tween().tween_property(_stamp, ^"scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	box.add_child(_centered(tr("RESULT_STAFF" if m.winner == S.STAFF else "RESULT_CHIEF"), 26))
+	box.add_child(_centered(tr("RESULT_STAFF" if m.winner == S.STAFF else "RESULT_CHIEF"), Style.HEAD))
 	var hits := 0
 	var misses := 0
 	for rec in m.history:
@@ -678,8 +840,8 @@ func _draw_overlay() -> void:
 				hits += 1
 			else:
 				misses += 1
-	box.add_child(_centered(tr("RESULT_STATS") % [m.turns[S.STAFF], hits, misses], 22))
-	box.add_child(_centered(tr("RESULT_ROW"), 20, true))
+	box.add_child(_centered(tr("RESULT_STATS") % [m.turns[S.STAFF], hits, misses], Style.BODY))
+	box.add_child(_centered(tr("RESULT_ROW"), Style.BODY, true))
 	_result_row = HFlowContainer.new()
 	_result_row.alignment = FlowContainer.ALIGNMENT_CENTER
 	_result_row.add_theme_constant_override(&"h_separation", 6)
@@ -688,19 +850,19 @@ func _draw_overlay() -> void:
 		var h: Dictionary = m.hideouts[i]
 		var caught: bool = h.revealed and h.card != Cards.LAST
 		var chip := PanelContainer.new()
-		chip.custom_minimum_size = Vector2(64, 60)
+		chip.custom_minimum_size = Vector2(90, 80)
 		chip.add_theme_stylebox_override(&"panel", Style.box(Style.ALERT if caught else Style.PARTITION, 8))
-		var l := _centered("%s\n%d" % [Cards.time_text(h.card), h.card], 16)
+		var l := _centered("%s\n%d" % [Cards.time_text(h.card), h.card], 24)
 		l.modulate = Color.WHITE
 		chip.add_child(l)
 		_result_row.add_child(chip)
 	box.add_child(_result_row)
-	box.add_child(_centered(tr("RESULT_SEED") % Game.run_seed, 16))
+	box.add_child(_centered(tr("RESULT_SEED") % Game.run_seed, 22))
 	var buttons := HBoxContainer.new()
 	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
 	buttons.add_theme_constant_override(&"separation", 12)
 	if Game.in_week and Game.week != null:
-		box.add_child(_centered(week_text(), 24, true))
+		box.add_child(_centered(week_text(), Style.HEAD, true))
 		var next: Button
 		if Game.week.is_done():
 			next = _big_button(tr("RESULT_NEW_WEEK"), func() -> void: Game.start_week())
@@ -717,7 +879,6 @@ func _draw_overlay() -> void:
 	box.add_child(buttons)
 	var rules := Button.new()
 	rules.text = tr("RULES_BTN")
-	rules.add_theme_font_size_override(&"font_size", 20)
 	rules.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	rules.pressed.connect(show_rules.bind(true))
 	box.add_child(rules)
@@ -994,7 +1155,7 @@ func _text(s: String, size: int, bold := false) -> Label:
 func _big_button(s: String, on_pressed: Callable) -> Button:
 	var b := Button.new()
 	b.text = s
-	b.custom_minimum_size = Vector2(200, 72)
-	b.add_theme_font_size_override(&"font_size", 28)
+	b.custom_minimum_size = Vector2(240, 88)
+	b.add_theme_font_size_override(&"font_size", Style.HEAD)
 	b.pressed.connect(on_pressed)
 	return b
