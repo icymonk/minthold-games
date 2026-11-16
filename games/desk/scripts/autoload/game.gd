@@ -21,6 +21,11 @@ func start_match(seed_value: int = -1) -> void:
 	goto(&"table")
 
 
+## 화면의 역할을 규칙 엔진의 쪽으로 바꾼다.
+func side() -> int:
+	return Match.Side.CHIEF if role == Role.CHIEF else Match.Side.STAFF
+
+
 func toggle_role() -> void:
 	role = Role.STAFF if role == Role.CHIEF else Role.CHIEF
 
