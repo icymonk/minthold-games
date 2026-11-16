@@ -15,3 +15,25 @@ LOADING_DEPART,출발,Depart
 LOADING_DOOR,문,Door
 LOADING_CAB,운전석,Cab
 LOADING_OUT_OF_ORDER,빨간 테두리: 먼저 갈 집 상자를 막고 있음,Red outline: blocking an earlier stop
+TITLE_PREMISE_1,컨베이어의 상자를 트럭에 싣고,Load the boxes into the truck
+TITLE_PREMISE_2,"집 순서대로 문에서 꺼내 배달하고","Unload them at each stop, in route order"
+TITLE_PREMISE_3,아침 7시 전에 끝내요,Finish before 7 a.m.
+TITLE_TUTORIAL,연습 배송 다시 하기,Replay Practice Run
+TITLE_FIRST_RUN,근무 시작 (연습부터),Start Shift (practice first)
+LOADING_STEP,상차,Loading
+HINT_BLOCKING,빨간 테두리 상자가 먼저 갈 집 상자를 막고 있어요. 클릭해서 꺼내거나 Z로 되돌려요.,A red-outlined box is blocking an earlier stop. Click it to take it out or press Z to undo.
+HINT_HOLDING,"짐칸에서 넣을 칸을 클릭해요. 상자는 문에서 밀려 들어가 바닥까지 떨어져요. (R·우클릭: 돌리기)","Click a spot in the bay. The box slides in from the door and drops down. (R / right-click: rotate)"
+HINT_DEPART,다 실었어요. 출발하세요!,All loaded. Hit Depart!
+HINT_NEXT,"%d번 집이 제일 늦게 가요. 빛나는 상자부터 운전석 쪽에 실어요.","Stop %d is last. Load the glowing box first, deep by the cab."
+TUT_INTRO,"트럭 짐칸을 옆에서 본 모습이에요. 왼쪽은 운전석, 오른쪽이 문이에요. 상자는 문으로만 넣고 뺄 수 있어요.","This is the truck's cargo bay seen from the side. The cab is on the left, the door on the right. Boxes go in and out only through the door."
+TUT_ROUTE,"오늘은 1 → 2 → 3번 집 순서로 가요. 1번 집에서 제일 먼저 내리니까, 1번 상자가 문 쪽에 있어야 해요.","Today's route is 1 → 2 → 3. You unload at stop 1 first, so its box must sit by the door."
+TUT_LOAD_LAST,"3번 집이 마지막이에요. 3번 상자를 집어서 운전석 쪽 맨 안쪽에 넣어요.","Stop 3 is last. Pick up box 3 and put it deep inside, by the cab."
+TUT_LOAD_MIDDLE,좋아요! 이번엔 2번 상자를 그 바로 앞(문 쪽)에 넣어요.,Nice! Now put box 2 right in front of it (toward the door).
+TUT_ROTATE,"1번 상자를 집고 R 키나 우클릭, 또는 돌리기 버튼으로 돌려 봐요.","Pick up box 1 and rotate it with R, right-click, or the Rotate button."
+TUT_LOAD_FIRST,"이제 1번 상자를 문 가까이에 넣어요. 1번 집에서 바로 꺼낼 수 있어요.","Now put box 1 near the door, so you can grab it first at stop 1."
+TUT_WRONG_ORDER,"앗, 빨간 테두리 상자가 먼저 갈 집 상자를 막고 있어요. Z로 되돌리거나 그 상자를 클릭해 다시 꺼내요.","Oops, the red-outlined box blocks an earlier stop. Press Z to undo, or click it to take it back out."
+TUT_FIX_TIP,"완벽해요! 순서가 꼬이면 빨간 테두리가 뜨고, Z로 언제든 되돌릴 수 있어요.","Perfect! If the order gets tangled you'll see a red outline, and Z undoes anything."
+TUT_DEPART,다 실었으면 출발!,All loaded? Depart!
+TUT_NEXT,다음,Next
+TUT_SKIP,연습 건너뛰기,Skip practice
+TUT_LABEL,연습 배송,Practice Run
