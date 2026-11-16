@@ -35,7 +35,11 @@ static func create(kind: StringName) -> Piece:
 
 
 func base_kind() -> StringName:
-	return YokaiDb.FORMS[kind]["base"] if evolved else kind
+	return YokaiDb.base_of(kind)
+
+
+func family() -> StringName:
+	return YokaiDb.family(kind)
 
 
 func hungry() -> bool:

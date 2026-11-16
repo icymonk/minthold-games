@@ -27,7 +27,7 @@ PREVIEW_TIME,닭이 %d초 만에 운다,The rooster crows in %ds
 INFO_EMPTY,요괴를 누르면 정보가 보인다.,Click a yokai to see details.
 HELP_1,1. 장터 카드를 누르면 설명이 나온다,1. Click a market card to read about it
 HELP_2,2. 카드를 보따리나 대기 줄로 끌어 놓으면 고용된다,2. Drag a card into the bundle or the waiting row to hire it
-HELP_3,3. 맞닿은 요괴를 다른 요괴 위로 끌면 먹는다. 먹힌 칸은 비고 배가 차면 변신한다,"3. Drag a touching yokai onto another to feed it. The food frees its cells; a full belly evolves"
+HELP_3,3. 맞닿은 요괴를 다른 요괴 위로 끌면 먹는다. 먹힌 칸은 비고 배가 차면 변신한다,3. Drag a touching yokai onto another to feed it. The food frees its cells; a full belly evolves
 HELP_4,4. 행렬 맞이하기를 누르면 자동 전투,4. Face the procession to auto-battle
 INFO_STATS,공격 %d · 체력 %d · %s,ATK %d · HP %d · %s
 INFO_EATEN,먹은 요괴 %d,Eaten %d
@@ -85,7 +85,7 @@ LOG_DIE,%s 쓰러짐,%s falls
 LOG_SHIELD,%s의 수호 → %s,%s shields %s
 LOG_BIND,%s의 끌어당김 → %s 결박,%s binds %s
 LOG_CHARM,%s의 홀림 → %s 다음 행동 거름,%s charms %s
-LOG_COIN,%s 엽전 1닢,%s finds a coin
+LOG_COIN,%s 엽전 %d닢,%s finds %d coin(s)
 LOG_RAGE,%s의 원한 → %s 공격 상승,%s's grudge empowers %s
 LOG_DEVOUR,%s 쓰러진 %s 먹었다,%s devours fallen %s
 LOG_HUNGRY,굶주린 행렬 → 모든 적 공격 +1,Hungry procession: all enemies +1 ATK
@@ -94,7 +94,7 @@ LOG_BIND_ROW,%s → %d번 줄 결박,%s binds row %d
 LOG_DAWN,닭이 울었다! 남은 체력으로 승패를 가린다,The rooster crows! Remaining HP decides
 FLOAT_BLOCK,막음,Block
 FLOAT_SKIP,거름,Skip
-FLOAT_COIN,+1 엽전,+1 coin
+FLOAT_COIN,+%d 엽전,+%d coin
 FLOAT_ATK,공격 %d,ATK %d
 TALISMAN_TITLE,부적,Talismans
 TALISMAN_SOON,다음 단계에서 추가,Coming next
@@ -114,3 +114,111 @@ YOKAI_WONGWI,원귀,Vengeful Ghost
 YOKAI_GREAT_BULGASARI,큰 불가사리,Great Bulgasari
 TIP_EVOLVE,배 %d칸이 차면 %s 변신,Belly %d full → becomes %s
 TIP_DRAG,보따리나 대기 줄로 끌어 놓으면 고용 · R로 돌리기,Drag to the bundle or waiting row to hire · R rotates
+YOKAI_BULGAE,불개,Bulgae
+YOKAI_HWADEOK,화덕할미,Hearth Granny
+YOKAI_GANGCHEORI,강철이,Gangcheori
+YOKAI_UREONG,우렁각시,Snail Bride
+YOKAI_CHEONYEO,처녀귀신,Maiden Ghost
+YOKAI_YONGWANG,용왕,Dragon King
+YOKAI_DALGYAL,달걀귀신,Egg Ghost
+YOKAI_YAGWANG,야광귀,Shoe Thief
+YOKAI_MUDU,무두귀,Headless Ghost
+YOKAI_GEUMDWAEJI,금돼지,Golden Pig
+YOKAI_DUEOKSINI,두억시니,Dueoksini
+YOKAI_TEOJU,터주신,Teoju
+YOKAI_SAMJOKGU,삼족구,Three-legged Dog
+YOKAI_BONGHWANG,봉황,Bonghwang
+YOKAI_EODUKSSINI,어둑시니,Eodukssini
+YOKAI_GEUSEUNDAE,그슨대,Geuseundae
+YOKAI_JANGSANBEOM,장산범,Jangsanbeom
+YOKAI_SAMDUGUMI,삼두구미,Samdugumi
+YOKAI_SUN_BULGAE,해 문 불개,Sun-biter Bulgae
+YOKAI_JOWANG,조왕신,Jowang
+YOKAI_GREAT_GANGCHEORI,큰 강철이,Great Gangcheori
+YOKAI_SEONNYEO,우렁선녀,Snail Fairy
+YOKAI_WRAITH_MAIDEN,한 맺힌 처녀귀신,Wronged Maiden
+YOKAI_SAHAE_YONGWANG,사해용왕,King of Four Seas
+YOKAI_GREAT_DALGYAL,큰 달걀귀신,Great Egg Ghost
+YOKAI_YAGWANG_KING,야광귀 두목,Shoe Thief Boss
+YOKAI_MUDU_GENERAL,무두장군,Headless General
+YOKAI_GOLDEN_BOAR,황금 멧돼지,Golden Boar
+YOKAI_DUEOKSINI_KING,두억시니 우두머리,Dueoksini Chief
+YOKAI_SEONGJU,성주신,Seongju
+YOKAI_HEAVEN_DOG,하늘개,Heavenly Dog
+YOKAI_OHSAEK_BONGHWANG,오색 봉황,Five-hued Bonghwang
+YOKAI_GREAT_EODUKSSINI,큰 어둑시니,Great Eodukssini
+YOKAI_GREAT_GEUSEUNDAE,하늘 닿은 그슨대,Sky-high Geuseundae
+YOKAI_BAEKHO,백호,White Tiger
+YOKAI_GUMI_KING,삼두구미 왕,Samdugumi King
+TRAIT_BURN,불씨,Embers
+TRAIT_BURN_DESC,공격한 적에게 화상 2 (행동할 때마다 1 피해),Hits inflict 2 Burn (1 damage per action)
+TRAIT_HEARTH,아궁이,Hearth
+TRAIT_HEARTH_DESC,전투 시작 시 맞닿은 아군 공격 +1 (불 계열은 +2),"At start, touching allies +1 ATK (fire +2)"
+TRAIT_DROUGHT,가뭄,Drought
+TRAIT_DROUGHT_DESC,전투 시작 시 자기 줄 맨 앞 적에게 2 피해,"At start, deals 2 damage to the front enemy in each of its rows"
+TRAIT_SPRING,샘물,Spring
+TRAIT_SPRING_DESC,행동할 때마다 가장 다친 맞닿은 아군 체력 +2,"Each action, heals the most hurt touching ally by 2"
+TRAIT_SORROW,서러움,Sorrow
+TRAIT_SORROW_DESC,쓰러질 때 자기 줄 맨 앞 적 결박 (행동 1회 거름),"On death, binds the front enemy in each of its rows"
+TRAIT_TIDE,밀물,Tide
+TRAIT_TIDE_DESC,4번 행동할 때마다 모든 아군 체력 +2,"Every 4th action, heals all allies by 2"
+TRAIT_CURSE,저주,Curse
+TRAIT_CURSE_DESC,쓰러뜨린 적의 공격 -2,"On death, its killer loses 2 ATK"
+TRAIT_STEAL,훔치기,Thief
+TRAIT_STEAL_DESC,적을 쓰러뜨리면 그 적 공격 절반을 빼앗는다,"On kill, steals half the victim's ATK"
+TRAIT_UNDYING,머리 없는 집념,Headless Will
+TRAIT_UNDYING_DESC,처음 쓰러질 때 체력 1로 버틴다,"The first time it would fall, it stays at 1 HP"
+TRAIT_HOARD,재물 모으기,Hoard
+TRAIT_HOARD_DESC,전투가 끝날 때 살아 있으면 엽전 2닢,"If alive when battle ends, +2 coins"
+TRAIT_CLEAVE,짓뭉개기,Crush
+TRAIT_CLEAVE_DESC,공격할 때 대상 뒤의 적에게도 절반 피해,Attacks also hit the enemy behind for half
+TRAIT_WARD,터 지킴,Ward
+TRAIT_WARD_DESC,전투 시작 시 같은 줄 아군 모두에게 수호,"At start, shields every ally sharing a row"
+TRAIT_HUNT,사냥,Hunt
+TRAIT_HUNT_DESC,어느 줄이든 체력이 가장 낮은 앞 적을 노린다,Targets the weakest front enemy in any row
+TRAIT_REBIRTH,불사조,Rebirth
+TRAIT_REBIRTH_DESC,다른 아군이 처음 쓰러질 때 체력 절반으로 되살린다 (1회),"Once, revives the first other ally to fall at half HP"
+TRAIT_GROW,커지는 어둠,Growing Dark
+TRAIT_GROW_DESC,행동할 때마다 공격 +1,+1 ATK after every action
+TRAIT_DREAD,그림자 위압,Dread
+TRAIT_DREAD_DESC,전투 시작 시 자기 줄 적 모두 공격 -1,"At start, enemies in its rows lose 1 ATK"
+TRAIT_MIMIC,흉내,Mimic
+TRAIT_MIMIC_DESC,전투 시작 시 맞닿은 아군 중 공격이 가장 높은 요괴의 능력을 흉내 낸다,"At start, copies the ability of its strongest touching ally"
+TRAIT_TRIPLE,세 머리,Three Heads
+TRAIT_TRIPLE_DESC,공격할 때 위아래 줄 맨 앞 적도 함께 친다,Attacks also hit the front enemies in the rows above and below
+FAMILY_FIRE,불,Fire
+FAMILY_FIRE_DESC,2: 불 요괴 공격 +1 · 4: 불 요괴 공격에 화상 +1,2: fire +1 ATK · 4: fire hits add 1 Burn
+FAMILY_WATER,물,Water
+FAMILY_WATER_DESC,2: 물 요괴 체력 +3 · 4: 물 요괴가 행동할 때마다 가장 다친 아군 체력 +1,2: water +3 HP · 4: water actions heal the most hurt ally by 1
+FAMILY_GRUDGE,원혼,Grudge
+FAMILY_GRUDGE_DESC,2: 원혼이 쓰러지면 맞닿은 아군 공격 +1 · 4: 처음 쓰러진 원혼이 체력 절반으로 되살아남,2: a falling grudge gives touching allies +1 ATK · 4: the first grudge to fall revives at half HP
+FAMILY_METAL,쇠,Metal
+FAMILY_METAL_DESC,"2: 쇠 요괴 체력 +3 · 4: 쇠 요괴 공격 +1, 전투 후 엽전 2닢",2: metal +3 HP · 4: metal +1 ATK and +2 coins after battle
+FAMILY_DIVINE,신수,Divine
+FAMILY_DIVINE_DESC,2: 신수 요괴 수호 1 · 4: 모든 아군 수호 1,2: divine allies start shielded · 4: all allies start shielded
+FAMILY_MOUNTAIN,산,Mountain
+FAMILY_MOUNTAIN_DESC,2: 산 요괴 공격 +1 · 4: 산 요괴 공격 간격 20% 단축,2: mountain +1 ATK · 4: mountain attack 20% faster
+LINK_FORGE,불에 달군 쇠,Forged
+LINK_FORGE_DESC,쇠 요괴가 맞닿은 불 요괴 하나마다 공격 +1,Metal +1 ATK per touching fire
+LINK_STEAM,김 빠짐,Steamed
+LINK_STEAM_DESC,불 요괴가 맞닿은 물 요괴 하나마다 공격 -1,Fire -1 ATK per touching water
+LINK_VALLEY,계곡,Valley
+LINK_VALLEY_DESC,산 요괴가 맞닿은 물 요괴 하나마다 체력 +2,Mountain +2 HP per touching water
+LINK_SOLACE,위로,Solace
+LINK_SOLACE_DESC,원혼이 맞닿은 신수 하나마다 체력 +2,Grudge +2 HP per touching divine
+LOG_BUFF,%s → %s 공격 %d,%s → %s ATK %d
+LOG_BURN,%s → %s 화상 %d,%s burns %s (%d)
+LOG_HEAL,%s → %s 체력 +%d,%s heals %s +%d
+LOG_REVIVE,%s 되살아남 (체력 %d),%s rises again (%d HP)
+LOG_MIMIC,%s %s 흉내,%s mimics %s
+LOG_STEAL,%s %s의 힘을 빼앗았다,%s steals strength from %s
+LOG_CURSE,%s의 저주 → %s,%s curses %s
+FLOAT_BURN,화상 %d,Burn %d
+FLOAT_REVIVE,부활,Revive
+SYNERGY_TITLE,계열 시너지,Synergies
+INFO_BONUS,시너지 %s,Synergy %s
+TIER_LABEL,%d등급,Tier %d
+HELP_5,"5. 같은 계열 2·4마리면 시너지, 맞닿은 계열끼리도 효과가 있다",5. 2/4 of a family unlock synergies; touching families affect each other
+BONUS_ATK,공격%s,ATK%s
+BONUS_HP,체력+%d,HP+%d
+BONUS_FAST,빠름,faster

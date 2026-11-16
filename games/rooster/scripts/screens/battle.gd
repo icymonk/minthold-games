@@ -106,13 +106,34 @@ func _apply(e: Dictionary) -> void:
 			_state[src]["skip"] = maxi(_state[src]["skip"] - 1, 0)
 			_float(src, tr("FLOAT_SKIP"), Ink.SLATE)
 		&"coin":
-			_float(src, tr("FLOAT_COIN"), Ink.GOLD)
-			_log_line(tr("LOG_COIN") % _name(src))
+			_float(src, tr("FLOAT_COIN") % v, Ink.GOLD)
+			_log_line(tr("LOG_COIN") % [_name(src), v])
 		&"atk":
 			_state[dst]["atk"] = v
 			_float(dst, tr("FLOAT_ATK") % v, Ink.VERMILION)
 			if src != dst:
-				_log_line(tr("LOG_RAGE") % [_name(src), _name(dst)])
+				_log_line(tr("LOG_BUFF") % [_name(src), _name(dst), v])
+		&"burn":
+			_float(dst, tr("FLOAT_BURN") % v, Ink.VERMILION)
+			_log_line(tr("LOG_BURN") % [_name(src), _name(dst), v])
+		&"burn_tick":
+			pass
+		&"heal":
+			var gain: int = v - _state[dst]["hp"]
+			_state[dst]["hp"] = v
+			_float(dst, "+%d" % gain, Ink.JADE)
+			_log_line(tr("LOG_HEAL") % [_name(src), _name(dst), gain])
+		&"revive":
+			_state[dst]["hp"] = v
+			_state[dst]["alive"] = true
+			_float(dst, tr("FLOAT_REVIVE"), Ink.GOLD)
+			_log_line(tr("LOG_REVIVE") % [_name(dst), v])
+		&"mimic":
+			_log_line(tr("LOG_MIMIC") % [Ink.with_josa(_name(src), "이가"), _name(dst)])
+		&"steal":
+			_log_line(tr("LOG_STEAL") % [Ink.with_josa(_name(src), "이가"), _name(dst)])
+		&"curse":
+			_log_line(tr("LOG_CURSE") % [_name(src), _name(dst)])
 		&"devour":
 			_state[src]["hp"] = v
 			_state[src]["max"] = maxi(_state[src]["max"], v)

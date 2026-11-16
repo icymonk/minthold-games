@@ -6,6 +6,14 @@ const DT := 0.1
 const REAPER_PERIOD := 10.0
 const LEADER_PERIOD := 15.0
 const CHARM_CHANCE := 0.3
+const BURN_STACKS := 2
+const DROUGHT_DAMAGE := 2
+const SPRING_HEAL := 2
+const TIDE_HEAL := 2
+const TIDE_EVERY := 4
+const CURSE_ATK := 2
+const HOARD_COINS := 2
+const METAL_COINS := 2
 
 
 class Unit:
@@ -22,7 +30,11 @@ class Unit:
 	var interval: float
 	var gauge := 0.0
 	var traits: Array[StringName] = []
+	var family: StringName
 	var shield := 0
+	var burn := 0
+	var used_undying := false
+	var used_rebirth := false
 	var skip := 0
 	var actions := 0
 	var alive := true
@@ -47,15 +59,22 @@ var t := 0.0
 var coins := 0
 var won := false
 var initial: Array[Dictionary] = []
+var levels := {}
 var _enemy_lanes: Array = []
+var _grudge_revive := false
 
 
 func _init(the_bag: Bag, the_procession: Procession, the_rng: RandomNumberGenerator) -> void:
 	bag = the_bag
 	procession = the_procession
 	rng = the_rng
+	levels = Synergy.levels(bag)
+	_grudge_revive = levels[&"grudge"] >= 2
+	var bonus := Synergy.bonuses(bag)
 	for p in bag.pieces:
-		var u := _add(true, p.kind, p.atk, p.hp, p.interval)
+		var b: Dictionary = bonus[p.id]
+		var u := _add(true, p.kind, maxi(p.atk + b["atk"], 1), p.hp + b["hp"], p.interval * b["interval"])
+		u.family = p.family()
 		u.piece_id = p.id
 		u.cells = p.world_cells()
 		u.traits = p.traits.duplicate()
@@ -110,22 +129,81 @@ func run() -> BattleSim:
 	else:
 		won = _hp_sum(true) > _hp_sum(false)
 		_emit(&"dawn", -1, -1, 0)
+	_battle_end()
 	_emit(&"end", -1, -1, 1 if won else 0)
 	return self
 
 
 func _battle_start() -> void:
 	for u in _alive(true):
+		if u.has_trait(&"mimic"):
+			_mimic(u)
+	for u in _alive(true):
+		var divine: bool = levels[&"divine"] >= 2 or (levels[&"divine"] >= 1 and u.family == &"divine")
+		if divine:
+			u.shield += 1
+			_emit(&"shield", u.index, u.index, 1)
+	for u in _alive(true):
 		if u.has_trait(&"guard"):
 			for o in _touching(u):
 				o.shield += 1
 				_emit(&"shield", u.index, o.index, 1)
+		if u.has_trait(&"ward"):
+			for o in _alive(true):
+				if o != u and _shares_row(u, o):
+					o.shield += 1
+					_emit(&"shield", u.index, o.index, 1)
+		if u.has_trait(&"hearth"):
+			for o in _touching(u):
+				o.atk += 2 if o.family == &"fire" else 1
+				_emit(&"atk", u.index, o.index, o.atk)
 		if u.has_trait(&"bind"):
 			for row in u.rows:
 				var e := _front_enemy(row)
 				if e != null:
 					e.skip += 1
 					_emit(&"bind", u.index, e.index, 1)
+		if u.has_trait(&"dread"):
+			for row in u.rows:
+				for e in _lane_enemies(row):
+					if e.atk > 1:
+						e.atk -= 1
+						_emit(&"atk", u.index, e.index, e.atk)
+		if u.has_trait(&"drought"):
+			for row in u.rows:
+				var e := _front_enemy(row)
+				if e != null:
+					_emit(&"attack", u.index, e.index, DROUGHT_DAMAGE)
+					_damage(u, e, DROUGHT_DAMAGE)
+
+
+## 맞닿은 아군 중 공격이 가장 높은 요괴의 첫 능력을 이번 전투 동안 흉내 낸다.
+func _mimic(u: Unit) -> void:
+	var best: Unit = null
+	for o in _touching(u):
+		if o.traits.is_empty() or o.traits[0] == &"mimic":
+			continue
+		if best == null or o.atk > best.atk:
+			best = o
+	if best == null or u.has_trait(best.traits[0]):
+		return
+	u.traits.append(best.traits[0])
+	_emit(&"mimic", u.index, best.index, 0)
+
+
+func _battle_end() -> void:
+	var metal: Unit = null
+	for u in units:
+		if not u.ally:
+			continue
+		if u.family == &"metal" and metal == null:
+			metal = u
+		if u.alive and u.has_trait(&"hoard"):
+			coins += HOARD_COINS
+			_emit(&"coin", u.index, -1, HOARD_COINS)
+	if metal != null and levels[&"metal"] >= 2:
+		coins += METAL_COINS
+		_emit(&"coin", metal.index, -1, METAL_COINS)
 
 
 func _acting_order() -> Array[Unit]:
@@ -137,6 +215,12 @@ func _acting_order() -> Array[Unit]:
 
 
 func _act(u: Unit) -> void:
+	if u.burn > 0:
+		u.burn -= 1
+		_emit(&"burn_tick", -1, u.index, 1)
+		_damage(null, u, 1)
+		if not u.alive:
+			return
 	if u.skip > 0:
 		u.skip -= 1
 		_emit(&"skip", u.index, -1, 0)
@@ -145,17 +229,87 @@ func _act(u: Unit) -> void:
 	var target := _pick_target(u)
 	if target == null:
 		return
-	_emit(&"attack", u.index, target.index, u.atk)
-	_damage(u, target, u.atk)
-	if u.has_trait(&"charm") and target.alive and rng.randf() < CHARM_CHANCE:
-		target.skip += 1
-		_emit(&"charm", u.index, target.index, 1)
+	var targets: Array[Unit] = [target]
+	if u.has_trait(&"triple"):
+		for lane in [target.lane - 1, target.lane + 1]:
+			var e := _front_enemy(lane)
+			if e != null:
+				targets.append(e)
+	for tgt in targets:
+		_strike(u, tgt)
+	if u.has_trait(&"cleave"):
+		var behind := _behind(target) if target.alive else _front_enemy(target.lane)
+		if behind != null:
+			_emit(&"attack", u.index, behind.index, ceili(u.atk / 2.0))
+			_damage(u, behind, ceili(u.atk / 2.0))
 	if u.has_trait(&"coin") and u.actions % 3 == 0:
 		coins += 1
 		_emit(&"coin", u.index, -1, 1)
+	if u.has_trait(&"grow"):
+		u.atk += 1
+		_emit(&"atk", u.index, u.index, u.atk)
+	if u.has_trait(&"spring"):
+		var hurt := _most_hurt(_touching(u))
+		if hurt != null:
+			_heal(u, hurt, SPRING_HEAL)
+	if u.has_trait(&"tide") and u.actions % TIDE_EVERY == 0:
+		for o in _alive(true):
+			_heal(u, o, TIDE_HEAL)
+	if u.ally and u.family == &"water" and levels[&"water"] >= 2:
+		var hurt := _most_hurt(_alive(true))
+		if hurt != null:
+			_heal(u, hurt, 1)
+
+
+## 한 대상을 한 번 치고, 치는 순간 붙는 능력을 적용한다.
+func _strike(u: Unit, target: Unit) -> void:
+	_emit(&"attack", u.index, target.index, u.atk)
+	var killed := _damage(u, target, u.atk)
+	if killed:
+		if u.has_trait(&"steal"):
+			u.atk += ceili(target.atk / 2.0)
+			_emit(&"steal", u.index, target.index, u.atk)
+			_emit(&"atk", u.index, u.index, u.atk)
+		return
+	if not target.alive:
+		return
+	var burn := 0
+	if u.has_trait(&"burn"):
+		burn += BURN_STACKS
+	if u.ally and u.family == &"fire" and levels[&"fire"] >= 2:
+		burn += 1
+	if burn > 0:
+		target.burn += burn
+		_emit(&"burn", u.index, target.index, target.burn)
+	if u.has_trait(&"charm") and rng.randf() < CHARM_CHANCE:
+		target.skip += 1
+		_emit(&"charm", u.index, target.index, 1)
+
+
+func _heal(src: Unit, dst: Unit, amount: int) -> void:
+	var healed := mini(amount, dst.max_hp - dst.hp)
+	if healed <= 0:
+		return
+	dst.hp += healed
+	_emit(&"heal", src.index, dst.index, dst.hp)
+
+
+func _most_hurt(pool: Array[Unit]) -> Unit:
+	var best: Unit = null
+	for o in pool:
+		if o.hp < o.max_hp and (best == null or o.max_hp - o.hp > best.max_hp - best.hp):
+			best = o
+	return best
 
 
 func _pick_target(u: Unit) -> Unit:
+	if u.ally and u.has_trait(&"hunt"):
+		var prey: Unit = null
+		for lane in _enemy_lanes.size():
+			var e := _front_enemy(lane)
+			if e != null and (prey == null or e.hp < prey.hp):
+				prey = e
+		return prey
 	if u.ally:
 		for dist in bag.height:
 			for row in u.rows:
@@ -178,18 +332,44 @@ func _pick_target(u: Unit) -> Unit:
 	return null
 
 
-func _damage(src: Unit, dst: Unit, amount: int) -> void:
+## 피해를 주고, 대상이 쓰러졌으면 true.
+func _damage(src: Unit, dst: Unit, amount: int) -> bool:
 	if dst.shield > 0:
 		dst.shield -= 1
 		_emit(&"blocked", src.index if src else -1, dst.index, 0)
-		return
+		return false
 	dst.hp = maxi(dst.hp - amount, 0)
 	_emit(&"hp", src.index if src else -1, dst.index, dst.hp)
-	if dst.hp == 0:
-		_die(dst)
+	if dst.hp > 0:
+		return false
+	if dst.ally and _revive(dst):
+		return false
+	_die(dst, src)
+	return true
 
 
-func _die(u: Unit) -> void:
+## 쓰러지려는 아군을 되살릴 수 있으면 되살린다. 저승사자에게 데려가진 요괴는 되살아나지 않는다.
+func _revive(u: Unit) -> bool:
+	if u.has_trait(&"undying") and not u.used_undying:
+		u.used_undying = true
+		u.hp = 1
+		_emit(&"revive", u.index, u.index, u.hp)
+		return true
+	for o in _alive(true):
+		if o != u and o.has_trait(&"rebirth") and not o.used_rebirth:
+			o.used_rebirth = true
+			u.hp = ceili(u.max_hp / 2.0)
+			_emit(&"revive", o.index, u.index, u.hp)
+			return true
+	if u.family == &"grudge" and _grudge_revive:
+		_grudge_revive = false
+		u.hp = ceili(u.max_hp / 2.0)
+		_emit(&"revive", u.index, u.index, u.hp)
+		return true
+	return false
+
+
+func _die(u: Unit, killer: Unit = null) -> void:
 	u.alive = false
 	_emit(&"die", -1, u.index, 0)
 	if not u.ally:
@@ -201,6 +381,20 @@ func _die(u: Unit) -> void:
 		for o in neighbors:
 			o.atk += bonus
 			_emit(&"atk", u.index, o.index, o.atk)
+	if u.family == &"grudge" and levels[&"grudge"] >= 1:
+		for o in neighbors:
+			o.atk += 1
+			_emit(&"atk", u.index, o.index, o.atk)
+	if u.has_trait(&"curse") and killer != null and killer.alive and killer.atk > 1:
+		killer.atk = maxi(killer.atk - CURSE_ATK, 1)
+		_emit(&"curse", u.index, killer.index, killer.atk)
+		_emit(&"atk", u.index, killer.index, killer.atk)
+	if u.has_trait(&"sorrow"):
+		for row in u.rows:
+			var e := _front_enemy(row)
+			if e != null:
+				e.skip += 1
+				_emit(&"bind", u.index, e.index, 1)
 	for o in neighbors:
 		if o.has_trait(&"devour"):
 			var div := 4.0 if weak else 2.0
@@ -251,6 +445,29 @@ func _front_enemy(lane: int) -> Unit:
 		if e.alive:
 			return e
 	return null
+
+
+func _lane_enemies(lane: int) -> Array[Unit]:
+	var out: Array[Unit] = []
+	if lane < 0 or lane >= _enemy_lanes.size():
+		return out
+	for e in _enemy_lanes[lane]:
+		if e.alive:
+			out.append(e)
+	return out
+
+
+func _behind(e: Unit) -> Unit:
+	var queue := _lane_enemies(e.lane)
+	var i := queue.find(e)
+	return queue[i + 1] if i >= 0 and i + 1 < queue.size() else null
+
+
+func _shares_row(a: Unit, b: Unit) -> bool:
+	for r in a.rows:
+		if r in b.rows:
+			return true
+	return false
 
 
 func _touching(u: Unit) -> Array[Unit]:

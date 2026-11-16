@@ -13,13 +13,25 @@ const GOLD := Color(0.88, 0.70, 0.32)
 const SLATE := Color(0.55, 0.58, 0.70)
 const WOOD := Color(0.55, 0.36, 0.20)
 
-const TRAIT_COLORS := {
-	&"coin": GOLD, &"charm": Color(0.45, 0.65, 0.95), &"bind": Color(0.35, 0.5, 0.85),
-	&"guard": JADE, &"rage": VERMILION, &"devour": Color(0.5, 0.5, 0.55),
+const FAMILY_COLORS := {
+	&"fire": Color(0.90, 0.42, 0.20), &"water": Color(0.32, 0.55, 0.88), &"grudge": Color(0.66, 0.56, 0.80),
+	&"metal": GOLD, &"divine": JADE, &"mountain": Color(0.50, 0.42, 0.34),
 }
 
 static var _ui := {}
 static var _bold: Font
+
+
+## 능력 색은 그 능력을 원래 가진 요괴의 계열 색.
+static func trait_color(t: StringName) -> Color:
+	for kind in YokaiDb.ALLIES:
+		if YokaiDb.ALLIES[kind]["trait"] == t:
+			return FAMILY_COLORS[YokaiDb.ALLIES[kind]["family"]]
+	return SLATE
+
+
+static func family_color(kind: StringName) -> Color:
+	return FAMILY_COLORS[YokaiDb.family(kind)]
 
 
 static func ui(file: String) -> Texture2D:
@@ -255,7 +267,7 @@ static func draw_piece(ci: CanvasItem, origin: Vector2, p: Piece, cs: float, _fo
 				ci.draw_circle(c, badge * 0.32, Color(GOLD, tint.a))
 	for i in p.traits.size():
 		var dot := first + Vector2(cs - badge * 0.9, badge * 0.9 + i * badge * 1.1)
-		ci.draw_rect(Rect2(dot - Vector2(badge, badge) * 0.4, Vector2(badge, badge) * 0.8), TRAIT_COLORS.get(p.traits[i], SLATE))
+		ci.draw_rect(Rect2(dot - Vector2(badge, badge) * 0.4, Vector2(badge, badge) * 0.8), trait_color(p.traits[i]))
 		ci.draw_rect(Rect2(dot - Vector2(badge, badge) * 0.4, Vector2(badge, badge) * 0.8), INK, false, 1.5)
 
 

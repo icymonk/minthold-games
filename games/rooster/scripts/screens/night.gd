@@ -10,7 +10,7 @@ const CELL := 96.0
 const BENCH_RECT := Rect2(760, 540, 580, 290)
 const BENCH_CELL := 52.0
 const SELL_RECT := Rect2(760, 850, 580, 96)
-const TALISMAN_POS := Vector2(1400, 268)
+const SYNERGY_RECT := Rect2(1400, 262, 480, 166)
 const PREVIEW_RECT := Rect2(1400, 440, 480, 240)
 const INFO_RECT := Rect2(1400, 696, 480, 250)
 const FIGHT_RECT := Rect2(1400, 964, 480, 92)
@@ -293,7 +293,7 @@ func _draw() -> void:
 	_draw_shelf()
 	_draw_bag()
 	_draw_bench()
-	_draw_talismans()
+	_draw_synergies()
 	_draw_preview()
 	_draw_info()
 
@@ -302,6 +302,7 @@ func _draw() -> void:
 func _draw_overlay() -> void:
 	_ci = _overlay
 	_draw_tooltip()
+	_draw_synergy_tip()
 	_draw_drag()
 	if Time.get_ticks_msec() / 1000.0 < _toast_until:
 		var r := Rect2(560, 470, 800, 70)
@@ -341,14 +342,16 @@ func _draw_shelf() -> void:
 		var tint := Color.WHITE if run.coins >= cost else Color(0.7, 0.7, 0.75)
 		Ink.draw_paper(self, r, tint)
 		var def: Dictionary = YokaiDb.ALLIES[kind]
-		draw_texture_rect(YokaiDb.icon(kind), Rect2(r.position + Vector2(20, 6), Vector2(160, 160)), false, Color(tint, 0.35 if i == _drag_shop else 1.0))
+		Ink.draw_fit(self, YokaiDb.icon(kind), Rect2(r.position + Vector2(20, 10), Vector2(160, 156)), Color(tint, 0.35 if i == _drag_shop else 1.0))
+		_draw_family_chip(self, r.position + Vector2(10, 10), kind, 15)
+		_text(r.position + Vector2(0, 28), "★".repeat(def["tier"]), 16, Ink.GOLD, CARD.x - 12, HORIZONTAL_ALIGNMENT_RIGHT)
 		Ink.draw_label(self, r.position + Vector2(0, 194), Ink.name_of(kind), 26, Ink.INK, CARD.x, HORIZONTAL_ALIGNMENT_CENTER)
 		Ink.draw_stats(self, r.position + Vector2(22, 232), def["atk"], def["hp"], 22)
 		var cells: Array[Vector2i] = []
 		cells.assign(def["cells"])
 		Ink.draw_shape(self, r.position + Vector2(CARD.x - 20 - 3 * 15, 208), cells, 15, Color(Ink.INK, 0.18), Ink.INK, 1.5)
 		var chip := Rect2(r.position + Vector2(14, 248), Vector2(CARD.x - 28, 26))
-		draw_style_box(Ink.box(Color(Ink.TRAIT_COLORS[def["trait"]], 0.25), 6), chip)
+		draw_style_box(Ink.box(Color(Ink.trait_color(def["trait"]), 0.25), 6), chip)
 		_text(chip.position + Vector2(10, 20), tr("TRAIT_" + String(def["trait"]).to_upper()), 17, Ink.INK)
 		_text(chip.position + Vector2(0, 20), tr("CARD_BELLY") % def["belly"], 15, Color(Ink.INK, 0.7), chip.size.x - 10, HORIZONTAL_ALIGNMENT_RIGHT)
 		var price := Vector2(r.get_center().x, SHELF_Y + 30)
@@ -390,12 +393,52 @@ func _draw_bench() -> void:
 	_text(SELL_RECT.position + Vector2(0, 58), tr("SELL_ZONE") % RunState.SELL_REFUND, 22, Ink.CREAM, SELL_RECT.size.x, HORIZONTAL_ALIGNMENT_CENTER)
 
 
-func _draw_talismans() -> void:
-	var tex := Ink.ui("talisman.png")
-	for i in 3:
-		draw_texture_rect(tex, Rect2(TALISMAN_POS + Vector2(i * 78, 0), Vector2(64, 142)), false, Color(1, 1, 1, 0.45))
-	Ink.draw_label(self, TALISMAN_POS + Vector2(250, 60), tr("TALISMAN_TITLE"), 24)
-	_text(TALISMAN_POS + Vector2(250, 94), tr("TALISMAN_SOON"), 17, Color(Ink.CREAM, 0.6))
+func _synergy_rect(i: int) -> Rect2:
+	return Rect2(SYNERGY_RECT.position + Vector2(16 + (i % 3) * 152, 52 + (i / 3) * 46), Vector2(144, 40))
+
+
+func _draw_synergies() -> void:
+	Ink.draw_panel(self, SYNERGY_RECT)
+	Ink.draw_label(self, SYNERGY_RECT.position + Vector2(20, 36), tr("SYNERGY_TITLE"), 22)
+	var counts := Synergy.counts(run.bag)
+	var levels := Synergy.levels(run.bag)
+	for i in YokaiDb.FAMILIES.size():
+		var f: StringName = YokaiDb.FAMILIES[i]
+		var r := _synergy_rect(i)
+		var col: Color = Ink.FAMILY_COLORS[f]
+		var lv: int = levels[f]
+		draw_style_box(Ink.box(Color(col, 0.18 + lv * 0.22), 8, Color(col, 0.9) if lv > 0 else Color(col, 0.35), 2), r)
+		_text(r.position + Vector2(10, 27), tr("FAMILY_" + String(f).to_upper()), 18, Ink.CREAM)
+		var next: int = Synergy.THRESHOLDS[mini(lv, Synergy.THRESHOLDS.size() - 1)]
+		_text(r.position + Vector2(0, 27), "%d/%d" % [counts[f], next], 17, Ink.GOLD if lv > 0 else Color(Ink.CREAM, 0.6), r.size.x - 10, HORIZONTAL_ALIGNMENT_RIGHT)
+
+
+## 계열 칸에 마우스를 올리면 시너지 설명.
+func _draw_synergy_tip() -> void:
+	if _drag != null:
+		return
+	for i in YokaiDb.FAMILIES.size():
+		var r := _synergy_rect(i)
+		if not r.has_point(_mouse):
+			continue
+		var f: StringName = YokaiDb.FAMILIES[i]
+		var desc := tr("FAMILY_" + String(f).to_upper() + "_DESC")
+		var w := 460.0
+		var h := _font.get_multiline_string_size(desc, HORIZONTAL_ALIGNMENT_LEFT, w - 32, 17).y + 60
+		var tip := Rect2(Vector2(SYNERGY_RECT.end.x - w, SYNERGY_RECT.end.y + 6), Vector2(w, h))
+		_ci.draw_style_box(Ink.box(Ink.NIGHT_DEEP, 10, Ink.FAMILY_COLORS[f], 2, 8), tip)
+		Ink.draw_label(_ci, tip.position + Vector2(16, 30), tr("FAMILY_" + String(f).to_upper()), 20)
+		_ci.draw_multiline_string(_font, tip.position + Vector2(16, 58), desc, HORIZONTAL_ALIGNMENT_LEFT, w - 32, 17, -1, Color(Ink.CREAM, 0.9))
+		return
+
+
+## 계열 색 꼬리표를 그리고 그 너비를 돌려준다.
+func _draw_family_chip(ci: CanvasItem, pos: Vector2, kind: StringName, fsize: int) -> float:
+	var label := tr("FAMILY_" + String(YokaiDb.family(kind)).to_upper())
+	var w := _font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, fsize).x + 16
+	ci.draw_style_box(Ink.box(Ink.family_color(kind), 6), Rect2(pos, Vector2(w, fsize + 10)))
+	ci.draw_string(_font, pos + Vector2(8, fsize + 1), label, HORIZONTAL_ALIGNMENT_LEFT, -1, fsize, Ink.CREAM)
+	return w
 
 
 func _draw_preview() -> void:
@@ -424,7 +467,7 @@ func _draw_info() -> void:
 	if p == null or (p not in run.bag.pieces and p not in run.bench):
 		_text(r.position + Vector2(22, 40), tr("INFO_EMPTY"), 20, Color(Ink.CREAM, 0.7), r.size.x - 44)
 		var y := r.position.y + 80
-		for i in 4:
+		for i in 5:
 			var line := tr("HELP_%d" % (i + 1))
 			draw_multiline_string(_font, Vector2(r.position.x + 22, y), line, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 44, 17, -1, Color(Ink.CREAM, 0.9))
 			y += _font.get_multiline_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 44, 17).y + 10
@@ -434,12 +477,24 @@ func _draw_info() -> void:
 	Ink.draw_label(self, r.position + Vector2(124, 48), Ink.name_of(p.kind), 28)
 	Ink.draw_stats(self, r.position + Vector2(124, 86), p.atk, p.hp, 22, Ink.CREAM)
 	_text(r.position + Vector2(250, 86), tr(Ink.speed_key(p.interval)), 18, Color(Ink.CREAM, 0.7))
+	_draw_family_chip(self, Vector2(r.end.x - 90, r.position.y + 48), p.kind, 16)
+	if p in run.bag.pieces:
+		var b: Dictionary = Synergy.bonuses(run.bag)[p.id]
+		if b["atk"] != 0 or b["hp"] != 0 or b["interval"] != 1.0:
+			var parts: Array[String] = []
+			if b["atk"] != 0:
+				parts.append(tr("BONUS_ATK") % (("+" if b["atk"] > 0 else "") + str(b["atk"])))
+			if b["hp"] != 0:
+				parts.append(tr("BONUS_HP") % b["hp"])
+			if b["interval"] != 1.0:
+				parts.append(tr("BONUS_FAST"))
+			_text(r.position + Vector2(330, 86), tr("INFO_BONUS") % " ".join(parts), 16, Ink.GOLD, r.end.x - r.position.x - 340)
 	var belly_text := tr("INFO_EVOLVED") if p.evolved else tr("INFO_BELLY") % [p.eaten, p.belly, Ink.name_of(YokaiDb.ALLIES[p.kind]["evolve"])]
 	_text(r.position + Vector2(124, 116), belly_text, 17, Ink.GOLD, r.size.x - 140)
 	for i in p.traits.size():
 		var t := p.traits[i]
 		var y := r.position.y + 132 + i * 38
-		draw_rect(Rect2(r.position.x + 22, y + 2, 16, 16), Ink.TRAIT_COLORS.get(t, Ink.SLATE))
+		draw_rect(Rect2(r.position.x + 22, y + 2, 16, 16), Ink.trait_color(t))
 		Ink.draw_label(self, Vector2(r.position.x + 48, y + 17), tr("TRAIT_" + String(t).to_upper()), 18)
 		_text(Vector2(r.position.x + 48, y + 38), tr("TRAIT_" + String(t).to_upper() + "_DESC"), 15, Color(Ink.CREAM, 0.7), r.size.x - 70)
 	_text(r.position + Vector2(0, 34), tr("INFO_TRAIT_SLOTS") % [p.traits.size(), Piece.MAX_TRAITS], 16, Color(Ink.CREAM, 0.5), r.size.x - 20, HORIZONTAL_ALIGNMENT_RIGHT)
@@ -482,13 +537,15 @@ func _draw_tooltip() -> void:
 	var card := _card_rect(_card)
 	var w := 420.0
 	var x := card.end.x + 14 if card.end.x + 14 + w < size.x - 20 else card.position.x - 14 - w
-	var r := Rect2(x, card.position.y - 6, w, 380)
+	var r := Rect2(x, card.position.y - 6, w, 400)
 	var tip := PackedVector2Array([Vector2(x, card.position.y + 60), Vector2(x - 14, card.position.y + 74), Vector2(x, card.position.y + 88)]) if x > card.position.x else PackedVector2Array([Vector2(r.end.x, card.position.y + 60), Vector2(r.end.x + 14, card.position.y + 74), Vector2(r.end.x, card.position.y + 88)])
 	_ci.draw_style_box(Ink.box(Ink.NIGHT_DEEP, 12, Ink.GOLD, 2, 10), r)
 	_ci.draw_colored_polygon(tip, Ink.GOLD)
 	var o := r.position + Vector2(22, 0)
 	var inner := w - 44
 	Ink.draw_label(_ci, o + Vector2(0, 44), Ink.name_of(kind), 30)
+	var chip_w := _draw_family_chip(_ci, o + Vector2(0, 98), kind, 16)
+	_text(o + Vector2(chip_w + 10, 116), tr("TIER_LABEL") % def["tier"], 16, Ink.GOLD)
 	Ink.draw_coin(_ci, Vector2(r.end.x - 70, o.y + 34), 14)
 	Ink.draw_label(_ci, Vector2(r.end.x - 50, o.y + 45), str(YokaiDb.cost(kind)), 26, Ink.GOLD)
 	Ink.draw_stats(_ci, o + Vector2(0, 84), def["atk"], def["hp"], 22, Ink.CREAM)
@@ -498,8 +555,8 @@ func _draw_tooltip() -> void:
 	Ink.draw_paper_shape(_ci, Vector2(r.end.x - 22 - 3 * shape_cs, o.y + 64), cells, shape_cs)
 	Ink.draw_portrait(_ci, Vector2(r.end.x - 22 - 3 * shape_cs, o.y + 64), cells, shape_cs, kind)
 	var t: StringName = def["trait"]
-	var y := o.y + 128
-	_ci.draw_rect(Rect2(o.x, y - 15, 16, 16), Ink.TRAIT_COLORS.get(t, Ink.SLATE))
+	var y := o.y + 150
+	_ci.draw_rect(Rect2(o.x, y - 15, 16, 16), Ink.trait_color(t))
 	Ink.draw_label(_ci, Vector2(o.x + 26, y), tr("TRAIT_" + String(t).to_upper()), 20)
 	y += 12
 	var desc := tr("TRAIT_" + String(t).to_upper() + "_DESC")
