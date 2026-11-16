@@ -27,7 +27,7 @@ PREVIEW_TIME,닭이 %d초 만에 운다,The rooster crows in %ds
 INFO_EMPTY,요괴를 누르면 정보가 보인다.,Click a yokai to see details.
 HELP_1,1. 장터에서 요괴를 고용한다,1. Hire yokai at the market
 HELP_2,2. 대기 줄에서 보따리로 끌어다 놓는다,2. Drag them from waiting into the bundle
-HELP_3,3. 맞닿게 놓은 뒤 한쪽을 다른 쪽 위로 끌면 먹는다 — 모양이 합쳐진다,"3. Place two touching, then drag one onto the other to feed — shapes merge"
+HELP_3,3. 맞닿은 요괴를 다른 요괴 위로 끌면 먹는다. 먹힌 칸은 비고 배가 차면 변신한다,"3. Drag a touching yokai onto another to feed it. The food frees its cells; a full belly evolves"
 HELP_4,4. 행렬 맞이하기를 누르면 자동 전투,4. Face the procession to auto-battle
 INFO_STATS,공격 %d · 체력 %d · %s,ATK %d · HP %d · %s
 INFO_EATEN,먹은 요괴 %d,Eaten %d
@@ -98,3 +98,17 @@ FLOAT_COIN,+1 엽전,+1 coin
 FLOAT_ATK,공격 %d,ATK %d
 TALISMAN_TITLE,부적,Talismans
 TALISMAN_SOON,다음 단계에서 추가,Coming next
+TOAST_EAT_FULL,배가 가득 찼다,That one is full
+TOAST_EAT_EVOLVED,변신한 요괴는 먹을 수 없다,Evolved yokai cannot be eaten
+TOAST_EAT_NO_ROOM,변신할 자리가 없다,No room to evolve
+TOAST_EVOLVED,%s %s 변신했다!,%s evolved into %s!
+DRAG_EVOLVE,먹고 변신,Feed & evolve
+CARD_BELLY,배 %d,Belly %d
+INFO_BELLY,배 %d/%d · 다 차면 %s,Belly %d/%d · then %s
+INFO_EVOLVED,변신 완료,Evolved
+YOKAI_DOKKAEBI_CHIEF,도깨비 대장,Dokkaebi Chief
+YOKAI_GUMIHO,구미호,Gumiho
+YOKAI_IMUGI,이무기,Imugi
+YOKAI_SINSU_HAETAE,신수 해태,Divine Haetae
+YOKAI_WONGWI,원귀,Vengeful Ghost
+YOKAI_GREAT_BULGASARI,큰 불가사리,Great Bulgasari

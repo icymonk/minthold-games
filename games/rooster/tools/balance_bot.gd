@@ -1,5 +1,8 @@
 extends SceneTree
 ## 단순 봇으로 원정을 돌려 밤별 승률을 본다: godot --headless -s tools/balance_bot.gd
+## 환경 변수 BOT_FEED=1이면 보따리가 차서 남는 요괴가 생길 때 먹여서 자리를 만든다.
+
+var feed := OS.get_environment("BOT_FEED") == "1"
 
 
 func _init() -> void:
@@ -28,6 +31,10 @@ func _shop(run: RunState) -> void:
 	for p in run.bench.duplicate():
 		if _fit(run.bag, p):
 			run.bench.erase(p)
+	while feed and not run.bench.is_empty() and _feed_once(run.bag):
+		for p in run.bench.duplicate():
+			if _fit(run.bag, p):
+				run.bench.erase(p)
 	# 자리가 없으면 내보낸다.
 	for p in run.bench.duplicate():
 		run.sell(p)
@@ -40,4 +47,18 @@ func _fit(bag: Bag, p: Piece) -> bool:
 				if bag.place(p, Vector2i(x, y)):
 					return true
 		p.rotate_cw()
+	return false
+
+
+## 변신에 가장 가까운 요괴에게 맞닿은 가장 약한 요괴를 먹인다.
+func _feed_once(bag: Bag) -> bool:
+	var eaters := bag.pieces.filter(func(p: Piece) -> bool: return p.hungry())
+	eaters.sort_custom(func(a: Piece, b: Piece) -> bool: return a.belly - a.eaten < b.belly - b.eaten)
+	for e in eaters:
+		var foods := bag.neighbors(e).filter(func(p: Piece) -> bool: return not p.evolved)
+		foods.sort_custom(func(a: Piece, b: Piece) -> bool: return a.atk + a.hp < b.atk + b.hp)
+		for f in foods:
+			var r := bag.feed(e, f)
+			if r == Bag.Feed.OK or r == Bag.Feed.EVOLVED:
+				return true
 	return false
