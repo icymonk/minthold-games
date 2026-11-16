@@ -53,6 +53,13 @@ func on_departed() -> void:
 ## 상태를 보고 다음 단계로 넘어간다. 넘어가면 true.
 func update(shift: ShiftState, held: Box) -> bool:
 	var before := step
+	# 되돌리기로 이미 실은 상자가 빠지면 그 상자 단계로 돌아간다.
+	if step >= Step.LOAD_MIDDLE and step <= Step.DEPART and not _loaded(shift, 3):
+		_go(Step.LOAD_LAST)
+	elif step >= Step.ROTATE and step <= Step.DEPART and not _loaded(shift, 2):
+		_go(Step.LOAD_MIDDLE)
+	elif step >= Step.FIX_TIP and step <= Step.DEPART and not _loaded(shift, 1):
+		_go(Step.LOAD_FIRST)
 	match step:
 		Step.LOAD_LAST:
 			if _loaded(shift, 3):

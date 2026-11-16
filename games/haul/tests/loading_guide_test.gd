@@ -67,3 +67,17 @@ func test_hint_suggests_latest_stop() -> void:
 func test_hint_depart_when_queue_empty() -> void:
 	var shift := ShiftState.new(1)
 	assert_str(LoadingGuide.hint(shift, null).key).is_equal("HINT_DEPART")
+
+
+func test_undo_returns_to_missing_box_step() -> void:
+	var shift := LoadingGuide.tutorial_shift()
+	var g := LoadingGuide.new()
+	g.next()
+	g.next()
+	var snap := shift.snapshot()
+	shift.bay.place(_take(shift, 3), Vector2i(0, 0))
+	g.update(shift, null)
+	assert_int(g.step).is_equal(LoadingGuide.Step.LOAD_MIDDLE)
+	shift.restore(snap)
+	assert_bool(g.update(shift, null)).is_true()
+	assert_int(g.step).is_equal(LoadingGuide.Step.LOAD_LAST)
