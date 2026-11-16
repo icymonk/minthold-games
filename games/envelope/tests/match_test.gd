@@ -116,3 +116,11 @@ func test_thief_in_envelope_means_no_thief() -> void:
 	assert_bool(r.no_thief).is_true()
 	assert_int(r.fund).is_equal(9)
 	assert_array(r.winners).is_equal([0, 1])
+
+
+func test_moved_signal_fires_after_turn_passes() -> void:
+	var m := Match.from_hands([[C.CHAIR, C.HR], [C.BOSS, C.MISER], [C.ACCOUNTANT, C.SUPPLIES]])
+	var seen := []
+	m.moved.connect(func(_mv: Dictionary) -> void: seen.append([m.turn, m.out[0], m.legal_moves(0).size()]))
+	m.apply({ seat = 0, card = 0, action = A.ENVELOPE })
+	assert_array(seen).is_equal([[1, true, 0]])

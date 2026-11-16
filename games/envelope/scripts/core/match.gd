@@ -117,8 +117,8 @@ func apply(move: Dictionary) -> bool:
 		Action.NOTE:
 			notes[move.to].append(uid)
 	history.append(move)
-	moved.emit(move)
 	_end_turn(seat)
+	moved.emit(move)
 	return true
 
 
