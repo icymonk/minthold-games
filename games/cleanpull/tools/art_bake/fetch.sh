@@ -3,7 +3,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 UA="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36"
-PACKS=(food-kit furniture-kit ui-pack cursor-pack impact-sounds interface-sounds)
+PACKS=(food-kit furniture-kit ui-pack cursor-pack impact-sounds interface-sounds game-icons)
 mkdir -p kenney
 for s in "${PACKS[@]}"; do
 	[ -d "kenney/$s" ] && continue

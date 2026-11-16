@@ -18,6 +18,11 @@ cp "$UI/Grey/Default/button_rectangle_depth_flat.png" "$ART/kenney/button_presse
 cp "$UI/Yellow/Default/button_rectangle_depth_gradient.png" "$ART/kenney/button_accent.png"
 cp "$UI/Grey/Default/button_square_flat.png" "$ART/kenney/panel.png"
 cp "$K/cursor-pack/Vector/Outline/hand_point_n.svg" "$ART/kenney/hand.svg"
+GI="$K/game-icons/PNG/White/2x"
+cp "$GI/home.png" "$ART/kenney/icon_home.png"
+cp "$GI/return.png" "$ART/kenney/icon_retry.png"
+cp "$GI/arrowRight.png" "$ART/kenney/icon_next.png"
+cp "$GI/fastForward.png" "$ART/kenney/icon_fast.png"
 
 IMP="$K/impact-sounds/Audio"
 IF="$K/interface-sounds/Audio"
