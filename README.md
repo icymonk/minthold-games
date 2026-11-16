@@ -16,7 +16,7 @@ Minthold 인디 게임 모노레포 (Godot 4 + GDScript).
 | [hive](games/hive) | 꿀 따는 계절 (Honey Season) | (준비 중) |
 | [desk](games/desk) | 땡땡이 (Away From Desk) | https://minthold-desk.web.app |
 | [cleanpull](games/cleanpull) | 식탁보 빼기 (Clean Pull) | https://minthold-cleanpull.web.app |
-| [nightmart](games/nightmart) | 심야 편의점 (Night Mart) | (준비 중) |
+| [nightmart](games/nightmart) | 심야 편의점 (Night Mart) | https://minthold-nightmart.web.app |
 | [hearth](games/hearth) | 장작이 꺼지기 전에 (Keep the Fire) | (준비 중) |
 | [jianghu](games/jianghu) | 강호 객잔 (Jianghu Inn) | (준비 중) |
 

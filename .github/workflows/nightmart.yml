@@ -1,0 +1,30 @@
+name: nightmart
+
+on:
+  pull_request:
+    paths:
+      - games/nightmart/**
+      - .github/workflows/nightmart.yml
+      - .github/workflows/godot.yml
+  push:
+    branches: [develop]
+    paths:
+      - games/nightmart/**
+      - .github/workflows/nightmart.yml
+      - .github/workflows/godot.yml
+
+concurrency:
+  group: nightmart-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  game:
+    uses: ./.github/workflows/godot.yml
+    with:
+      game: nightmart
+    secrets: inherit

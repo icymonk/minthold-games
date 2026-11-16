@@ -1,0 +1,8 @@
+keys,ko,en
+GAME_TITLE,심야 편의점,Night Mart
+TITLE_SUBTITLE,8일만 버티면 정직원,Survive eight nights and the job is yours
+TITLE_NEW_RUN,영업 시작,Open Shop
+TITLE_SEED,seed (비우면 무작위),Seed (blank for random)
+TITLE_LANGUAGE,English,한국어
+COUNTER_PLACEHOLDER,계산대는 다음 단계에서 열립니다 (seed %d),The counter opens in a later step (seed %d)
+BACK_TO_TITLE,제목,Title

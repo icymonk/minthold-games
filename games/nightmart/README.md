@@ -2,7 +2,7 @@
 
 **심야 편의점 (Night Mart)** — 새벽 편의점 계산대에서 상품 카드로 세트를 맞춰 매출을 터뜨리는 조합 덱빌딩 로그라이트 (Godot 4, Steam).
 
-- 웹 미리보기: https://minthold-nightmart.web.app (0-1 뼈대 PR 이후, `develop` 머지 시 자동 배포)
+- 웹 미리보기: https://minthold-nightmart.web.app (`develop` 머지 시 자동 배포)
 - 기획서: [docs/design.md](docs/design.md)
 - 개발 단계: [docs/plan.md](docs/plan.md)
 
