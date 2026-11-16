@@ -112,3 +112,27 @@ EVENT_8,회식 공지,Team dinner notice
 EVENT_8_DESC,둘 다 1장씩 더 뽑습니다,Both draw 1 more
 EVENT_9,복도에서 마주침,Bump in the hallway
 EVENT_9_DESC,팀장의 다음 짚기가 틀려도 그 시각보다 이른 기록이 몇 장인지 알게 됩니다,"If the manager's next call misses, he still learns how many records are earlier"
+TITLE_WEEK,한 주 시작 (월~금),Start a week (Mon–Fri)
+TITLE_CONTINUE,이어 하기: %s (%d/%d),Continue: %s (%d/%d)
+RECORDS_BTN,기록,Records
+RECORDS_NONE,%s: 아직 둔 판이 없습니다,%s: no games yet
+RECORDS_LINE,%s: %d판 · 승률 %d%% · 평균 사원 %s차례 · 마지막 추궁 승률 %s · 끝낸 주 %d (최고 %s),%s: %d games · %d%% won · avg %s employee turns · final call won %s · weeks %d (best %s)
+DAY_0,월요일,Monday
+DAY_1,화요일,Tuesday
+DAY_2,수요일,Wednesday
+DAY_3,목요일,Thursday
+DAY_4,금요일,Friday
+TABLE_DAY,%s · %d/%d,%s · %d/%d
+TABLE_EVENTS, · 사건 카드, · Event cards
+RESULT_NEXT_DAY,다음 날: %s,Next: %s
+RESULT_NEW_WEEK,새 주 시작,New week
+WEEK_SCORE_STAFF,이번 주 정시 퇴근 %d번 (%d판),On-time clock-outs this week: %d of %d
+WEEK_SCORE_CHIEF,이번 주 잡은 땡땡이 %d번 (%d판),Slackers caught this week: %d of %d
+WEEK_GRADE_STAFF_0,주간 평가: 면담 예정,Weekly review: HR meeting
+WEEK_GRADE_STAFF_1,주간 평가: 간당간당,Weekly review: Close calls
+WEEK_GRADE_STAFF_2,주간 평가: 요령 있는 사원,Weekly review: Savvy slacker
+WEEK_GRADE_STAFF_3,주간 평가: 칼퇴의 신,Weekly review: Clock-out legend
+WEEK_GRADE_CHIEF_0,주간 평가: 일주일 내내 속았다,Weekly review: Fooled all week
+WEEK_GRADE_CHIEF_1,주간 평가: 반쯤 속는 중,Weekly review: Half fooled
+WEEK_GRADE_CHIEF_2,주간 평가: 빈틈없는 팀장,Weekly review: Sharp manager
+WEEK_GRADE_CHIEF_3,주간 평가: 매의 눈,Weekly review: Eagle eye
