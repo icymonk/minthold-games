@@ -268,10 +268,7 @@ func _piece_under(pos: Vector2) -> Piece:
 	if _bag_rect().has_point(pos):
 		return run.bag.piece_at(_cell_at(pos))
 	if BENCH_RECT.has_point(pos):
-		var layout := _bench_layout()
-		for p in layout:
-			if (layout[p] as Rect2).has_point(pos):
-				return p
+		return _bench_piece_at(pos)
 	return null
 
 
