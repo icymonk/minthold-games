@@ -1,12 +1,46 @@
 keys,ko,en
 GAME_TITLE,땡땡이,Away From Desk
-TITLE_SUBTITLE,"17:18, 정 사원이 자리에서 일어났다. 18:00까지 42분.","5:18 PM. He just left his desk. 42 minutes to clock-out."
+TITLE_SUBTITLE,"17:18, 정 사원이 자리에서 일어났다. 18:00까지 42분.",5:18 PM. He just left his desk. 42 minutes to clock-out.
 TITLE_START,한 판 시작,Start
 TITLE_ROLE_CHIEF,내 역할: 팀장 (짚어 내기),My role: Manager (find him)
 TITLE_ROLE_STAFF,내 역할: 사원 (숨기),My role: Employee (hide)
 TITLE_SEED,시드,Seed
 TITLE_LANGUAGE,English,한국어
-TABLE_PLACEHOLDER,"테이블 화면은 다음 PR에서 만든다 (%s, 시드 %d)","Table screen comes next (%s, seed %d)"
 ROLE_CHIEF,팀장,Manager
 ROLE_STAFF,사원,Employee
 BACK_TO_TITLE,제목으로,Back to Title
+ZONE_0,층 안,Floor
+ZONE_1,건물 안,Building
+ZONE_2,건물 밖,Outside
+DECK_LABEL,%s\n%d~%d · %d장,%s\n%d–%d · %d left
+CLOCK_TITLE,벽시계,Wall clock
+ROW_TITLE,가운데 줄 (사원이 자리를 비운 시각),Hideouts (when he was away)
+CARD_BACK,?,?
+SPRINT_COUNT,뛰기 %d장,Sprint ×%d
+SPRINT_VALUE,뛰기 +%d,Sprint +%d
+HIDDEN_MINE,숨김,hidden
+HAND_TITLE,내 손패,My hand
+MEMO_TITLE,메모판,Notepad
+LOG_TITLE,기록 줄,Log
+BTN_PASS,쉬기,Pass
+BTN_GUESS,짚기,Call it
+STATUS_DRAW,더미를 눌러 %d장 뽑으세요,Tap a pile to draw %d
+STATUS_PLACE,빛나는 카드를 눌러 내세요 (지금 %s~%s까지),Tap a lit card to play it (%s–%s)
+STATUS_PLACE_OR_PASS,카드를 내거나 쉬세요 (지금 %s~%s까지),Play a card or pass (%s–%s)
+STATUS_GUESS,메모판에서 짚을 시각을 고르고 [짚기],"Pick a time on the notepad, then call it"
+STATUS_MANHUNT,마지막 추궁: 틀리면 그대로 퇴근입니다,Final grilling: one miss and he clocks out
+STATUS_WAIT,%s 차례…,%s is thinking…
+LOG_DRAW_SEEN,%s: %s에서 %s 뽑음,"%s drew from %s: %s"
+LOG_DRAW_HIDDEN,%s: %s에서 1장 뽑음,%s drew 1 from %s
+LOG_PLACE_SEEN,사원: %s 기록 (뛰기 %d장),Employee: logged %s (sprint ×%d)
+LOG_PLACE_HIDDEN,사원: 기록 1장 (뛰기 %d장),Employee: logged 1 card (sprint ×%d)
+LOG_ESCAPE,사원: 18:00 도착,Employee reached 18:00
+LOG_PASS,사원: 쉬기,Employee passed
+LOG_GUESS,팀장: %s 짚음 → %s,Manager called %s → %s
+HIT,맞음,hit
+MISS,틀림,miss
+RESULT_WIN,이겼습니다!,You win!
+RESULT_LOSE,졌습니다,You lose
+RESULT_STAFF,18:00 퇴근 성공. 팀장은 끝내 다 잡지 못했다.,Clocked out at 6. The manager never caught it all.
+RESULT_CHIEF,땡땡이 기록을 모두 잡아냈다.,Every break was exposed.
+RESULT_AGAIN,다시 하기,Play again
