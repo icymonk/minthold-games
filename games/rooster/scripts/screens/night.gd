@@ -211,11 +211,28 @@ func _drop(pos: Vector2) -> void:
 
 func _try_eat(eater: Piece, food: Piece) -> void:
 	food.cells = _drag_cells_backup
-	if not _drag_from_bag or not run.bag.merge(eater, food):
+	if not _drag_from_bag:
 		_toast_msg("TOAST_EAT_TOUCH")
 		return
+	var before := Ink.name_of(eater.kind)
+	match run.bag.feed(eater, food):
+		Bag.Feed.NOT_TOUCHING:
+			_toast_msg("TOAST_EAT_TOUCH")
+			return
+		Bag.Feed.FULL:
+			_toast_msg("TOAST_EAT_FULL")
+			return
+		Bag.Feed.FOOD_EVOLVED:
+			_toast_msg("TOAST_EAT_EVOLVED")
+			return
+		Bag.Feed.NO_ROOM:
+			_toast_msg("TOAST_EAT_NO_ROOM")
+			return
+		Bag.Feed.EVOLVED:
+			_toast = tr("TOAST_EVOLVED") % [Ink.with_josa(before, "이가"), Ink.with_josa(Ink.name_of(eater.kind), "으로")]
+		_:
+			_toast = tr("TOAST_ATE") % [Ink.with_josa(before, "이가"), Ink.with_josa(Ink.name_of(food.kind), "을를")]
 	_selected = eater
-	_toast = tr("TOAST_ATE") % [Ink.with_josa(Ink.name_of(eater.kind), "이가"), Ink.with_josa(Ink.name_of(food.kind), "을를")]
 	_toast_until = Time.get_ticks_msec() / 1000.0 + 2.5
 
 
@@ -277,7 +294,7 @@ func _draw_shelf() -> void:
 		var chip := Rect2(r.position + Vector2(14, 248), Vector2(CARD.x - 28, 26))
 		draw_style_box(Ink.box(Color(Ink.TRAIT_COLORS[def["trait"]], 0.25), 6), chip)
 		_text(chip.position + Vector2(10, 20), tr("TRAIT_" + String(def["trait"]).to_upper()), 17, Ink.INK)
-		_text(chip.position + Vector2(0, 20), tr(Ink.speed_key(def["interval"])), 15, Color(Ink.INK, 0.6), chip.size.x - 10, HORIZONTAL_ALIGNMENT_RIGHT)
+		_text(chip.position + Vector2(0, 20), tr("CARD_BELLY") % def["belly"], 15, Color(Ink.INK, 0.7), chip.size.x - 10, HORIZONTAL_ALIGNMENT_RIGHT)
 		var price := Vector2(r.get_center().x, SHELF_Y + 30)
 		Ink.draw_coin(self, price + Vector2(-18, 0), 15)
 		Ink.draw_label(self, price + Vector2(4, 11), str(cost), 28, Ink.GOLD if tint == Color.WHITE else Ink.CREAM_DIM, -1, HORIZONTAL_ALIGNMENT_LEFT, 6)
@@ -359,11 +376,11 @@ func _draw_info() -> void:
 	Ink.draw_label(self, r.position + Vector2(124, 48), Ink.name_of(p.kind), 28)
 	Ink.draw_stats(self, r.position + Vector2(124, 86), p.atk, p.hp, 22, Ink.CREAM)
 	_text(r.position + Vector2(250, 86), tr(Ink.speed_key(p.interval)), 18, Color(Ink.CREAM, 0.7))
-	if p.eaten > 0:
-		_text(r.position + Vector2(330, 86), tr("INFO_EATEN") % p.eaten, 18, Ink.GOLD)
+	var belly_text := tr("INFO_EVOLVED") if p.evolved else tr("INFO_BELLY") % [p.eaten, p.belly, Ink.name_of(YokaiDb.ALLIES[p.kind]["evolve"])]
+	_text(r.position + Vector2(124, 116), belly_text, 17, Ink.GOLD, r.size.x - 140)
 	for i in p.traits.size():
 		var t := p.traits[i]
-		var y := r.position.y + 124 + i * 42
+		var y := r.position.y + 132 + i * 38
 		draw_rect(Rect2(r.position.x + 22, y + 2, 16, 16), Ink.TRAIT_COLORS.get(t, Ink.SLATE))
 		Ink.draw_label(self, Vector2(r.position.x + 48, y + 17), tr("TRAIT_" + String(t).to_upper()), 18)
 		_text(Vector2(r.position.x + 48, y + 38), tr("TRAIT_" + String(t).to_upper() + "_DESC"), 15, Color(Ink.CREAM, 0.7), r.size.x - 70)
@@ -379,9 +396,17 @@ func _draw_drag() -> void:
 	if _bag_rect().has_point(_mouse):
 		var target := run.bag.piece_at(_cell_at(_mouse))
 		if target != null and target != p:
-			var ok := _drag_from_bag and run.bag.touching(target, p)
+			var why := ""
+			if not _drag_from_bag or not run.bag.touching(target, p):
+				why = "TOAST_EAT_TOUCH"
+			elif not target.hungry():
+				why = "TOAST_EAT_FULL"
+			elif p.evolved:
+				why = "TOAST_EAT_EVOLVED"
+			var ok := why == ""
+			var hint := tr(why) if not ok else (tr("DRAG_EVOLVE") if target.eaten + 1 >= target.belly else tr("DRAG_EAT"))
 			Ink.draw_shape(self, BAG_POS + Vector2(target.pos) * CELL, target.cells, CELL, Color(Ink.VERMILION, 0.25), Ink.VERMILION if ok else Ink.SLATE, 6)
-			Ink.draw_label(self, BAG_POS + Vector2(target.pos) * CELL + Vector2(0, -12), tr("DRAG_EAT") if ok else tr("TOAST_EAT_TOUCH"), 22, Ink.VERMILION if ok else Ink.SLATE, -1, HORIZONTAL_ALIGNMENT_LEFT, 6)
+			Ink.draw_label(self, BAG_POS + Vector2(target.pos) * CELL + Vector2(0, -12), hint, 22, Ink.VERMILION if ok else Ink.SLATE, -1, HORIZONTAL_ALIGNMENT_LEFT, 6)
 		else:
 			var at := _cell_at(_mouse) - _grab
 			var ok := run.bag.can_place(p, at)

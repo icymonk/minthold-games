@@ -43,7 +43,7 @@ static func speed_key(interval: float) -> String:
 
 
 static func name_of(kind: StringName) -> String:
-	var prefix := "YOKAI_" if YokaiDb.ALLIES.has(kind) else "ENEMY_"
+	var prefix := "YOKAI_" if YokaiDb.is_ally(kind) else "ENEMY_"
 	return TranslationServer.translate(prefix + String(kind).to_upper())
 
 
@@ -52,8 +52,10 @@ static func with_josa(word: String, pair: String) -> String:
 	if not TranslationServer.get_locale().begins_with("ko") or word.is_empty():
 		return word
 	var code := word.unicode_at(word.length() - 1)
-	var has_final := code >= 0xAC00 and code <= 0xD7A3 and (code - 0xAC00) % 28 != 0
-	return word + (pair[0] if has_final else pair[1])
+	var final := (code - 0xAC00) % 28 if code >= 0xAC00 and code <= 0xD7A3 else 0
+	if pair == "으로":
+		return word + ("으로" if final != 0 and final != 8 else "로")
+	return word + (pair[0] if final != 0 else pair[1])
 
 
 static func centroid(cells: Array[Vector2i]) -> Vector2:
@@ -214,6 +216,15 @@ static func draw_piece(ci: CanvasItem, origin: Vector2, p: Piece, cs: float, _fo
 	var badge := maxf(cs * 0.17, 11)
 	draw_badge(ci, first + Vector2(badge * 1.1, badge * 1.1), p.atk, Color(VERMILION, tint.a), null, int(badge))
 	draw_badge(ci, first + Vector2(badge * 2.9, badge * 1.1), p.hp, Color(JADE, tint.a), null, int(badge))
+	if p.evolved:
+		draw_shape(ci, origin, p.cells, cs, Color(0, 0, 0, 0), Color(GOLD, tint.a), maxf(cs * 0.05, 3))
+	elif p.belly > 0:
+		var last: Vector2 = origin + Vector2(p.cells[-1]) * cs
+		for i in p.belly:
+			var c := last + Vector2(cs - badge * (0.9 + i * 1.1), cs - badge * 0.9)
+			ci.draw_circle(c, badge * 0.42, Color(INK, tint.a * 0.5))
+			if i < p.eaten:
+				ci.draw_circle(c, badge * 0.32, Color(GOLD, tint.a))
 	for i in p.traits.size():
 		var dot := first + Vector2(cs - badge * 0.9, badge * 0.9 + i * badge * 1.1)
 		ci.draw_rect(Rect2(dot - Vector2(badge, badge) * 0.4, Vector2(badge, badge) * 0.8), TRAIT_COLORS.get(p.traits[i], SLATE))

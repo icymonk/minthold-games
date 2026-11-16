@@ -1,6 +1,6 @@
 class_name Piece
 extends RefCounted
-## 보따리에 들어가는 요괴 한 마리. 먹기로 칸 모양과 특성이 늘어난다.
+## 보따리에 들어가는 요괴 한 마리. 다른 요괴를 먹어 배가 차면 변신한다.
 
 const MAX_TRAITS := 3
 
@@ -15,6 +15,8 @@ var hp: int
 var interval: float
 var traits: Array[StringName] = []
 var eaten := 0
+var belly := 0
+var evolved := false
 
 
 static func create(kind: StringName) -> Piece:
@@ -28,7 +30,16 @@ static func create(kind: StringName) -> Piece:
 	p.hp = def["hp"]
 	p.interval = def["interval"]
 	p.traits.append(def["trait"])
+	p.belly = def["belly"]
 	return p
+
+
+func base_kind() -> StringName:
+	return YokaiDb.FORMS[kind]["base"] if evolved else kind
+
+
+func hungry() -> bool:
+	return not evolved and eaten < belly
 
 
 func world_cells() -> Array[Vector2i]:
