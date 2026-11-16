@@ -17,6 +17,7 @@ const RECORDS := "user://records.cfg"
 var players := 5
 var settings_path := SETTINGS
 var seen_intro := false
+var sound := true
 var records_path := RECORDS
 var records := {}
 ## 진행 중인 리그. 한 판씩 할 때는 null.
@@ -32,7 +33,9 @@ func _ready() -> void:
 
 func load_settings() -> void:
 	var cfg := ConfigFile.new()
-	seen_intro = cfg.load(settings_path) == OK and cfg.get_value("play", "seen_intro", false)
+	var ok := cfg.load(settings_path) == OK
+	seen_intro = ok and cfg.get_value("play", "seen_intro", false)
+	sound = not ok or cfg.get_value("audio", "sound", true)
 
 
 func mark_intro_seen() -> void:
@@ -40,6 +43,14 @@ func mark_intro_seen() -> void:
 	var cfg := ConfigFile.new()
 	cfg.load(settings_path)
 	cfg.set_value("play", "seen_intro", true)
+	cfg.save(settings_path)
+
+
+func set_sound(on: bool) -> void:
+	sound = on
+	var cfg := ConfigFile.new()
+	cfg.load(settings_path)
+	cfg.set_value("audio", "sound", on)
 	cfg.save(settings_path)
 
 

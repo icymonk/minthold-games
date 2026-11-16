@@ -5,6 +5,8 @@ extends Control
 
 func _ready() -> void:
 	theme = Style.make_theme()
+	add_child(Backdrop.new())
+	move_child(get_child(-1), 1)
 	Game.screen_changed.connect(_show)
 	Game.goto(&"title")
 
