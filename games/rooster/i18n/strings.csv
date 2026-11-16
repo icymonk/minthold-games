@@ -41,7 +41,7 @@ TOAST_BENCH_FULL,대기 줄이 꽉 찼다,Waiting area is full
 TOAST_NO_ROOM,거기엔 놓을 수 없다,No room there
 TOAST_EMPTY_BAG,보따리에 요괴를 넣어야 한다,Put a yokai in the bundle first
 TOAST_EAT_TOUCH,보따리에서 맞닿아 있어야 먹을 수 있다,They must be touching in the bundle
-TOAST_ATE,%s(이)가 %s(을)를 먹었다!,%s ate %s!
+TOAST_ATE,%s %s 먹었다!,%s ate %s!
 YOKAI_DOKKAEBI,도깨비,Dokkaebi
 YOKAI_FOXFIRE,여우불,Foxfire
 YOKAI_MULGWISIN,물귀신,Water Ghost
@@ -87,12 +87,14 @@ LOG_BIND,%s의 끌어당김 → %s 결박,%s binds %s
 LOG_CHARM,%s의 홀림 → %s 다음 행동 거름,%s charms %s
 LOG_COIN,%s 엽전 1닢,%s finds a coin
 LOG_RAGE,%s의 원한 → %s 공격 상승,%s's grudge empowers %s
-LOG_DEVOUR,%s(이)가 쓰러진 %s(을)를 먹었다,%s devours fallen %s
+LOG_DEVOUR,%s 쓰러진 %s 먹었다,%s devours fallen %s
 LOG_HUNGRY,굶주린 행렬 → 모든 적 공격 +1,Hungry procession: all enemies +1 ATK
-LOG_REAP,%s(이)가 %s(을)를 데려갔다,%s takes %s away
+LOG_REAP,%s %s 데려갔다,%s takes %s away
 LOG_BIND_ROW,%s → %d번 줄 결박,%s binds row %d
 LOG_DAWN,닭이 울었다! 남은 체력으로 승패를 가린다,The rooster crows! Remaining HP decides
 FLOAT_BLOCK,막음,Block
 FLOAT_SKIP,거름,Skip
 FLOAT_COIN,+1 엽전,+1 coin
 FLOAT_ATK,공격 %d,ATK %d
+TALISMAN_TITLE,부적,Talismans
+TALISMAN_SOON,다음 단계에서 추가,Coming next

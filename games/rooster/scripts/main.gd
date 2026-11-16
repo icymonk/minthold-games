@@ -4,6 +4,7 @@ extends Control
 
 
 func _ready() -> void:
+	theme = Ink.make_theme()
 	Game.screen_changed.connect(_show)
 	Game.goto(&"title")
 
