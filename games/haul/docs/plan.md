@@ -5,7 +5,7 @@
 각 항목은 PR 하나 단위다. 위에서부터 차례로 진행한다.
 
 ## 0단계 — 기반
-- [ ] 0-1 Godot 4.7 프로젝트, 화면 전환 뼈대, gdUnit4, CI(`haul.yml` → 공용 `godot.yml`), 웹 미리보기 `minthold-haul`
+- [x] 0-1 Godot 4.7 프로젝트, 화면 전환 뼈대, gdUnit4, CI(`haul.yml` → 공용 `godot.yml`), 웹 미리보기 `minthold-haul`
 
 ## 1단계 — 짐칸 엔진 (재미 검증 1: "싣는 게 고민되나")
 - [ ] 1-1 `Bay`(격자), `BoxDef`(모양·속성), 문에서 밀어 넣기, 중력, 꺼내기 규칙, 테스트
