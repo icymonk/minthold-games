@@ -28,10 +28,10 @@ BTN_GUESS,짚기,Call it
 STATUS_DRAW,더미를 눌러 %d장 뽑으세요,Tap a pile to draw %d
 STATUS_PLACE,빛나는 카드를 눌러 내세요 (지금 %s~%s까지),Tap a lit card to play it (%s–%s)
 STATUS_PLACE_OR_PASS,카드를 내거나 쉬세요 (지금 %s~%s까지),Play a card or pass (%s–%s)
-STATUS_GUESS,메모판에서 짚을 시각을 고르고 [짚기],"Pick a time on the notepad, then call it"
+STATUS_GUESS,메모판에서 시각을 골라 [짚기] (여러 개 고를 수 있음),"Pick times on the notepad, then call (several allowed)"
 STATUS_MANHUNT,마지막 추궁: 틀리면 그대로 퇴근입니다,Final grilling: one miss and he clocks out
 STATUS_WAIT,%s 차례…,%s is thinking…
-LOG_DRAW_SEEN,%s: %s에서 %s 뽑음,"%s drew from %s: %s"
+LOG_DRAW_SEEN,%s: %s에서 %s 뽑음,%s drew from %s: %s
 LOG_DRAW_HIDDEN,%s: %s에서 1장 뽑음,%s drew 1 from %s
 LOG_PLACE_SEEN,사원: %s 기록 (뛰기 %d장),Employee: logged %s (sprint ×%d)
 LOG_PLACE_HIDDEN,사원: 기록 1장 (뛰기 %d장),Employee: logged 1 card (sprint ×%d)
@@ -45,3 +45,7 @@ RESULT_LOSE,졌습니다,You lose
 RESULT_STAFF,18:00 퇴근 성공. 팀장은 끝내 다 잡지 못했다.,Clocked out at 6. The manager never caught it all.
 RESULT_CHIEF,땡땡이 기록을 모두 잡아냈다.,Every break was exposed.
 RESULT_AGAIN,다시 하기,Play again
+MEMO_MARK_OFF,직접 지우기,Cross out
+MEMO_MARK_ON,직접 지우기: 켜짐,Cross out: on
+MULTI_WARN,%d개를 한꺼번에 짚습니다. 모두 맞아야 뒤집힙니다.,Calling %d at once: all must be right to flip.
+BTN_GUESS_N,%d개 짚기,Call %d
