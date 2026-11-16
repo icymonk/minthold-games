@@ -17,6 +17,7 @@ CLOCK_TITLE,벽시계,Wall clock
 ROW_TITLE,가운데 줄 (사원이 자리를 비운 시각),Hideouts (when he was away)
 CARD_BACK,?,?
 SPRINT_COUNT,뛰기 %d장,Sprint ×%d
+SPRINT_CARDS,뛰기 %s,Sprint %s
 SPRINT_VALUE,뛰기 +%d,Sprint +%d
 HIDDEN_MINE,숨김,hidden
 HAND_TITLE,내 손패,My hand

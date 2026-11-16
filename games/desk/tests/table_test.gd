@@ -80,3 +80,24 @@ func test_big_hand_wraps_inside_screen() -> void:
 	await await_idle_frame()
 	assert_float(t._guess.get_global_rect().end.x).is_less_equal(1920.0)
 	Game.role = before
+
+
+func test_revealed_sprint_cards_are_shown_and_struck() -> void:
+	var before: int = Game.role
+	Game.role = Game.Role.CHIEF
+	Game.rng = RngStreams.new(4)
+	var t: Control = auto_free(TABLE.instantiate())
+	add_child(t)
+	var m: Match = t.session.m
+	m.hideouts.append({ card = 9, sprints = [6] as Array[int], revealed = true })
+	m.side = S.CHIEF
+	m.phase = Match.Phase.ACT
+	t.refresh()
+	var texts := PackedStringArray()
+	for l in t._row.get_child(1).find_children("*", "Label", true, false):
+		texts.append(l.text)
+	assert_str(" ".join(texts)).contains("6")
+	var six: Button = t._memo.get_child(5)
+	assert_str(six.text).is_equal("6")
+	assert_bool(six.disabled).is_true()
+	Game.role = before

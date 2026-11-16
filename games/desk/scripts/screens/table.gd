@@ -233,7 +233,12 @@ func _draw_row() -> void:
 			box.add_child(_text(str(h.card), 20))
 			if not face:
 				box.add_child(_text(tr("HIDDEN_MINE"), 16))
-		if h.sprint_count > 0:
+		if not h.sprints.is_empty():
+			var nums := PackedStringArray()
+			for c in h.sprints:
+				nums.append(str(c))
+			box.add_child(_text(tr("SPRINT_CARDS") % ", ".join(nums), 16))
+		elif h.sprint_count > 0:
 			box.add_child(_text(tr("SPRINT_COUNT") % h.sprint_count, 16))
 		for l in box.get_children():
 			l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -247,6 +252,7 @@ func _draw_memo() -> void:
 		return
 	_clear(_memo)
 	var can_guess := not _moves_of(A.GUESS).is_empty()
+	var excluded := _k.excluded()
 	for n in range(1, Cards.LAST):
 		var b := Button.new()
 		b.custom_minimum_size = CELL_SIZE * Vector2(1.6, 1.4)
@@ -255,7 +261,7 @@ func _draw_memo() -> void:
 		b.tooltip_text = _time(n)
 		b.toggle_mode = true
 		b.button_pressed = n == _picked
-		b.disabled = not can_guess or _is_revealed(n) or n in _k.hand
+		b.disabled = not can_guess or excluded.has(n)
 		b.pressed.connect(_on_pick.bind(n))
 		_memo.add_child(b)
 
