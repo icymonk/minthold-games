@@ -1,0 +1,12 @@
+keys,ko,en
+GAME_TITLE,땡땡이,Away From Desk
+TITLE_SUBTITLE,"17:18, 정 사원이 자리에서 일어났다. 18:00까지 42분.","5:18 PM. He just left his desk. 42 minutes to clock-out."
+TITLE_START,한 판 시작,Start
+TITLE_ROLE_CHIEF,내 역할: 팀장 (짚어 내기),My role: Manager (find him)
+TITLE_ROLE_STAFF,내 역할: 사원 (숨기),My role: Employee (hide)
+TITLE_SEED,시드,Seed
+TITLE_LANGUAGE,English,한국어
+TABLE_PLACEHOLDER,"테이블 화면은 다음 PR에서 만든다 (%s, 시드 %d)","Table screen comes next (%s, seed %d)"
+ROLE_CHIEF,팀장,Manager
+ROLE_STAFF,사원,Employee
+BACK_TO_TITLE,제목으로,Back to Title

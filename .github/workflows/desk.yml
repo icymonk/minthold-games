@@ -1,0 +1,30 @@
+name: desk
+
+on:
+  pull_request:
+    paths:
+      - games/desk/**
+      - .github/workflows/desk.yml
+      - .github/workflows/godot.yml
+  push:
+    branches: [develop]
+    paths:
+      - games/desk/**
+      - .github/workflows/desk.yml
+      - .github/workflows/godot.yml
+
+concurrency:
+  group: desk-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  game:
+    uses: ./.github/workflows/godot.yml
+    with:
+      game: desk
+    secrets: inherit
