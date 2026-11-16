@@ -133,6 +133,7 @@ func _gui_input(event: InputEvent) -> void:
 			_show_hand(false)
 			_sfx(&"pick")
 		elif not button.pressed and state == State.DRAGGING:
+			_flick.move(button.position, _now())
 			if _flick.offset().length() >= Flick.MIN_TUG:
 				pull(_flick.to_pull())
 			else:

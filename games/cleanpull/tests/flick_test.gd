@@ -40,3 +40,9 @@ func test_no_motion_is_slow() -> void:
 	var f := Flick.new()
 	f.begin(Vector2.ZERO, 0.0)
 	assert_float(f.to_pull().speed).is_equal(PullSim.Pull.new(0.0).speed)
+
+
+func test_pause_before_release_is_slow() -> void:
+	var f := _drag(Vector2(100, 0), 0.05)
+	f.move(Vector2(100, 0), 0.5)
+	assert_float(f.to_pull().speed).is_equal_approx(0.0, 0.01)
