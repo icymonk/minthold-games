@@ -265,13 +265,7 @@ func _act(u: Unit) -> void:
 func _strike(u: Unit, target: Unit) -> void:
 	_emit(&"attack", u.index, target.index, u.atk)
 	var killed := _damage(u, target, u.atk)
-	if killed:
-		if u.has_trait(&"steal"):
-			u.atk += ceili(target.atk / 2.0)
-			_emit(&"steal", u.index, target.index, u.atk)
-			_emit(&"atk", u.index, u.index, u.atk)
-		return
-	if not target.alive:
+	if killed or not target.alive:
 		return
 	var burn := 0
 	if u.has_trait(&"burn"):
@@ -345,6 +339,10 @@ func _damage(src: Unit, dst: Unit, amount: int) -> bool:
 	if dst.ally and _revive(dst):
 		return false
 	_die(dst, src)
+	if src != null and src.alive and src.has_trait(&"steal"):
+		src.atk += ceili(dst.atk / 2.0)
+		_emit(&"steal", src.index, dst.index, src.atk)
+		_emit(&"atk", src.index, src.index, src.atk)
 	return true
 
 

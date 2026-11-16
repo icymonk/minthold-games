@@ -94,3 +94,14 @@ func test_hoard_pays_if_alive_at_end() -> void:
 	var sim := _sim(bag, [[], [], [], []])
 	sim.run()
 	assert_int(sim.coins).is_equal(BattleSim.HOARD_COINS)
+
+
+func test_steal_triggers_on_splash_kill() -> void:
+	var bag := _bag_with([&"yagwang"], [Vector2i(0, 0)])
+	var sim := _sim(bag, [[&"shade"], [], [], []])
+	var u := sim.units[0]
+	var e := sim.units[1]
+	var atk := u.atk
+	e.hp = 1
+	assert_bool(sim._damage(u, e, 5)).is_true()
+	assert_int(u.atk).is_equal(atk + ceili(e.atk / 2.0))
