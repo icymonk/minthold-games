@@ -5,7 +5,7 @@
 각 항목은 PR 하나 단위다. 위에서부터 차례로 진행한다.
 
 ## 0단계 — 기반
-- [ ] 0-1 Godot 4.7 프로젝트, 화면 전환 뼈대, gdUnit4, CI(`cleanpull.yml` → 공용 `godot.yml`), 웹 미리보기 `minthold-cleanpull`
+- [x] 0-1 Godot 4.7 프로젝트, 화면 전환 뼈대, gdUnit4, CI(`cleanpull.yml` → 공용 `godot.yml`), 웹 미리보기 `minthold-cleanpull`
 - [ ] 0-2 Kenney Food·Furniture Kit 굽기 도구, 식탁·그릇 그림, UI·효과음
 
 ## 1단계 — 한 번 당기기 (재미 검증 1: "당기는 게 짜릿한가")
