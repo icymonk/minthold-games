@@ -7,11 +7,92 @@ TITLE_LANGUAGE,English,한국어
 NIGHT_LABEL,밤 %d / %d,Night %d / %d
 NIGHT_BOSS,보스의 밤,Boss Night
 NIGHT_LANTERNS,등불 %d,Lanterns %d
-NIGHT_PLACEHOLDER,장터와 전투는 다음 단계에서 만듭니다.,The market and battles come in the next phase.
-NIGHT_WIN,이겼다 (임시),Win (temp)
-NIGHT_LOSE,졌다 (임시),Lose (temp)
 RESULT_VICTORY,닭이 울었다. 살아남았다!,The rooster crowed. You survived!
 RESULT_DEFEAT,등불이 모두 꺼졌다…,All lanterns went out…
 RESULT_REACHED,밤 %d까지 버텼다,Reached night %d
 RESULT_AGAIN,다시 하기,Play Again
 RESULT_TITLE,처음 화면,Title
+NIGHT_FIGHT,행렬 맞이하기,Face the Procession
+NIGHT_HINT,드래그: 옮기기 · 우클릭/R: 돌리기 · 맞닿은 요괴 위에 놓기: 먹이기,Drag: move · Right-click/R: rotate · Drop on a touching yokai: feed
+COINS,엽전 %d,Coins %d
+MARKET_TITLE,장터,Market
+MARKET_CLICK,카드를 누르면 고용,Click a card to hire
+MARKET_REFRESH,새로고침 (%d),Refresh (%d)
+BAG_TITLE,보따리,Bundle
+BAG_FRONT,오른쪽이 앞줄: 각 줄의 맨 오른쪽 요괴가 그 줄로 오는 적에게 맞는다,Right is the front: the rightmost yokai in each row takes hits from that lane
+BENCH_TITLE,대기 (%d/%d),Waiting (%d/%d)
+SELL_ZONE,여기로 끌어다 놓으면 내보내기 (+%d),Drop here to release (+%d)
+PREVIEW_TITLE,이번 밤의 행렬,Tonight's Procession
+PREVIEW_TIME,닭이 %d초 만에 운다,The rooster crows in %ds
+INFO_EMPTY,요괴를 누르면 정보가 보인다.,Click a yokai to see details.
+HELP_1,1. 장터에서 요괴를 고용한다,1. Hire yokai at the market
+HELP_2,2. 대기 줄에서 보따리로 끌어다 놓는다,2. Drag them from waiting into the bundle
+HELP_3,3. 맞닿게 놓은 뒤 한쪽을 다른 쪽 위로 끌면 먹는다 — 모양이 합쳐진다,"3. Place two touching, then drag one onto the other to feed — shapes merge"
+HELP_4,4. 행렬 맞이하기를 누르면 자동 전투,4. Face the procession to auto-battle
+INFO_STATS,공격 %d · 체력 %d · %s,ATK %d · HP %d · %s
+INFO_EATEN,먹은 요괴 %d,Eaten %d
+INFO_TRAIT_SLOTS,특성 %d / %d,Traits %d / %d
+SPEED_FAST,빠름,Fast
+SPEED_NORMAL,보통,Normal
+SPEED_SLOW,느림,Slow
+DRAG_EAT,먹이기,Feed
+TOAST_NO_COINS,엽전이 모자라다,Not enough coins
+TOAST_BENCH_FULL,대기 줄이 꽉 찼다,Waiting area is full
+TOAST_NO_ROOM,거기엔 놓을 수 없다,No room there
+TOAST_EMPTY_BAG,보따리에 요괴를 넣어야 한다,Put a yokai in the bundle first
+TOAST_EAT_TOUCH,보따리에서 맞닿아 있어야 먹을 수 있다,They must be touching in the bundle
+TOAST_ATE,%s(이)가 %s(을)를 먹었다!,%s ate %s!
+YOKAI_DOKKAEBI,도깨비,Dokkaebi
+YOKAI_FOXFIRE,여우불,Foxfire
+YOKAI_MULGWISIN,물귀신,Water Ghost
+YOKAI_HAETAE,해태,Haetae
+YOKAI_MONGDAL,몽달귀신,Mongdal Ghost
+YOKAI_BULGASARI,불가사리,Bulgasari
+ENEMY_FIELD_GHOST,들귀신,Field Ghost
+ENEMY_GHOST_FIRE,도깨비불,Ghost Fire
+ENEMY_SHADE,그슨대,Shade
+ENEMY_OX_BRUTE,우귀,Ox Ghost
+ENEMY_REAPER,저승사자,Grim Reaper
+ENEMY_LEADER,행렬의 우두머리,Procession Leader
+TRAIT_COIN,엽전 모으기,Coin Hoard
+TRAIT_COIN_DESC,3번 행동할 때마다 엽전 1닢 (전투 후 지급),+1 coin every 3 actions (paid after battle)
+TRAIT_CHARM,홀림,Charm
+TRAIT_CHARM_DESC,공격한 적을 30% 확률로 홀려 다음 행동을 거르게 한다,"30% chance to charm the target, skipping its next action"
+TRAIT_BIND,끌어당김,Drag Under
+TRAIT_BIND_DESC,전투 시작 시 자기 줄 맨 앞 적을 결박 (행동 1회 거름),"At start, binds the front enemy in each of its rows"
+TRAIT_GUARD,수호,Guardian
+TRAIT_GUARD_DESC,전투 시작 시 맞닿은 아군에게 수호 (피해 1회 막음),"At start, shields each touching ally from one hit"
+TRAIT_RAGE,원한,Grudge
+TRAIT_RAGE_DESC,쓰러질 때 맞닿은 아군 공격 +2,"On death, touching allies gain +2 ATK"
+TRAIT_DEVOUR,쇠먹이,Iron Eater
+TRAIT_DEVOUR_DESC,맞닿은 아군이 쓰러지면 먹어서 공격·체력 절반을 얻는다,"When a touching ally dies, eats it for half its ATK/HP"
+RULE_NONE,특별한 규칙 없음,No special rule
+RULE_REAPER,보스 · 저승사자: 10초마다 체력이 가장 낮은 아군을 데려간다,Boss · Grim Reaper: every 10s takes the ally with the lowest HP
+RULE_PLAGUE,역병 행렬: 쓰러질 때 효과와 쇠먹이가 절반,Plague Procession: death effects and Iron Eater are halved
+RULE_HUNGRY,굶주린 행렬: 아군이 쓰러질 때마다 모든 적 공격 +1,Hungry Procession: all enemies gain +1 ATK whenever an ally falls
+RULE_LEADER,"보스 · 우두머리: 닭이 45초에 울고, 15초마다 한 줄을 결박","Boss · Leader: rooster crows at 45s, binds a row every 15s"
+BATTLE_PAUSE,일시정지,Pause
+BATTLE_SKIP,건너뛰기,Skip
+BATTLE_ROOSTER,닭,Dawn
+BATTLE_TIME,새벽까지 %d초,%ds until dawn
+BATTLE_WON,행렬을 막아냈다!,The procession is held back!
+BATTLE_LOST,등불 하나가 꺼졌다…,A lantern went out…
+BATTLE_LOST_BOSS,등불 두 개가 꺼졌다…,Two lanterns went out…
+BATTLE_COINS,도깨비가 엽전 %d닢을 모았다,Dokkaebi gathered %d coins
+BATTLE_NEXT,계속,Continue
+LOG_HIT,%s → %s 공격 (피해 %d),%s hits %s (%d dmg)
+LOG_DIE,%s 쓰러짐,%s falls
+LOG_SHIELD,%s의 수호 → %s,%s shields %s
+LOG_BIND,%s의 끌어당김 → %s 결박,%s binds %s
+LOG_CHARM,%s의 홀림 → %s 다음 행동 거름,%s charms %s
+LOG_COIN,%s 엽전 1닢,%s finds a coin
+LOG_RAGE,%s의 원한 → %s 공격 상승,%s's grudge empowers %s
+LOG_DEVOUR,%s(이)가 쓰러진 %s(을)를 먹었다,%s devours fallen %s
+LOG_HUNGRY,굶주린 행렬 → 모든 적 공격 +1,Hungry procession: all enemies +1 ATK
+LOG_REAP,%s(이)가 %s(을)를 데려갔다,%s takes %s away
+LOG_BIND_ROW,%s → %d번 줄 결박,%s binds row %d
+LOG_DAWN,닭이 울었다! 남은 체력으로 승패를 가린다,The rooster crows! Remaining HP decides
+FLOAT_BLOCK,막음,Block
+FLOAT_SKIP,거름,Skip
+FLOAT_COIN,+1 엽전,+1 coin
+FLOAT_ATK,공격 %d,ATK %d
