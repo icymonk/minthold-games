@@ -5,15 +5,23 @@ var _seed_input: LineEdit
 
 func _ready() -> void:
 	_make_list()
-	_label(tr("GAME_TITLE"), 72)
-	_label(tr("TITLE_SUBTITLE"), 28)
+	var rooster := TextureRect.new()
+	rooster.texture = Ink.ui("rooster.png")
+	rooster.custom_minimum_size = Vector2(200, 178)
+	rooster.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_list.add_child(rooster)
+	_label(tr("GAME_TITLE"), 88)
+	_label(tr("TITLE_SUBTITLE"), 28).modulate = Color(Ink.GOLD, 1)
 	_seed_input = LineEdit.new()
 	_seed_input.placeholder_text = tr("TITLE_SEED")
 	_seed_input.alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_seed_input.custom_minimum_size = Vector2(360, 56)
+	_seed_input.custom_minimum_size = Vector2(420, 56)
+	_seed_input.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_seed_input.add_theme_font_size_override(&"font_size", 24)
 	_list.add_child(_seed_input)
-	_button(tr("TITLE_NEW_RUN"), _on_new_run).grab_focus()
+	var start := _button(tr("TITLE_NEW_RUN"), _on_new_run)
+	start.theme_type_variation = &"AccentButton"
+	start.grab_focus()
 	_button(tr("TITLE_LANGUAGE"), _on_toggle_language)
 
 

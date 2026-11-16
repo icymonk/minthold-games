@@ -1,16 +1,19 @@
 extends Control
 ## 장터·보따리 화면. 고용 → 대기 줄 → 보따리에 끌어다 놓기, 맞닿은 요괴 위에 놓으면 먹이기.
 
-const SHELF_POS := Vector2(60, 120)
-const CARD := Vector2(200, 300)
+const SHELF_POS := Vector2(70, 112)
+const CARD := Vector2(200, 286)
 const CARD_GAP := 18.0
-const BAG_POS := Vector2(60, 480)
-const CELL := 100.0
-const BENCH_RECT := Rect2(740, 480, 540, 380)
-const BENCH_CELL := 60.0
-const SELL_RECT := Rect2(740, 880, 540, 90)
-const PREVIEW_RECT := Rect2(1330, 120, 550, 340)
-const INFO_RECT := Rect2(1330, 480, 550, 380)
+const SHELF_Y := 392.0
+const BAG_POS := Vector2(80, 560)
+const CELL := 96.0
+const BENCH_RECT := Rect2(760, 540, 580, 290)
+const BENCH_CELL := 52.0
+const SELL_RECT := Rect2(760, 850, 580, 96)
+const TALISMAN_POS := Vector2(1400, 268)
+const PREVIEW_RECT := Rect2(1400, 440, 480, 240)
+const INFO_RECT := Rect2(1400, 696, 480, 250)
+const FIGHT_RECT := Rect2(1400, 964, 480, 92)
 
 var run: RunState
 var _font: Font
@@ -31,8 +34,10 @@ func _ready() -> void:
 	_font = get_theme_default_font()
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	_add_button(tr("MARKET_REFRESH") % RunState.REFRESH_COST, Rect2(SHELF_POS.x + 5 * (CARD.x + CARD_GAP), SHELF_POS.y + 220, 170, 80), _on_refresh)
-	_add_button(tr("NIGHT_FIGHT"), Rect2(1330, 880, 550, 90), _on_fight).add_theme_font_size_override(&"font_size", 36)
+	_add_button(tr("MARKET_REFRESH") % RunState.REFRESH_COST, Rect2(1170, 210, 180, 72), _on_refresh)
+	var fight := _add_button(tr("NIGHT_FIGHT"), FIGHT_RECT, _on_fight)
+	fight.theme_type_variation = &"AccentButton"
+	fight.add_theme_font_size_override(&"font_size", 36)
 
 
 func _add_button(text: String, rect: Rect2, cb: Callable) -> Button:
@@ -85,12 +90,12 @@ func _bag_rect() -> Rect2:
 
 func _bench_layout() -> Dictionary:
 	var out := {}
-	var cursor := BENCH_RECT.position + Vector2(16, 56)
+	var cursor := BENCH_RECT.position + Vector2(20, 60)
 	var row_h := 0.0
 	for p in run.bench:
 		var s := Vector2(p.size()) * BENCH_CELL
-		if cursor.x + s.x > BENCH_RECT.end.x - 16:
-			cursor = Vector2(BENCH_RECT.position.x + 16, cursor.y + row_h + 16)
+		if cursor.x + s.x > BENCH_RECT.end.x - 20:
+			cursor = Vector2(BENCH_RECT.position.x + 20, cursor.y + row_h + 16)
 			row_h = 0.0
 		out[p] = Rect2(cursor, s)
 		cursor.x += s.x + 20
@@ -210,24 +215,26 @@ func _try_eat(eater: Piece, food: Piece) -> void:
 		_toast_msg("TOAST_EAT_TOUCH")
 		return
 	_selected = eater
-	_toast = tr("TOAST_ATE") % [Ink.name_of(eater.kind), Ink.name_of(food.kind)]
+	_toast = tr("TOAST_ATE") % [Ink.with_josa(Ink.name_of(eater.kind), "이가"), Ink.with_josa(Ink.name_of(food.kind), "을를")]
 	_toast_until = Time.get_ticks_msec() / 1000.0 + 2.5
 
 
 # --- 그리기 ---
 
 func _draw() -> void:
+	draw_texture_rect(Ink.ui("bg_market.jpg"), Rect2(Vector2.ZERO, size), false)
 	_draw_top_bar()
 	_draw_shelf()
 	_draw_bag()
 	_draw_bench()
+	_draw_talismans()
 	_draw_preview()
 	_draw_info()
 	_draw_drag()
 	if Time.get_ticks_msec() / 1000.0 < _toast_until:
-		var r := Rect2(560, 400, 800, 64)
-		draw_rect(r, Color(Ink.INK, 0.9))
-		draw_string(_font, r.position + Vector2(0, 42), _toast, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 26, Ink.CREAM)
+		var r := Rect2(560, 470, 800, 70)
+		draw_style_box(Ink.box(Color(Ink.INK, 0.92), 12, Ink.GOLD, 2, 8), r)
+		Ink.draw_label(self, r.position + Vector2(0, 46), _toast, 26, Ink.CREAM, r.size.x, HORIZONTAL_ALIGNMENT_CENTER)
 
 
 func _text(pos: Vector2, s: String, size := 24, color := Ink.CREAM, width := -1.0, align := HORIZONTAL_ALIGNMENT_LEFT) -> void:
@@ -238,51 +245,54 @@ func _draw_top_bar() -> void:
 	var title := tr("NIGHT_LABEL") % [run.night, RunState.NIGHTS]
 	if run.is_boss_night():
 		title += "  ·  " + tr("NIGHT_BOSS")
-	_text(Vector2(60, 70), title, 40, Ink.VERMILION if run.is_boss_night() else Ink.CREAM)
+	Ink.draw_label(self, Vector2(70, 72), title, 44, Ink.VERMILION if run.is_boss_night() else Ink.CREAM)
+	var lantern := Ink.ui("lantern.png")
 	for i in RunState.START_LANTERNS:
-		var c := Vector2(560 + i * 50, 58)
-		draw_circle(c, 18, Ink.VERMILION if i < run.lanterns else Color(Ink.SLATE, 0.3))
-		draw_circle(c, 18, Ink.INK, false, 2)
-	draw_circle(Vector2(760, 58), 18, Ink.GOLD)
-	draw_rect(Rect2(753, 51, 14, 14), Ink.NIGHT)
-	_text(Vector2(790, 70), tr("COINS") % run.coins, 32, Ink.GOLD)
-	_text(Vector2(1000, 70), tr("NIGHT_HINT"), 20, Color(Ink.CREAM, 0.6))
+		var lit := i < run.lanterns
+		draw_texture_rect(lantern, Rect2(Vector2(470 + i * 42, 22), Vector2(26, 80)), false, Color.WHITE if lit else Color(0.35, 0.35, 0.45, 0.6))
+	Ink.draw_coin(self, Vector2(650, 58), 20)
+	Ink.draw_label(self, Vector2(682, 70), tr("COINS") % run.coins, 32, Ink.GOLD)
 
 
 func _draw_shelf() -> void:
+	var shelf := Ink.ui("shelf.png")
+	var shelf_w := 5 * (CARD.x + CARD_GAP) + 70
+	draw_texture_rect(shelf, Rect2(Vector2(SHELF_POS.x - 45, SHELF_Y - 14), Vector2(shelf_w, shelf_w * shelf.get_height() / shelf.get_width())), false)
 	for i in run.shelf.size():
 		var r := _card_rect(i)
 		var kind := run.shelf[i]
 		if kind == &"":
-			draw_rect(r, Color(Ink.CREAM, 0.08))
+			draw_style_box(Ink.box(Color(Ink.CREAM, 0.05), 8, Color(Ink.CREAM, 0.25), 2), r)
 			continue
-		var affordable := run.coins >= YokaiDb.cost(kind)
-		draw_rect(r, Ink.CREAM if affordable else Ink.CREAM_DIM)
-		draw_rect(r, Ink.INK, false, 3)
+		var cost := YokaiDb.cost(kind)
+		var tint := Color.WHITE if run.coins >= cost else Color(0.7, 0.7, 0.75)
+		Ink.draw_paper(self, r, tint)
 		var def: Dictionary = YokaiDb.ALLIES[kind]
-		draw_texture_rect(YokaiDb.texture(kind), Rect2(r.position + Vector2(30, 8), Vector2(140, 140)), false)
-		_text(r.position + Vector2(0, 176), Ink.name_of(kind), 26, Ink.INK, CARD.x, HORIZONTAL_ALIGNMENT_CENTER)
+		draw_texture_rect(YokaiDb.texture(kind), Rect2(r.position + Vector2(20, 6), Vector2(160, 160)), false, tint)
+		Ink.draw_label(self, r.position + Vector2(0, 194), Ink.name_of(kind), 26, Ink.INK, CARD.x, HORIZONTAL_ALIGNMENT_CENTER)
+		Ink.draw_stats(self, r.position + Vector2(22, 232), def["atk"], def["hp"], 22)
 		var cells: Array[Vector2i] = []
 		cells.assign(def["cells"])
-		Ink.draw_shape(self, r.position + Vector2(20, 200), cells, 22, Ink.CREAM_DIM, Ink.INK, 2)
-		_text(r.position + Vector2(90, 220), "%d / %d" % [def["atk"], def["hp"]], 22, Ink.INK)
-		_text(r.position + Vector2(90, 248), tr(Ink.speed_key(def["interval"])), 18, Color(Ink.INK, 0.7))
-		Ink.draw_badge(self, r.position + Vector2(CARD.x - 30, 30), YokaiDb.cost(kind), Ink.GOLD, _font, 24, Ink.INK)
-		draw_rect(Rect2(r.position + Vector2(10, 270), Vector2(16, 16)), Ink.TRAIT_COLORS[def["trait"]])
-		_text(r.position + Vector2(32, 286), tr("TRAIT_" + String(def["trait"]).to_upper()), 18, Ink.INK)
-	_text(Vector2(SHELF_POS.x + 5 * (CARD.x + CARD_GAP), SHELF_POS.y + 30), tr("MARKET_TITLE"), 28)
-	_text(Vector2(SHELF_POS.x + 5 * (CARD.x + CARD_GAP), SHELF_POS.y + 64), tr("MARKET_CLICK"), 18, Color(Ink.CREAM, 0.6))
+		Ink.draw_shape(self, r.position + Vector2(CARD.x - 20 - 3 * 15, 208), cells, 15, Color(Ink.INK, 0.18), Ink.INK, 1.5)
+		var chip := Rect2(r.position + Vector2(14, 248), Vector2(CARD.x - 28, 26))
+		draw_style_box(Ink.box(Color(Ink.TRAIT_COLORS[def["trait"]], 0.25), 6), chip)
+		_text(chip.position + Vector2(10, 20), tr("TRAIT_" + String(def["trait"]).to_upper()), 17, Ink.INK)
+		_text(chip.position + Vector2(0, 20), tr(Ink.speed_key(def["interval"])), 15, Color(Ink.INK, 0.6), chip.size.x - 10, HORIZONTAL_ALIGNMENT_RIGHT)
+		var price := Vector2(r.get_center().x, SHELF_Y + 30)
+		Ink.draw_coin(self, price + Vector2(-18, 0), 15)
+		Ink.draw_label(self, price + Vector2(4, 11), str(cost), 28, Ink.GOLD if tint == Color.WHITE else Ink.CREAM_DIM, -1, HORIZONTAL_ALIGNMENT_LEFT, 6)
+	Ink.draw_label(self, Vector2(1170, 150), tr("MARKET_TITLE"), 30)
+	_text(Vector2(1170, 188), tr("MARKET_CLICK"), 18, Color(Ink.CREAM, 0.7))
 
 
 func _draw_bag() -> void:
 	var bag := run.bag
-	_text(BAG_POS + Vector2(0, -14), tr("BAG_TITLE"), 26)
-	draw_rect(_bag_rect().grow(8), Ink.NIGHT_DEEP)
+	Ink.draw_label(self, BAG_POS + Vector2(-10, -36), tr("BAG_TITLE"), 28)
+	Ink.draw_bundle(self, BAG_POS, bag.width, bag.height, CELL)
 	for y in bag.height:
-		for x in bag.width:
-			draw_rect(Rect2(BAG_POS + Vector2(x, y) * CELL, Vector2(CELL, CELL)).grow(-3), Color(Ink.CREAM, 0.07))
-		_text(BAG_POS + Vector2(bag.width * CELL + 14, y * CELL + CELL / 2 + 8), "◀", 22, Color(Ink.VERMILION, 0.7))
-	_text(BAG_POS + Vector2(0, bag.height * CELL + 44), tr("BAG_FRONT"), 18, Color(Ink.CREAM, 0.6))
+		var c := BAG_POS + Vector2(bag.width * CELL + 34, y * CELL + CELL / 2)
+		draw_colored_polygon(PackedVector2Array([c + Vector2(-8, 0), c + Vector2(8, -10), c + Vector2(8, 10)]), Color(Ink.VERMILION, 0.85))
+	Ink.draw_label(self, BAG_POS + Vector2(-10, bag.height * CELL + 56), tr("BAG_FRONT"), 17, Color(Ink.CREAM, 0.8), -1, HORIZONTAL_ALIGNMENT_LEFT, 6)
 	for p in bag.pieces:
 		var tint := Color(1, 1, 1, 0.35) if p == _drag else Color.WHITE
 		Ink.draw_piece(self, BAG_POS + Vector2(p.pos) * CELL, p, CELL, _font, tint)
@@ -291,57 +301,73 @@ func _draw_bag() -> void:
 
 
 func _draw_bench() -> void:
-	draw_rect(BENCH_RECT, Color(Ink.CREAM, 0.06))
-	_text(BENCH_RECT.position + Vector2(16, 36), tr("BENCH_TITLE") % [run.bench.size(), RunState.BENCH_MAX], 22)
+	Ink.draw_panel(self, BENCH_RECT)
+	Ink.draw_label(self, BENCH_RECT.position + Vector2(20, 40), tr("BENCH_TITLE") % [run.bench.size(), RunState.BENCH_MAX], 22)
 	var layout := _bench_layout()
 	for p in layout:
 		var r: Rect2 = layout[p]
 		Ink.draw_piece(self, r.position, p, BENCH_CELL, _font, Color(1, 1, 1, 0.35) if p == _drag else Color.WHITE)
 		if p == _selected:
 			Ink.draw_shape(self, r.position, p.cells, BENCH_CELL, Color(0, 0, 0, 0), Ink.GOLD, 4)
-	draw_rect(SELL_RECT, Color(Ink.VERMILION, 0.18))
-	draw_rect(SELL_RECT, Color(Ink.VERMILION, 0.6), false, 2)
-	_text(SELL_RECT.position + Vector2(0, 56), tr("SELL_ZONE") % RunState.SELL_REFUND, 22, Ink.CREAM, SELL_RECT.size.x, HORIZONTAL_ALIGNMENT_CENTER)
+	var hot := _drag != null and _moved and SELL_RECT.has_point(_mouse)
+	draw_style_box(Ink.box(Color(Ink.VERMILION, 0.35 if hot else 0.14), 12, Color(Ink.VERMILION, 0.8), 2), SELL_RECT)
+	Ink.draw_coin(self, SELL_RECT.position + Vector2(48, SELL_RECT.size.y / 2), 16)
+	_text(SELL_RECT.position + Vector2(0, 58), tr("SELL_ZONE") % RunState.SELL_REFUND, 22, Ink.CREAM, SELL_RECT.size.x, HORIZONTAL_ALIGNMENT_CENTER)
+
+
+func _draw_talismans() -> void:
+	var tex := Ink.ui("talisman.png")
+	for i in 3:
+		draw_texture_rect(tex, Rect2(TALISMAN_POS + Vector2(i * 78, 0), Vector2(64, 142)), false, Color(1, 1, 1, 0.45))
+	Ink.draw_label(self, TALISMAN_POS + Vector2(250, 60), tr("TALISMAN_TITLE"), 24)
+	_text(TALISMAN_POS + Vector2(250, 94), tr("TALISMAN_SOON"), 17, Color(Ink.CREAM, 0.6))
 
 
 func _draw_preview() -> void:
 	var r := PREVIEW_RECT
-	draw_rect(r, Color(Ink.NIGHT_DEEP, 0.9))
+	Ink.draw_panel(self, r)
 	var pr := run.procession
-	_text(r.position + Vector2(20, 40), tr("PREVIEW_TITLE"), 26)
-	_text(r.position + Vector2(20, 76), tr("RULE_" + String(pr.rule).to_upper()), 20, Ink.GOLD, r.size.x - 40)
+	Ink.draw_label(self, r.position + Vector2(20, 38), tr("PREVIEW_TITLE"), 24)
+	_text(r.position + Vector2(20, 70), tr("RULE_" + String(pr.rule).to_upper()), 18, Ink.GOLD, r.size.x - 40)
 	if pr.time_limit != 60.0:
-		_text(r.position + Vector2(20, 104), tr("PREVIEW_TIME") % int(pr.time_limit), 18, Ink.VERMILION)
+		_text(r.position + Vector2(20, 94), tr("PREVIEW_TIME") % int(pr.time_limit), 17, Ink.VERMILION)
 	for lane in pr.lanes.size():
-		var y := r.position.y + 130 + lane * 52
-		_text(Vector2(r.position.x + 20, y + 32), "%d" % (lane + 1), 20, Color(Ink.CREAM, 0.5))
-		var x := r.position.x + 56
+		var y := r.position.y + 100 + lane * 34
+		_text(Vector2(r.position.x + 20, y + 24), "%d" % (lane + 1), 18, Color(Ink.CREAM, 0.5))
+		draw_dashed_line(Vector2(r.position.x + 44, y + 17), Vector2(r.end.x - 20, y + 17), Color(Ink.CREAM, 0.12), 1.0, 6.0)
+		var x := r.end.x - 56
 		for kind in pr.lanes[lane]:
-			draw_texture_rect(YokaiDb.texture(kind), Rect2(x, y, 48, 48), false)
-			x += 50
+			draw_circle(Vector2(x + 18, y + 18), 17, Color(Ink.CREAM, 0.85))
+			draw_texture_rect(YokaiDb.texture(kind), Rect2(x, y, 36, 36), false)
+			x -= 40
 
 
 func _draw_info() -> void:
 	var r := INFO_RECT
-	draw_rect(r, Color(Ink.NIGHT_DEEP, 0.9))
+	Ink.draw_panel(self, r)
 	var p := _selected
 	if p == null or (p not in run.bag.pieces and p not in run.bench):
-		_text(r.position + Vector2(24, 50), tr("INFO_EMPTY"), 22, Color(Ink.CREAM, 0.7), r.size.x - 48)
+		_text(r.position + Vector2(22, 40), tr("INFO_EMPTY"), 20, Color(Ink.CREAM, 0.7), r.size.x - 44)
+		var y := r.position.y + 80
 		for i in 4:
-			draw_multiline_string(_font, r.position + Vector2(24, 110 + i * 64), tr("HELP_%d" % (i + 1)), HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 48, 20, 2, Color(Ink.CREAM, 0.85))
+			var line := tr("HELP_%d" % (i + 1))
+			draw_multiline_string(_font, Vector2(r.position.x + 22, y), line, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 44, 17, -1, Color(Ink.CREAM, 0.9))
+			y += _font.get_multiline_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 44, 17).y + 10
 		return
-	draw_texture_rect(YokaiDb.texture(p.kind), Rect2(r.position + Vector2(16, 16), Vector2(120, 120)), false)
-	_text(r.position + Vector2(150, 56), Ink.name_of(p.kind), 32)
-	_text(r.position + Vector2(150, 96), tr("INFO_STATS") % [p.atk, p.hp, tr(Ink.speed_key(p.interval))], 22)
+	Ink.draw_paper(self, Rect2(r.position + Vector2(16, 16), Vector2(92, 92)))
+	draw_texture_rect(YokaiDb.texture(p.kind), Rect2(r.position + Vector2(20, 20), Vector2(84, 84)), false)
+	Ink.draw_label(self, r.position + Vector2(124, 48), Ink.name_of(p.kind), 28)
+	Ink.draw_stats(self, r.position + Vector2(124, 86), p.atk, p.hp, 22, Ink.CREAM)
+	_text(r.position + Vector2(250, 86), tr(Ink.speed_key(p.interval)), 18, Color(Ink.CREAM, 0.7))
 	if p.eaten > 0:
-		_text(r.position + Vector2(150, 128), tr("INFO_EATEN") % p.eaten, 20, Ink.GOLD)
+		_text(r.position + Vector2(330, 86), tr("INFO_EATEN") % p.eaten, 18, Ink.GOLD)
 	for i in p.traits.size():
 		var t := p.traits[i]
-		var y := r.position.y + 170 + i * 66
-		draw_rect(Rect2(r.position.x + 24, y, 20, 20), Ink.TRAIT_COLORS.get(t, Ink.SLATE))
-		_text(Vector2(r.position.x + 54, y + 18), tr("TRAIT_" + String(t).to_upper()), 22)
-		draw_multiline_string(_font, Vector2(r.position.x + 54, y + 44), tr("TRAIT_" + String(t).to_upper() + "_DESC"), HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 80, 18, 2, Color(Ink.CREAM, 0.7))
-	_text(r.position + Vector2(24, r.size.y - 20), tr("INFO_TRAIT_SLOTS") % [p.traits.size(), Piece.MAX_TRAITS], 18, Color(Ink.CREAM, 0.5))
+		var y := r.position.y + 124 + i * 42
+		draw_rect(Rect2(r.position.x + 22, y + 2, 16, 16), Ink.TRAIT_COLORS.get(t, Ink.SLATE))
+		Ink.draw_label(self, Vector2(r.position.x + 48, y + 17), tr("TRAIT_" + String(t).to_upper()), 18)
+		_text(Vector2(r.position.x + 48, y + 38), tr("TRAIT_" + String(t).to_upper() + "_DESC"), 15, Color(Ink.CREAM, 0.7), r.size.x - 70)
+	_text(r.position + Vector2(0, 34), tr("INFO_TRAIT_SLOTS") % [p.traits.size(), Piece.MAX_TRAITS], 16, Color(Ink.CREAM, 0.5), r.size.x - 20, HORIZONTAL_ALIGNMENT_RIGHT)
 
 
 func _draw_drag() -> void:
@@ -349,15 +375,15 @@ func _draw_drag() -> void:
 		return
 	var p := _drag
 	var origin := _mouse - (Vector2(_grab) + Vector2(0.5, 0.5)) * CELL
-	var tint := Color(1, 1, 1, 0.85)
+	var tint := Color(1, 1, 1, 0.88)
 	if _bag_rect().has_point(_mouse):
 		var target := run.bag.piece_at(_cell_at(_mouse))
 		if target != null and target != p:
 			var ok := _drag_from_bag and run.bag.touching(target, p)
 			Ink.draw_shape(self, BAG_POS + Vector2(target.pos) * CELL, target.cells, CELL, Color(Ink.VERMILION, 0.25), Ink.VERMILION if ok else Ink.SLATE, 6)
-			_text(BAG_POS + Vector2(target.pos) * CELL + Vector2(0, -10), tr("DRAG_EAT") if ok else tr("TOAST_EAT_TOUCH"), 22, Ink.VERMILION if ok else Ink.SLATE)
+			Ink.draw_label(self, BAG_POS + Vector2(target.pos) * CELL + Vector2(0, -12), tr("DRAG_EAT") if ok else tr("TOAST_EAT_TOUCH"), 22, Ink.VERMILION if ok else Ink.SLATE, -1, HORIZONTAL_ALIGNMENT_LEFT, 6)
 		else:
 			var at := _cell_at(_mouse) - _grab
 			var ok := run.bag.can_place(p, at)
-			Ink.draw_shape(self, BAG_POS + Vector2(at) * CELL, p.cells, CELL, Color(Ink.JADE if ok else Ink.VERMILION, 0.3), Color(0, 0, 0, 0), 0)
+			Ink.draw_shape(self, BAG_POS + Vector2(at) * CELL, p.cells, CELL, Color(Ink.JADE if ok else Ink.VERMILION, 0.35), Color(0, 0, 0, 0), 0)
 	Ink.draw_piece(self, origin, p, CELL, _font, tint)
