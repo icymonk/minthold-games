@@ -83,6 +83,27 @@ func hire_to_bag(slot: int, cells: Array[Vector2i], at: Vector2i) -> Piece:
 	return p
 
 
+## 보따리나 대기 줄에 있는 요괴끼리 먹인다. 대기 줄에서 먹힌 요괴는 줄에서 빠진다.
+func feed(eater: Piece, food: Piece) -> Bag.Feed:
+	var r := bag.feed(eater, food)
+	if r == Bag.Feed.OK or r == Bag.Feed.EVOLVED:
+		bench.erase(food)
+	return r
+
+
+## 장터 요괴를 고용하자마자 eater에게 먹인다. 먹이지 못하면 엽전을 쓰지 않는다.
+func hire_feed(slot: int, eater: Piece) -> Bag.Feed:
+	var kind: StringName = shelf[slot]
+	if kind == &"" or coins < YokaiDb.cost(kind):
+		return Bag.Feed.SELF
+	var food := Piece.create(kind)
+	var r := bag.feed(eater, food)
+	if r == Bag.Feed.OK or r == Bag.Feed.EVOLVED:
+		coins -= YokaiDb.cost(kind)
+		shelf[slot] = &""
+	return r
+
+
 func sell(p: Piece) -> void:
 	bag.remove(p)
 	bench.erase(p)

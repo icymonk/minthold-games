@@ -66,40 +66,48 @@ func neighbors(p: Piece) -> Array[Piece]:
 	return out
 
 
-## 먹을 때 food의 공격·체력 중 eater가 얻는 비율.
+## 다른 종류를 먹을 때 food의 공격·체력 중 eater가 얻는 비율. 같은 종류는 전부 얻는다.
 const FEED_SHARE := 0.5
+## 같은 종류를 먹으면 배가 이만큼 찬다.
+const SAME_KIND_FILL := 2
 
-enum Feed { OK, EVOLVED, NOT_TOUCHING, FULL, FOOD_EVOLVED, NO_ROOM }
+enum Feed { OK, EVOLVED, SELF, FULL, FOOD_EVOLVED, NO_ROOM }
 
 
-## eater가 맞닿은 food를 먹는다. food는 사라져 칸이 비고, eater는 공격·체력 절반과 food의 원래 특성을 얻는다.
-## 배(belly)가 차면 정해진 모양으로 변신하는데, 놓을 자리가 없으면 먹지 않는다.
+## eater가 food를 먹는다. 둘 다 보따리 안이든 밖(대기 줄·장터)이든 상관없다. food가 보따리에 있으면 칸이 빈다.
+## 배는 1칸(같은 종류면 2칸) + food가 이미 먹은 만큼 찬다. 같은 종류는 공격·체력을 전부, 다른 종류는 절반과 원래 특성을 얻는다.
+## 배가 차면 정해진 모양으로 변신한다. eater가 보따리 안에 있는데 변신한 모양을 놓을 자리가 없으면 먹지 않는다.
 func feed(eater: Piece, food: Piece) -> Feed:
-	if eater not in pieces or food not in pieces or not touching(eater, food):
-		return Feed.NOT_TOUCHING
+	if eater == food:
+		return Feed.SELF
 	if not eater.hungry():
 		return Feed.FULL
 	if food.evolved:
 		return Feed.FOOD_EVOLVED
-	var evolves := eater.eaten + 1 >= eater.belly
+	var same := eater.base_kind() == food.base_kind()
+	var fill := (SAME_KIND_FILL if same else 1) + food.eaten
+	var evolves := eater.eaten + fill >= eater.belly
+	var form_key: StringName = YokaiDb.ALLIES[eater.kind]["evolve"]
 	var form_cells: Array[Vector2i] = []
 	var form_pos := eater.pos
 	if evolves:
-		var spot := _evolve_spot(eater, food, YokaiDb.ALLIES[eater.kind]["evolve"])
-		if spot.is_empty():
-			return Feed.NO_ROOM
-		form_cells = spot["cells"]
-		form_pos = spot["pos"]
+		form_cells.assign(YokaiDb.FORMS[form_key]["cells"])
+		if eater in pieces:
+			var spot := _evolve_spot(eater, food, form_key)
+			if spot.is_empty():
+				return Feed.NO_ROOM
+			form_cells = spot["cells"]
+			form_pos = spot["pos"]
 	pieces.erase(food)
-	eater.atk += ceili(food.atk * FEED_SHARE)
-	eater.hp += ceili(food.hp * FEED_SHARE)
+	var share := 1.0 if same else FEED_SHARE
+	eater.atk += ceili(food.atk * share)
+	eater.hp += ceili(food.hp * share)
 	var inherited: StringName = YokaiDb.ALLIES[food.base_kind()]["trait"]
 	if eater.traits.size() < Piece.MAX_TRAITS and not eater.has_trait(inherited):
 		eater.traits.append(inherited)
-	eater.eaten += 1
+	eater.eaten = mini(eater.eaten + fill, eater.belly)
 	if not evolves:
 		return Feed.OK
-	var form_key: StringName = YokaiDb.ALLIES[eater.kind]["evolve"]
 	var form: Dictionary = YokaiDb.FORMS[form_key]
 	eater.kind = form_key
 	eater.evolved = true
