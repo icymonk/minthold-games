@@ -1,5 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="96" height="112" viewBox="0 0 96 112">
-  <!-- tip at (30, 4) -->
-  <path d="M30 4 Q22 4 22 14 L22 60 L14 52 Q6 46 2 54 Q0 60 6 66 L30 96 Q38 106 52 106 L70 106 Q90 106 90 84 L90 54 Q90 44 80 44 Q74 44 72 50 Q70 40 60 40 Q54 40 52 46 Q50 36 40 36 L38 36 L38 14 Q38 4 30 4 Z" fill="#FFFFFF" stroke="#0F1520" stroke-width="6" stroke-linejoin="round"/>
-  <path d="M52 48 L52 70 M72 52 L72 72" stroke="#0F1520" stroke-width="4" stroke-linecap="round"/>
-</svg>

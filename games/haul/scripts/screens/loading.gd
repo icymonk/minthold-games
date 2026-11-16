@@ -77,7 +77,7 @@ func _add_button(parent: Control, text: String, cb: Callable) -> Button:
 
 func _build_card() -> void:
 	_card = PanelContainer.new()
-	_card.add_theme_stylebox_override(&"panel", Style.box(Color(Style.DAWN_DEEP, 0.92), 16, Style.LAMP, 3))
+	_card.add_theme_stylebox_override(&"panel", Style.panel())
 	_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_card)
 	var margin := MarginContainer.new()
@@ -94,6 +94,7 @@ func _build_card() -> void:
 	_card_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_card_label.add_theme_font_size_override(&"font_size", 28)
 	_card_label.add_theme_font_override(&"font", _font)
+	_card_label.add_theme_color_override(&"font_color", Art.INK)
 	row.add_child(_card_label)
 	_next_button = Button.new()
 	_next_button.text = tr("TUT_NEXT")
@@ -329,7 +330,8 @@ func _flash_blockers(ids: Array[int]) -> void:
 # ── 그리기 ─────────────────────────────────────────────
 
 func _draw() -> void:
-	Art.draw_cover(self, Art.BG, size)
+	Art.draw_scene(self, size, _floor_y(), _time)
+	Art.draw_props(self, size, _floor_y(), _time)
 	_draw_header()
 	_draw_bay()
 	_draw_conveyor()
@@ -339,10 +341,13 @@ func _draw() -> void:
 
 
 func _draw_header() -> void:
+	draw_polygon(PackedVector2Array([Vector2.ZERO, Vector2(size.x, 0), Vector2(size.x, 130), Vector2(0, 130)]),
+		PackedColorArray([Color(Style.DAWN_DEEP, 0.85), Color(Style.DAWN_DEEP, 0.85), Color(Style.DAWN_DEEP, 0), Color(Style.DAWN_DEEP, 0)]))
 	draw_string(_font, Vector2(60, 76), tr("LOADING_STEP"), HORIZONTAL_ALIGNMENT_LEFT, -1, 44, Style.TAPE)
 	if _guide:
-		var tag := Rect2(190, 40, 170, 46)
-		draw_rect(tag, Style.LAMP)
+		var tx := 60 + _font.get_string_size(tr("LOADING_STEP"), HORIZONTAL_ALIGNMENT_LEFT, -1, 44).x + 20
+		var tag := Rect2(tx, 40, _font.get_string_size(tr("TUT_LABEL"), HORIZONTAL_ALIGNMENT_LEFT, -1, 24).x + 32, 46)
+		draw_style_box(Style.tag(), tag)
 		Art.text_center(self, _font, tr("TUT_LABEL"), tag, 24, Art.INK)
 	var r := _route_rect()
 	draw_string(_font, Vector2(r.position.x - 180, r.get_center().y + 10), tr("LOADING_ROUTE"),
@@ -353,6 +358,11 @@ func _draw_header() -> void:
 			for k in 3:
 				draw_circle(c + Vector2(48 + k * 16, 6), 4, Color(Style.TAPE, 0.6))
 		Art.draw_house(self, _font, stop, c, 72)
+
+
+## 도크 바닥 윗선: 트럭 바퀴가 닿는 곳.
+func _floor_y() -> float:
+	return _bay_pos.y + _shift.bay.height * CELL + 16 + Art.CAB_CHASSIS * Art.BAKE_SCALE - 6
 
 
 func _route_rect() -> Rect2:
@@ -385,19 +395,7 @@ func _draw_bay() -> void:
 func _draw_conveyor() -> void:
 	var r := _conveyor_rect
 	var belt_y := r.end.y - 34
-	draw_rect(Rect2(r.position.x, belt_y, r.size.x, 22), Color("#2B3142"))
-	var phase := fmod(_time * 80.0, 40.0)
-	var x := r.position.x - 40 + phase
-	while x < r.end.x:
-		if x > r.position.x:
-			draw_line(Vector2(x, belt_y + 3), Vector2(minf(x + 14, r.end.x), belt_y + 19), Color(1, 1, 1, 0.08), 3)
-		x += 40
-	draw_rect(Rect2(r.position.x, belt_y, r.size.x, 22), Art.INK, false, 3)
-	var roller := r.position.x + 30
-	while roller < r.end.x:
-		draw_circle(Vector2(roller, belt_y + 34), 10, Color("#3A4560"))
-		draw_circle(Vector2(roller, belt_y + 34), 4, Art.INK)
-		roller += 80
+	Art.draw_conveyor(self, r, _time)
 	var suggest: int = LoadingGuide.hint(_shift, _held).suggest if _guide == null else -1
 	for i in _shift.queue.size():
 		var box := _shift.queue[i]
@@ -460,13 +458,11 @@ func _draw_pointer() -> void:
 	var pulse := fmod(_time, 1.0)
 	draw_arc(at, 24 + pulse * 30, 0, TAU, 40, Color(Style.LAMP, 1.0 - pulse), 4)
 	var bob := 10 + sin(_time * 5.0) * 8
+	# 화면 아래쪽 버튼은 손을 뒤집어 위에서 가리킨다.
 	if t.kind == &"button":
-		# 화면 아래쪽 버튼은 손을 뒤집어 위에서 가리킨다.
-		draw_set_transform(at - Vector2(0, 34 + bob), PI)
-		draw_texture(Art.POINTER, -Art.POINTER_TIP)
-		draw_set_transform(Vector2.ZERO)
+		Art.draw_pointer(self, at - Vector2(0, 34 + bob), true)
 	else:
-		draw_texture(Art.POINTER, at + Vector2(0, bob) - Art.POINTER_TIP)
+		Art.draw_pointer(self, at + Vector2(0, bob), false)
 
 
 func _queue_box(id: int) -> Box:
