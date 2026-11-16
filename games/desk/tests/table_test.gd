@@ -262,6 +262,8 @@ func test_slot_card_returns_to_hand() -> void:
 	assert_bool(t.can_drop_hand(Vector2.ZERO, { card = 1 })).is_true()
 	t.drop_hand(Vector2.ZERO, { card = 1 })
 	assert_array(t._slot).is_empty()
+	for card in t._row.get_children():
+		assert_int((card as Control).mouse_filter).is_equal(Control.MOUSE_FILTER_IGNORE)
 	assert_object(_hand_button(t, 1)).is_not_null()
 	Game.role = before
 

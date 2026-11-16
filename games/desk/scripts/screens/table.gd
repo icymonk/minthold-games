@@ -282,6 +282,7 @@ func _draw_row() -> void:
 		var h: Dictionary = _k.hideouts[i]
 		var card := PanelContainer.new()
 		card.custom_minimum_size = CARD_SIZE
+		card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		var face: bool = h.revealed
 		var bg := Color.WHITE if face else Style.PARTITION
 		card.add_theme_stylebox_override(&"panel", Style.box(bg, 10, Color(Style.INK, 0.4), 2))
@@ -367,6 +368,7 @@ func _draw_hand() -> void:
 		var b := _card_button(c)
 		if c in _slot:
 			b.pressed.connect(_unslot.bind(c))
+			b.set_drag_forwarding(_drag_card.bind(c), can_drop_slot, drop_slot)
 			_slot_cards.add_child(b)
 			continue
 		var mv := place_move(c) if acting else {}
@@ -375,7 +377,7 @@ func _draw_hand() -> void:
 			b.theme_type_variation = &"AccentButton"
 			b.pressed.connect(_play.bind(mv))
 		if acting:
-			b.set_drag_forwarding(_drag_card.bind(c), Callable(), Callable())
+			b.set_drag_forwarding(_drag_card.bind(c), can_drop_hand, drop_hand)
 		_hand.add_child(b)
 	_slot_panel.visible = staff
 	var bonus := 0
