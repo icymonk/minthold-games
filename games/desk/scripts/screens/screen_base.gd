@@ -29,7 +29,7 @@ func _label(text: String, size: int = 32) -> Label:
 func _button(text: String, on_pressed: Callable) -> Button:
 	var button := Button.new()
 	button.text = text
-	button.custom_minimum_size = Vector2(420, 72)
+	button.custom_minimum_size = Vector2(360, 80)
 	button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	button.add_theme_font_size_override(&"font_size", 28)
 	button.pressed.connect(on_pressed)

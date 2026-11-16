@@ -24,6 +24,8 @@ var rng: RngStreams
 ## 첫 판 안내: 본 안내 키, 끄기 여부. user://에 저장한다.
 var tips_seen := {}
 var tips_off := false
+## 화면 안내(가이드)를 본 역할. 처음 들어간 역할에서 한 번 저절로 띄운다.
+var tour_seen := {}
 
 const PREFS := "user://desk.cfg"
 const SFX := {
@@ -48,6 +50,7 @@ func _ready() -> void:
 	if cfg.load(PREFS) == OK:
 		tips_seen = cfg.get_value("tips", "seen", {})
 		tips_off = cfg.get_value("tips", "off", false)
+		tour_seen = cfg.get_value("tips", "tour", {})
 		muted = cfg.get_value("sound", "muted", false)
 		events = cfg.get_value("match", "events", false)
 		stats = Stats.from_dict(cfg.get_value("record", "stats", {}))
@@ -90,6 +93,11 @@ func mark_tip(key: StringName) -> void:
 	_save_prefs()
 
 
+func mark_tour(s: int) -> void:
+	tour_seen[s] = true
+	_save_prefs()
+
+
 func skip_tips() -> void:
 	tips_off = true
 	_save_prefs()
@@ -99,6 +107,7 @@ func _save_prefs() -> void:
 	var cfg := ConfigFile.new()
 	cfg.set_value("tips", "seen", tips_seen)
 	cfg.set_value("tips", "off", tips_off)
+	cfg.set_value("tips", "tour", tour_seen)
 	cfg.set_value("sound", "muted", muted)
 	cfg.set_value("match", "level", level)
 	cfg.set_value("match", "events", events)
