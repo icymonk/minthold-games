@@ -29,33 +29,33 @@ CARD_AMOUNT,%d만 원,$%d0
 CARD_LOCKED,낼 수 없음,Can't play
 TABLE_TARGET,목표 %s,Goal: %s
 TABLE_ENVELOPE,봉투 %d장,Envelope: %d
-TABLE_SEAT_INFO,손패 %d장 · 쪽지 %d장,%d in hand · notes: %d
+TABLE_SEAT_INFO,손패 %d장 · 쪽지 %d장,%d in hand · %d notes
 TABLE_OUT,손 뗌,Done
-TABLE_MY_DESK,내 책상 (시키기),My desk (use)
+TABLE_MY_DESK,내 책상 (시키기),My desk (play to use)
 TABLE_MY_NOTES,받은 쪽지 %d장,Notes on me: %d
 TABLE_YOUR_TURN,"내 차례: 카드를 끌어 봉투·책상에 놓거나, 눌러서 고르세요","Your turn: drag a card to the envelope or a desk, or click it"
 TABLE_SELECTED,%s: 봉투나 책상을 누르거나 아래 버튼을 고르세요,"%s: click the envelope or a desk, or pick below"
 TABLE_PICK_DESK,쪽지를 놓을 동료 책상을 누르세요,Click a coworker's desk to leave the note
 TABLE_WAIT,%s 차례,%s's turn
 ACT_PLAY,시키기,Use
-ACT_ENVELOPE,봉투에,Envelope
-ACT_NOTE,쪽지,Note
+ACT_ENVELOPE,봉투에 넣기,Into Envelope
+ACT_NOTE,쪽지 놓기,Leave Note
 ACT_CANCEL,취소,Cancel
 LOG_PLAY,%s: %s 시키기,%s used %s
 LOG_ENVELOPE,%s: 봉투에 1장,%s put a card in the envelope
 LOG_NOTE,%s: 쪽지 → %s,%s left a note for %s
 REQ_BY,%s의 %s,%s · %s
-REQ_NOTE_MOVE,옮길 쪽지와 받을 사람,"Move which note, to whom"
-REQ_MISER_TAKE,봉투에서 가져올 카드,Take which envelope card
+REQ_NOTE_MOVE,옮길 쪽지와 받을 사람,Pick a note and who gets it
+REQ_MISER_TAKE,봉투에서 가져올 카드,Card to take from the envelope
 REQ_PEEK_HAND,손패를 볼 사람,Whose hand to see
 REQ_CLAIM,눈치왕이 범인을 찾는다. 범인인 척할까?,The Gossip is sniffing. Pretend to be the Skimmer?
 REQ_SWAP_TARGET,카드를 맞바꿀 사람,Swap with whom
-REQ_SWAP_GIVE,맞바꿀 내 카드,Which card to swap
+REQ_SWAP_GIVE,맞바꿀 내 카드,Your card to swap
 REQ_PASS,왼쪽 사람에게 넘길 카드,Card to pass left
-REQ_TAKE_FACE_UP,가져올 앞면 카드,Take which face-up card
+REQ_TAKE_FACE_UP,가져올 앞면 카드,Face-up card to take
 REQ_DRAW_FROM,카드를 뽑아 올 사람,Draw from whom
 REQ_GIVE_BACK,돌려줄 카드,Card to give back
-REQ_ENVELOPE_SWAP,봉투 카드와 바꿀 내 카드,Swap an envelope card with
+REQ_ENVELOPE_SWAP,봉투 카드와 바꿀 내 카드,Your card to swap with the envelope
 OPT_SLOT,봉투 %d번째,Envelope slot %d
 OPT_NOTE_MOVE,"%s 앞 %d번째 쪽지 (놓은 사람: %s) → %s","%s's note #%d (from %s) → %s"
 OPT_FACE_UP,%s 앞 %s,%s's %s
@@ -64,7 +64,7 @@ OPT_CLAIM_YES,범인인 척한다,Pretend
 OPT_CLAIM_NO,가만히 있는다,Stay quiet
 RESULT_TITLE,결산,Results
 RESULT_FUND_OK,봉투 %s / 목표 %s: 모금 성공,Envelope %s / goal %s: funded
-RESULT_FUND_FAIL,봉투 %s / 목표 %s: 모금 실패,Envelope %s / goal %s: short
+RESULT_FUND_FAIL,봉투 %s / 목표 %s: 모금 실패,Envelope %s / goal %s: came up short
 RESULT_ROW,"%s: %s (%s)","%s: %s (%s)"
 RESULT_CONFINED,걸림,caught
 RESULT_WINNERS,이긴 사람: %s,Winners: %s
@@ -80,7 +80,7 @@ RESULT_STEP,"결산 %d / %d","Results %d / %d"
 RESULT_OPEN,봉투 개봉,Opening the Envelope
 RESULT_AUDIT,감사,The Audit
 RESULT_AUDIT_ROW,"%s: 쪽지 %d점 (%s)","%s: suspicion %d (%s)"
-RESULT_NOBODY_CAUGHT,의심이 모두 같아 아무도 걸리지 않았다,"Suspicion is tied, nobody is caught"
+RESULT_NOBODY_CAUGHT,의심이 모두 같아 아무도 걸리지 않았다,"Everyone is tied, so nobody is caught"
 RESULT_REVEAL,정체 공개,The Reveal
 RESULT_NEXT,다음,Next
 RESULT_SAME_SEED,같은 판 다시,Replay This Deal
@@ -99,8 +99,8 @@ HELP_TAB_FIRST,첫 판 안내,First Game
 HELP_TAB_RULES,규칙 요약,Rules
 HELP_TAB_CARDS,카드 사전,Cards
 HELP_CARD_META,"%s · %d장 · 우선순위 %d · %s","%s · %d in deck · priority %d · %s"
-HELP_FIRST,"김 대리 퇴사 선물 봉투가 책상을 돕니다. 그런데 팀장 중 누군가 봉투에서 돈을 빼 가고 있습니다.\n\n1. 아래 손패가 내 팀원들입니다. 카드를 눌러 고른 뒤 버튼으로 내거나, 봉투·책상으로 끌어다 놓으세요.\n2. 봉투 털이(범인) 카드는 낼 수 없습니다. 받았다면 끝까지 숨기세요.\n3. 손에 마지막 1장이 남으면 그 카드가 내 정체입니다. 무엇을 남길지 정하고, 그 카드의 승리 조건을 노리세요.\n4. 수상한 사람 책상에 금액이 큰 카드를 쪽지로 놓아 감사에 걸리게 하세요.\n5. 내 카드 위에 마우스를 올리면 능력이 보입니다.\n\n오른쪽 위 ? 버튼으로 언제든 규칙과 카드 사전을 다시 볼 수 있습니다.","Kim is leaving after twelve years, and the farewell gift envelope is going desk to desk. But one of the team leads is skimming it.\n\n1. Your hand at the bottom is your team. Click a card and press a button, or drag it onto the envelope or a desk.\n2. The Skimmer can't be played. If you have it, keep it hidden to the end.\n3. When one card is left in your hand, that card is who you are. Decide what to keep and play for its goal.\n4. Leave high-value cards as notes on a suspicious desk to get them caught in the audit.\n5. Hover a card to see its ability.\n\nUse the ? button at the top right any time to see the rules and cards again."
-HELP_RULES,"차례마다 손패 1장을 골라 셋 중 하나로 냅니다.\n· 내 책상에 앞면: 카드 능력을 씁니다.\n· 봉투에 뒷면: 금액만큼 모금됩니다.\n· 동료 책상에 뒷면(쪽지): 금액만큼 그 사람 의심 점수가 됩니다.\n손패가 1장 남은 사람은 더 차례가 없고, 그 카드가 정체가 됩니다. 모두 1장씩 남으면 결산합니다.\n\n결산\n1. 봉투 개봉: 봉투 금액이 목표액 이상이면 모금 성공.\n2. 감사: 쪽지 점수가 가장 높은 사람이 걸립니다. 같으면 모두 걸리고, 모두 같으면 아무도 안 걸립니다.\n3. 정체 공개: 우선순위 1부터 승리 조건을 확인합니다. 이긴 사람이 나온 순위에서 끝나고, 같은 순위는 함께 이깁니다.\n아무도 못 이기면 선물은 없었다. 단, 퇴사 예정자가 있으면 그가 이깁니다.","Each turn, pick one card from your hand and play it one of three ways.\n· Face up on your desk: use its ability.\n· Face down into the envelope: adds its value to the fund.\n· Face down on a coworker's desk (a note): adds its value to their suspicion.\nOnce you have one card left you're done, and that card is who you are. When everyone has one card, the game ends.\n\nResults\n1. Opening the Envelope: the gift is funded if the envelope reaches the goal.\n2. The Audit: whoever has the most suspicion is caught. Ties are all caught; if everyone ties, nobody is.\n3. The Reveal: goals are checked from priority 1 down. The first priority with a winner ends it, and everyone at that priority wins together.\nIf nobody wins there is no gift, unless someone holds Two Weeks' Notice, who wins instead."
+HELP_FIRST,"김 대리 퇴사 선물 봉투가 책상을 돕니다. 그런데 팀장 중 누군가 봉투에서 돈을 빼 가고 있습니다.\n\n1. 아래 손패가 내 팀원들입니다. 카드를 눌러 고른 뒤 버튼으로 내거나, 봉투·책상으로 끌어다 놓으세요.\n2. 봉투 털이(범인) 카드는 낼 수 없습니다. 받았다면 끝까지 숨기세요.\n3. 손에 마지막 1장이 남으면 그 카드가 내 정체입니다. 무엇을 남길지 정하고, 그 카드의 승리 조건을 노리세요.\n4. 수상한 사람 책상에 금액이 큰 카드를 쪽지로 놓아 감사에 걸리게 하세요.\n5. 내 카드 위에 마우스를 올리면 능력이 보입니다.\n\n오른쪽 위 ? 버튼으로 언제든 규칙과 카드 사전을 다시 볼 수 있습니다.","Kim's farewell gift envelope is going desk to desk. But one of the team leads is skimming it.\n\n1. Your hand at the bottom is your team. Click a card and press a button, or drag it onto the envelope or a desk.\n2. The Skimmer can't be played. If you have it, keep it hidden to the end.\n3. When one card is left in your hand, that card is who you are. Decide what to keep and play for its goal.\n4. Leave high-value cards as notes on a suspicious desk to get them caught in the audit.\n5. Hover a card to see its ability.\n\nUse the ? button at the top right any time to see the rules and cards again."
+HELP_RULES,"차례마다 손패 1장을 골라 셋 중 하나로 냅니다.\n· 내 책상에 앞면: 카드 능력을 씁니다.\n· 봉투에 뒷면: 금액만큼 모금됩니다.\n· 동료 책상에 뒷면(쪽지): 금액만큼 그 사람 의심 점수가 됩니다.\n손패가 1장 남은 사람은 더 차례가 없고, 그 카드가 정체가 됩니다. 모두 1장씩 남으면 결산합니다.\n\n결산\n1. 봉투 개봉: 봉투 금액이 목표액 이상이면 모금 성공.\n2. 감사: 쪽지 점수가 가장 높은 사람이 걸립니다. 같으면 모두 걸리고, 모두 같으면 아무도 안 걸립니다.\n3. 정체 공개: 우선순위 1부터 승리 조건을 확인합니다. 이긴 사람이 나온 순위에서 끝나고, 같은 순위는 함께 이깁니다.\n아무도 못 이기면 모두 집니다. 단, 퇴사 예정자를 쥔 사람이 있으면 그 사람이 이깁니다.","Each turn, pick one card from your hand and play it one of three ways.\n· Face up on your desk: use its ability.\n· Face down into the envelope: adds its value to the fund.\n· Face down on a coworker's desk (a note): adds its value to their suspicion.\nOnce you have one card left you're done, and that card is who you are. When everyone has one card, the game ends.\n\nResults\n1. Opening the Envelope: the gift is funded if the envelope reaches the goal.\n2. The Audit: whoever has the most suspicion is caught. Ties are all caught; if everyone ties, nobody is.\n3. The Reveal: goals are checked from priority 1 down. The first priority with a winner ends it, and everyone at that priority wins together.\nIf nobody wins, everyone loses, unless someone holds Two Weeks' Notice: they win instead."
 ABILITY_NEWBIE,능력 없음. 쥐고 있으면 눈치왕 눈에 범인처럼 보일 수 있다,"No ability. While you hold it, the Office Gossip may take you for the Skimmer"
 ABILITY_THIEF,낼 수 없다. 남의 능력으로만 손을 떠난다,Can't be played. It only leaves your hand through other abilities
 ABILITY_BUDDY,누군가 앞의 쪽지 1장을 다른 사람 앞으로 옮긴다,Move one note from someone's desk to someone else's
@@ -109,7 +109,7 @@ ABILITY_CHAIR,능력 없음. 쥐고 있는 사람이 첫 차례를 한다,No abi
 ABILITY_ACCOUNTANT,봉투 속 카드를 넣은 순서대로 모두 본다,"See every card in the envelope, in the order they went in"
 ABILITY_HR,다른 한 사람의 손패를 모두 본다,Look at another player's whole hand
 ABILITY_SNIFFER,봉투 털이를 쥔 사람이 누군지 나만 안다,Secretly learn who holds the Skimmer
-ABILITY_BUSYBODY,다른 한 사람과 1장씩 골라 뒷면으로 맞바꾼다,Each of you picks a card and you swap them face down with another player
+ABILITY_BUSYBODY,다른 한 사람과 1장씩 골라 뒷면으로 맞바꾼다,Pick another player; you each choose a card and swap them face down
 ABILITY_BROADCAST,모두 1장씩 골라 왼쪽 사람에게 넘긴다 (1장 남은 사람은 건너뜀),Everyone passes one card to the left (players with one card are skipped)
 ABILITY_SUPPLIES,다른 사람 앞의 앞면 카드 1장(비품 담당 제외)을 내 손으로 가져온다,Take a face-up card (not a Supply Clerk) from someone else's desk into your hand
 ABILITY_BOSS,"다른 사람 손에서 무작위 1장을 뽑고, 그 사람에게 1장 돌려준다 (뽑은 것도 가능)","Draw a random card from someone's hand, then give them one back (it can be the same card)"
