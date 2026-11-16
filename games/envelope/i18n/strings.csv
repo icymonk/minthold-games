@@ -1,0 +1,9 @@
+keys,ko,en
+GAME_TITLE,봉투는 돌고 돈다,Pass the Envelope
+TITLE_SUBTITLE,김 대리 퇴사 선물 봉투에서 돈이 사라졌다,Someone is skimming the farewell gift envelope
+TITLE_START,한 판 시작,Start
+TITLE_PLAYERS,인원: %d명 (나 포함),Players: %d (including you)
+TITLE_SEED,시드,Seed
+TITLE_LANGUAGE,English,한국어
+TABLE_PLACEHOLDER,"테이블 화면은 다음 PR에서 만든다 (%d명, 시드 %d)","Table screen comes next (%d players, seed %d)"
+BACK_TO_TITLE,제목으로,Back to Title

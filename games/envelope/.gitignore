@@ -1,0 +1,7 @@
+.godot/
+build/
+*.translation
+reports/
+addons/gdUnit4/GdUnitRunner.cfg
+.firebase/
+node_modules/
