@@ -16,7 +16,10 @@
 
 - `Match`는 씬 트리에 의존하지 않는다. 덱 구성, 분배, 세 가지 행동, 능력 13종, 손 떼기, 결산을 계산한다.
 - 능력 중 고르기가 필요한 것(대상, 줄 카드)은 `Match`가 "결정 요청"을 내고, 사람은 화면에서, AI는 `Bot`이 답한다. 여러 사람이 동시에 고르는 사내 방송도 같은 방식.
-- 같은 시드 + 같은 Move 목록이면 같은 결과(결정론). 무작위(부장님 뽑기 등)는 `RngStreams.match`에서만 뽑는다.
+  - `Match.pending`: `{ seat, ask, options, by, kind }` 목록. 비어 있지 않으면 `legal_moves()`는 비고, `answer(seat, choice)`로 하나씩 답한다. 모두 답하면 효과를 적용하고 다음 요청을 내거나 차례를 넘긴다.
+  - `ask` 종류: `NOTE_MOVE`(단짝 동기) · `MISER_TAKE`(구두쇠, 다음 차례 시작) · `PEEK_HAND`(인사팀) · `CLAIM`(눈치왕에 끼어드는 관종 신입) · `SWAP_TARGET`→`SWAP_GIVE`(오지랖) · `PASS`(사내 방송) · `TAKE_FACE_UP`(비품 담당) · `DRAW_FROM`→`GIVE_BACK`(부장님) · `ENVELOPE_SWAP`(퇴사 예정자)
+- `Knowledge.of(match, seat)`: 그 자리가 아는 것만 복사한다. 뒷면 카드는 위치(uid)만, 종류는 본 적 있는 카드(`Match.seen`)와 앞면 카드만 `known`에 들어간다.
+- 같은 시드 + 같은 Move 목록이면 같은 결과(결정론). 무작위(부장님 뽑기 등)는 `RngStreams.play`에서만 뽑는다.
 
 ## 2. 데이터
 
