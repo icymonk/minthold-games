@@ -197,3 +197,80 @@ func test_marks_work_outside_guess_phase() -> void:
 	t._on_memo(3)
 	assert_bool(t.marks.has(3)).is_true()
 	Game.role = before
+
+
+func _staff_table(hand: Array) -> Control:
+	Game.role = Game.Role.STAFF
+	Game.rng = RngStreams.new(1)
+	var t: Control = auto_free(TABLE.instantiate())
+	add_child(t)
+	t.session.m = Match.setup(hand, [[4, 6, 7], [15, 16], [29, 30]])
+	t.refresh()
+	return t
+
+
+func _hand_button(t: Control, c: int) -> Button:
+	for b in t._hand.get_children():
+		if (b as Button).text.ends_with("\n%d" % c) or (b as Button).text.contains("\n%d\n" % c):
+			return b
+	return null
+
+
+func test_drag_to_row_places_card() -> void:
+	var before: int = Game.role
+	var t := _staff_table([1, 3, 5, 42])
+	assert_bool(t.can_drop_row(Vector2.ZERO, { card = 42 })).is_false()
+	assert_bool(t.can_drop_row(Vector2.ZERO, { card = 3 })).is_true()
+	t.drop_row(Vector2.ZERO, { card = 3 })
+	var last: Dictionary = t.session.m.history[-1]
+	assert_int(last.card).is_equal(3)
+	assert_array(last.sprints).is_empty()
+	Game.role = before
+
+
+func test_slot_extends_reach_and_is_spent() -> void:
+	var before: int = Game.role
+	var t := _staff_table([1, 3, 5, 42])
+	assert_bool(t.can_drop_slot(Vector2.ZERO, { card = 42 })).is_false()
+	t.drop_slot(Vector2.ZERO, { card = 3 })
+	assert_array(t._slot).is_equal([3])
+	assert_object(_hand_button(t, 3)).is_null()
+	assert_str(t._slot_title.text).contains("+2")
+	var lit: Panel = t._clock.get_child(5)
+	assert_object(lit.get_theme_stylebox(&"panel").bg_color).is_equal(Style.POSTIT)
+	t.drop_row(Vector2.ZERO, { card = 5 })
+	var last: Dictionary = t.session.m.history[-1]
+	assert_int(last.card).is_equal(5)
+	assert_array(last.sprints).is_equal([3])
+	assert_array(t._slot).is_empty()
+	Game.role = before
+
+
+func test_slot_bluff_spends_extra_sprints() -> void:
+	var before: int = Game.role
+	var t := _staff_table([1, 3, 5, 42])
+	t.drop_slot(Vector2.ZERO, { card = 1 })
+	t._play(t.place_move(3))
+	assert_array(t.session.m.history[-1].sprints).is_equal([1])
+	Game.role = before
+
+
+func test_slot_card_returns_to_hand() -> void:
+	var before: int = Game.role
+	var t := _staff_table([1, 3, 5, 42])
+	t.drop_slot(Vector2.ZERO, { card = 1 })
+	assert_bool(t.can_drop_hand(Vector2.ZERO, { card = 1 })).is_true()
+	t.drop_hand(Vector2.ZERO, { card = 1 })
+	assert_array(t._slot).is_empty()
+	for card in t._row.get_children():
+		assert_int((card as Control).mouse_filter).is_equal(Control.MOUSE_FILTER_IGNORE)
+	assert_object(_hand_button(t, 1)).is_not_null()
+	Game.role = before
+
+
+func test_chief_has_no_sprint_slot() -> void:
+	var before: int = Game.role
+	var t := _chief_table()
+	assert_bool(t._slot_panel.visible).is_false()
+	assert_bool(t.can_drop_slot(Vector2.ZERO, { card = 1 })).is_false()
+	Game.role = before
