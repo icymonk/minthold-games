@@ -6,10 +6,12 @@ signal screen_changed(scene: PackedScene)
 const SCREENS := {
 	&"title": preload("res://scenes/screens/title.tscn"),
 	&"night": preload("res://scenes/screens/night.tscn"),
+	&"battle": preload("res://scenes/screens/battle.tscn"),
 	&"result": preload("res://scenes/screens/result.tscn"),
 }
 
 var run: RunState
+var battle: BattleSim
 
 
 func start_run(run_seed: int = -1) -> void:
