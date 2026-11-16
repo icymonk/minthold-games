@@ -26,12 +26,14 @@ func _label(text: String, size: int = Style.BODY) -> Label:
 	return label
 
 
-func _button(icon: String, text: String, on_pressed: Callable) -> Button:
+func _button(icon: Texture2D, text: String, on_pressed: Callable, parent: Control = null) -> Button:
 	var button := Button.new()
-	button.text = "%s  %s" % [icon, text]
+	button.icon = icon
+	button.text = text
 	button.custom_minimum_size = Vector2(560, Style.BUTTON_H)
 	button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	button.add_theme_font_override(&"font", Style.bold())
+	button.pressed.connect(func() -> void: Sfx.play(&"click"))
 	button.pressed.connect(on_pressed)
-	_list.add_child(button)
+	(parent if parent else _list).add_child(button)
 	return button

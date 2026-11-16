@@ -6,7 +6,7 @@
 
 ## 0단계 — 기반
 - [x] 0-1 Godot 4.7 프로젝트, 화면 전환 뼈대, gdUnit4, CI(`nightmart.yml` → 공용 `godot.yml`), 웹 미리보기 `minthold-nightmart`
-- [ ] 0-2 Kenney CC0 그림(상품 굽기·카드·UI)과 효과음, `Coach` 단계별 안내 뼈대
+- [x] 0-2 Kenney CC0 그림(상품 굽기·카드·UI)과 효과음, `Coach` 단계별 안내 뼈대
 
 ## 1단계 — 규칙 엔진 (화면 없이 테스트로 검증)
 - [ ] 1-1 상품 카드 52장, 조합 10종 판정(`Combo`), 매출 × 만족 계산, 테스트

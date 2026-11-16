@@ -4,5 +4,14 @@ TITLE_SUBTITLE,8일만 버티면 정직원,Survive eight nights and the job is y
 TITLE_NEW_RUN,영업 시작,Open Shop
 TITLE_SEED,seed (비우면 무작위),Seed (blank for random)
 TITLE_LANGUAGE,English,한국어
-COUNTER_PLACEHOLDER,계산대는 다음 단계에서 열립니다 (seed %d),The counter opens in a later step (seed %d)
 BACK_TO_TITLE,제목,Title
+TITLE_SOUND_ON,소리 켬,Sound on
+TITLE_SOUND_OFF,소리 끔,Sound off
+COUNTER_HINT,카드를 골라 계산해요,Pick cards and check out
+COUNTER_SALES,매출 %d,Sales %d
+COUNTER_CHECKOUT,계산,Check out
+COUNTER_DISCARD,바꾸기,Swap
+COACH_PICK,상품 카드를 눌러요,Tap a product card
+COACH_CHECKOUT,「계산」을 눌러요,Press Check out
+COACH_DISCARD,안 쓸 카드를 바꿔요,Swap cards you don't need
+COACH_SKIP,건너뛰기,Skip
