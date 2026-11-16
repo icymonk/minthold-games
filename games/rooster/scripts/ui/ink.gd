@@ -198,20 +198,48 @@ static func _outline(ci: CanvasItem, origin: Vector2, cells: Array[Vector2i], cs
 			ci.draw_line(o + Vector2(cs, 0), o + Vector2(cs, cs), line, width)
 
 
+## 칸 모양에 맞춰 그린 그림을 현재 회전에 맞게 돌려서 그린다. 그림은 빈 칸을 침범하지 않는다.
 static func draw_portrait(ci: CanvasItem, origin: Vector2, cells: Array[Vector2i], cs: float, kind: StringName, modulate := Color.WHITE) -> void:
+	var base := YokaiDb.base_cells(kind)
+	var turns := rotation_of(base, cells)
+	var size := Vector2.ZERO
+	for c in base:
+		size = Vector2(maxf(size.x, c.x + 1), maxf(size.y, c.y + 1))
+	size *= cs
 	var lo := Vector2i(1 << 20, 1 << 20)
-	var hi := Vector2i(-1, -1)
 	for c in cells:
 		lo = Vector2i(mini(lo.x, c.x), mini(lo.y, c.y))
-		hi = Vector2i(maxi(hi.x, c.x), maxi(hi.y, c.y))
-	var side := clampf(mini(hi.x - lo.x, hi.y - lo.y) + 1, 1, 3) * cs * 0.92
-	var center := origin + centroid(cells) * cs
-	ci.draw_texture_rect(YokaiDb.texture(kind), Rect2(center - Vector2(side, side) / 2, Vector2(side, side)), false, modulate)
+	var offset: Vector2 = [Vector2.ZERO, Vector2(size.y, 0), size, Vector2(0, size.x)][turns]
+	ci.draw_set_transform(origin + Vector2(lo) * cs + offset, turns * PI / 2)
+	ci.draw_texture_rect(YokaiDb.texture(kind), Rect2(Vector2.ZERO, size), false, modulate)
+	ci.draw_set_transform(Vector2.ZERO)
+
+
+## base를 시계 방향으로 몇 번 돌리면 cells가 되는지. 대칭이면 가장 적게 돈 횟수.
+static func rotation_of(base: Array[Vector2i], cells: Array[Vector2i]) -> int:
+	var target := Piece.normalized(cells)
+	var cur := Piece.normalized(base)
+	for turns in 4:
+		if cur == target:
+			return turns
+		var rotated: Array[Vector2i] = []
+		for c in cur:
+			rotated.append(Vector2i(-c.y, c.x))
+		cur = Piece.normalized(rotated)
+	return 0
+
+
+## 비율을 유지한 채 rect 안에 맞춰 그린다.
+static func draw_fit(ci: CanvasItem, tex: Texture2D, rect: Rect2, modulate := Color.WHITE) -> void:
+	var k := minf(rect.size.x / tex.get_width(), rect.size.y / tex.get_height())
+	var s := tex.get_size() * k
+	ci.draw_texture_rect(tex, Rect2(rect.get_center() - s / 2, s), false, modulate)
 
 
 static func draw_piece(ci: CanvasItem, origin: Vector2, p: Piece, cs: float, _font: Font = null, tint := Color.WHITE) -> void:
 	draw_paper_shape(ci, origin, p.cells, cs, tint)
 	draw_portrait(ci, origin, p.cells, cs, p.kind, tint)
+	_outline(ci, origin, p.cells, cs, Color(INK, tint.a), 3.0)
 	var first: Vector2 = origin + Vector2(p.cells[0]) * cs
 	var badge := maxf(cs * 0.17, 11)
 	draw_badge(ci, first + Vector2(badge * 1.1, badge * 1.1), p.atk, Color(VERMILION, tint.a), null, int(badge))

@@ -16,7 +16,7 @@ NIGHT_FIGHT,행렬 맞이하기,Face the Procession
 NIGHT_HINT,드래그: 옮기기 · 우클릭/R: 돌리기 · 맞닿은 요괴 위에 놓기: 먹이기,Drag: move · Right-click/R: rotate · Drop on a touching yokai: feed
 COINS,엽전 %d,Coins %d
 MARKET_TITLE,장터,Market
-MARKET_CLICK,카드를 누르면 고용,Click a card to hire
+MARKET_CLICK,누르면 설명 · 끌어 놓으면 고용,Click for details · drag to hire
 MARKET_REFRESH,새로고침 (%d),Refresh (%d)
 BAG_TITLE,보따리,Bundle
 BAG_FRONT,오른쪽이 앞줄: 각 줄의 맨 오른쪽 요괴가 그 줄로 오는 적에게 맞는다,Right is the front: the rightmost yokai in each row takes hits from that lane
@@ -25,8 +25,8 @@ SELL_ZONE,여기로 끌어다 놓으면 내보내기 (+%d),Drop here to release 
 PREVIEW_TITLE,이번 밤의 행렬,Tonight's Procession
 PREVIEW_TIME,닭이 %d초 만에 운다,The rooster crows in %ds
 INFO_EMPTY,요괴를 누르면 정보가 보인다.,Click a yokai to see details.
-HELP_1,1. 장터에서 요괴를 고용한다,1. Hire yokai at the market
-HELP_2,2. 대기 줄에서 보따리로 끌어다 놓는다,2. Drag them from waiting into the bundle
+HELP_1,1. 장터 카드를 누르면 설명이 나온다,1. Click a market card to read about it
+HELP_2,2. 카드를 보따리나 대기 줄로 끌어 놓으면 고용된다,2. Drag a card into the bundle or the waiting row to hire it
 HELP_3,3. 맞닿은 요괴를 다른 요괴 위로 끌면 먹는다. 먹힌 칸은 비고 배가 차면 변신한다,"3. Drag a touching yokai onto another to feed it. The food frees its cells; a full belly evolves"
 HELP_4,4. 행렬 맞이하기를 누르면 자동 전투,4. Face the procession to auto-battle
 INFO_STATS,공격 %d · 체력 %d · %s,ATK %d · HP %d · %s
@@ -112,3 +112,5 @@ YOKAI_IMUGI,이무기,Imugi
 YOKAI_SINSU_HAETAE,신수 해태,Divine Haetae
 YOKAI_WONGWI,원귀,Vengeful Ghost
 YOKAI_GREAT_BULGASARI,큰 불가사리,Great Bulgasari
+TIP_EVOLVE,배 %d칸이 차면 %s 변신,Belly %d full → becomes %s
+TIP_DRAG,보따리나 대기 줄로 끌어 놓으면 고용 · R로 돌리기,Drag to the bundle or waiting row to hire · R rotates

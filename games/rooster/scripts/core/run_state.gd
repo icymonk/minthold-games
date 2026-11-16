@@ -68,6 +68,21 @@ func hire(slot: int) -> Piece:
 	return p
 
 
+## 장터에서 끌어다 보따리에 바로 놓는다. 자리나 엽전이 모자라면 아무것도 바꾸지 않는다.
+func hire_to_bag(slot: int, cells: Array[Vector2i], at: Vector2i) -> Piece:
+	var kind := shelf[slot]
+	if kind == &"" or coins < YokaiDb.cost(kind):
+		return null
+	var p := Piece.create(kind)
+	p.cells.assign(cells)
+	if not bag.can_place(p, at):
+		return null
+	coins -= YokaiDb.cost(kind)
+	shelf[slot] = &""
+	bag.place(p, at)
+	return p
+
+
 func sell(p: Piece) -> void:
 	bag.remove(p)
 	bench.erase(p)

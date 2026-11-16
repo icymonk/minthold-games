@@ -20,6 +20,8 @@ var _font: Font
 var _selected: Piece
 var _drag: Piece
 var _drag_from_bag := false
+var _drag_shop := -1
+var _card := -1
 var _drag_cells_backup: Array[Vector2i] = []
 var _grab := Vector2i.ZERO
 var _press_pos := Vector2.ZERO
@@ -27,9 +29,12 @@ var _moved := false
 var _mouse := Vector2.ZERO
 var _toast := ""
 var _toast_until := 0.0
+var _overlay: Control
+var _ci: CanvasItem
 
 
 func _ready() -> void:
+	_ci = self
 	run = Game.run
 	_font = get_theme_default_font()
 	set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -38,6 +43,11 @@ func _ready() -> void:
 	var fight := _add_button(tr("NIGHT_FIGHT"), FIGHT_RECT, _on_fight)
 	fight.theme_type_variation = &"AccentButton"
 	fight.add_theme_font_size_override(&"font_size", 36)
+	_overlay = Control.new()
+	_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_overlay.draw.connect(_draw_overlay)
+	add_child(_overlay)
 
 
 func _add_button(text: String, rect: Rect2, cb: Callable) -> Button:
@@ -53,6 +63,7 @@ func _add_button(text: String, rect: Rect2, cb: Callable) -> Button:
 
 func _process(_delta: float) -> void:
 	queue_redraw()
+	_overlay.queue_redraw()
 
 
 func _toast_msg(key: String) -> void:
@@ -119,8 +130,11 @@ func _bench_piece_at(pos: Vector2) -> Piece:
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		_mouse = event.position
-		if _drag == null and _selected != null and event.button_mask & MOUSE_BUTTON_MASK_LEFT and _press_pos.distance_to(_mouse) > 8:
-			_begin_drag(_selected, _press_pos)
+		if _drag == null and event.button_mask & MOUSE_BUTTON_MASK_LEFT and _press_pos.distance_to(_mouse) > 8:
+			if _card >= 0:
+				_begin_shop_drag(_card)
+			elif _selected != null:
+				_begin_drag(_selected, _press_pos)
 		if _drag:
 			_moved = true
 	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
@@ -140,13 +154,11 @@ func _unhandled_key_input(event: InputEvent) -> void:
 
 func _press(pos: Vector2) -> void:
 	_press_pos = pos
+	_card = -1
 	for i in run.shelf.size():
 		if _card_rect(i).has_point(pos) and run.shelf[i] != &"":
-			var p := run.hire(i)
-			if p == null:
-				_toast_msg("TOAST_NO_COINS" if run.bench.size() < RunState.BENCH_MAX else "TOAST_BENCH_FULL")
-			else:
-				_selected = p
+			_card = i
+			_selected = null
 			return
 	var hit := run.bag.piece_at(_cell_at(pos)) if _bag_rect().has_point(pos) else _bench_piece_at(pos)
 	_selected = hit
@@ -162,6 +174,40 @@ func _begin_drag(p: Piece, pos: Vector2) -> void:
 		var r: Rect2 = _bench_layout()[p]
 		_grab = Vector2i(((pos - r.position) / BENCH_CELL).floor())
 	_moved = false
+
+
+func _begin_shop_drag(slot: int) -> void:
+	if run.coins < YokaiDb.cost(run.shelf[slot]):
+		_toast_msg("TOAST_NO_COINS")
+		_card = -1
+		return
+	_drag = Piece.create(run.shelf[slot])
+	_drag_shop = slot
+	_drag_from_bag = false
+	_drag_cells_backup = _drag.cells.duplicate()
+	_grab = _drag.cells[0]
+	_moved = false
+
+
+func _drop_from_shop(pos: Vector2, p: Piece) -> void:
+	var slot := _drag_shop
+	_drag_shop = -1
+	_card = -1
+	if not _moved:
+		return
+	if _bag_rect().has_point(pos):
+		var hired := run.hire_to_bag(slot, p.cells, _cell_at(pos) - _grab)
+		if hired == null:
+			_toast_msg("TOAST_NO_ROOM")
+		else:
+			_selected = hired
+	elif BENCH_RECT.has_point(pos):
+		var hired := run.hire(slot)
+		if hired == null:
+			_toast_msg("TOAST_BENCH_FULL")
+		else:
+			hired.cells.assign(p.cells)
+			_selected = hired
 
 
 func _rotate() -> void:
@@ -183,6 +229,9 @@ func _rotate() -> void:
 func _drop(pos: Vector2) -> void:
 	var p := _drag
 	_drag = null
+	if _drag_shop >= 0:
+		_drop_from_shop(pos, p)
+		return
 	if not _moved:
 		return
 	if SELL_RECT.has_point(pos):
@@ -247,15 +296,22 @@ func _draw() -> void:
 	_draw_talismans()
 	_draw_preview()
 	_draw_info()
+
+
+## 버튼보다 위에 그려야 하는 것: 툴팁, 끌고 있는 요괴, 알림.
+func _draw_overlay() -> void:
+	_ci = _overlay
+	_draw_tooltip()
 	_draw_drag()
 	if Time.get_ticks_msec() / 1000.0 < _toast_until:
 		var r := Rect2(560, 470, 800, 70)
-		draw_style_box(Ink.box(Color(Ink.INK, 0.92), 12, Ink.GOLD, 2, 8), r)
-		Ink.draw_label(self, r.position + Vector2(0, 46), _toast, 26, Ink.CREAM, r.size.x, HORIZONTAL_ALIGNMENT_CENTER)
+		_ci.draw_style_box(Ink.box(Color(Ink.INK, 0.92), 12, Ink.GOLD, 2, 8), r)
+		Ink.draw_label(_ci, r.position + Vector2(0, 46), _toast, 26, Ink.CREAM, r.size.x, HORIZONTAL_ALIGNMENT_CENTER)
+	_ci = self
 
 
 func _text(pos: Vector2, s: String, size := 24, color := Ink.CREAM, width := -1.0, align := HORIZONTAL_ALIGNMENT_LEFT) -> void:
-	draw_string(_font, pos, s, align, width, size, color)
+	_ci.draw_string(_font, pos, s, align, width, size, color)
 
 
 func _draw_top_bar() -> void:
@@ -285,7 +341,7 @@ func _draw_shelf() -> void:
 		var tint := Color.WHITE if run.coins >= cost else Color(0.7, 0.7, 0.75)
 		Ink.draw_paper(self, r, tint)
 		var def: Dictionary = YokaiDb.ALLIES[kind]
-		draw_texture_rect(YokaiDb.texture(kind), Rect2(r.position + Vector2(20, 6), Vector2(160, 160)), false, tint)
+		draw_texture_rect(YokaiDb.icon(kind), Rect2(r.position + Vector2(20, 6), Vector2(160, 160)), false, Color(tint, 0.35 if i == _drag_shop else 1.0))
 		Ink.draw_label(self, r.position + Vector2(0, 194), Ink.name_of(kind), 26, Ink.INK, CARD.x, HORIZONTAL_ALIGNMENT_CENTER)
 		Ink.draw_stats(self, r.position + Vector2(22, 232), def["atk"], def["hp"], 22)
 		var cells: Array[Vector2i] = []
@@ -298,6 +354,8 @@ func _draw_shelf() -> void:
 		var price := Vector2(r.get_center().x, SHELF_Y + 30)
 		Ink.draw_coin(self, price + Vector2(-18, 0), 15)
 		Ink.draw_label(self, price + Vector2(4, 11), str(cost), 28, Ink.GOLD if tint == Color.WHITE else Ink.CREAM_DIM, -1, HORIZONTAL_ALIGNMENT_LEFT, 6)
+		if i == _card and _drag == null:
+			draw_style_box(Ink.box(Color(0, 0, 0, 0), 10, Ink.GOLD, 4), r.grow(4))
 	Ink.draw_label(self, Vector2(1170, 150), tr("MARKET_TITLE"), 30)
 	_text(Vector2(1170, 188), tr("MARKET_CLICK"), 18, Color(Ink.CREAM, 0.7))
 
@@ -372,7 +430,7 @@ func _draw_info() -> void:
 			y += _font.get_multiline_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 44, 17).y + 10
 		return
 	Ink.draw_paper(self, Rect2(r.position + Vector2(16, 16), Vector2(92, 92)))
-	draw_texture_rect(YokaiDb.texture(p.kind), Rect2(r.position + Vector2(20, 20), Vector2(84, 84)), false)
+	Ink.draw_fit(self, YokaiDb.icon(p.kind), Rect2(r.position + Vector2(20, 20), Vector2(84, 84)))
 	Ink.draw_label(self, r.position + Vector2(124, 48), Ink.name_of(p.kind), 28)
 	Ink.draw_stats(self, r.position + Vector2(124, 86), p.atk, p.hp, 22, Ink.CREAM)
 	_text(r.position + Vector2(250, 86), tr(Ink.speed_key(p.interval)), 18, Color(Ink.CREAM, 0.7))
@@ -395,7 +453,7 @@ func _draw_drag() -> void:
 	var tint := Color(1, 1, 1, 0.88)
 	if _bag_rect().has_point(_mouse):
 		var target := run.bag.piece_at(_cell_at(_mouse))
-		if target != null and target != p:
+		if target != null and target != p and _drag_shop < 0:
 			var why := ""
 			if not _drag_from_bag or not run.bag.touching(target, p):
 				why = "TOAST_EAT_TOUCH"
@@ -405,10 +463,53 @@ func _draw_drag() -> void:
 				why = "TOAST_EAT_EVOLVED"
 			var ok := why == ""
 			var hint := tr(why) if not ok else (tr("DRAG_EVOLVE") if target.eaten + 1 >= target.belly else tr("DRAG_EAT"))
-			Ink.draw_shape(self, BAG_POS + Vector2(target.pos) * CELL, target.cells, CELL, Color(Ink.VERMILION, 0.25), Ink.VERMILION if ok else Ink.SLATE, 6)
-			Ink.draw_label(self, BAG_POS + Vector2(target.pos) * CELL + Vector2(0, -12), hint, 22, Ink.VERMILION if ok else Ink.SLATE, -1, HORIZONTAL_ALIGNMENT_LEFT, 6)
+			Ink.draw_shape(_ci, BAG_POS + Vector2(target.pos) * CELL, target.cells, CELL, Color(Ink.VERMILION, 0.25), Ink.VERMILION if ok else Ink.SLATE, 6)
+			Ink.draw_label(_ci, BAG_POS + Vector2(target.pos) * CELL + Vector2(0, -12), hint, 22, Ink.VERMILION if ok else Ink.SLATE, -1, HORIZONTAL_ALIGNMENT_LEFT, 6)
 		else:
 			var at := _cell_at(_mouse) - _grab
 			var ok := run.bag.can_place(p, at)
-			Ink.draw_shape(self, BAG_POS + Vector2(at) * CELL, p.cells, CELL, Color(Ink.JADE if ok else Ink.VERMILION, 0.35), Color(0, 0, 0, 0), 0)
-	Ink.draw_piece(self, origin, p, CELL, _font, tint)
+			Ink.draw_shape(_ci, BAG_POS + Vector2(at) * CELL, p.cells, CELL, Color(Ink.JADE if ok else Ink.VERMILION, 0.35), Color(0, 0, 0, 0), 0)
+	elif BENCH_RECT.has_point(_mouse) and (_drag_from_bag or _drag_shop >= 0):
+		_ci.draw_style_box(Ink.box(Color(Ink.JADE, 0.18), 12, Ink.JADE, 3), BENCH_RECT)
+	Ink.draw_piece(_ci, origin, p, CELL, _font, tint)
+
+
+func _draw_tooltip() -> void:
+	if _card < 0 or _drag != null or run.shelf[_card] == &"":
+		return
+	var kind := run.shelf[_card]
+	var def: Dictionary = YokaiDb.ALLIES[kind]
+	var card := _card_rect(_card)
+	var w := 420.0
+	var x := card.end.x + 14 if card.end.x + 14 + w < size.x - 20 else card.position.x - 14 - w
+	var r := Rect2(x, card.position.y - 6, w, 380)
+	var tip := PackedVector2Array([Vector2(x, card.position.y + 60), Vector2(x - 14, card.position.y + 74), Vector2(x, card.position.y + 88)]) if x > card.position.x else PackedVector2Array([Vector2(r.end.x, card.position.y + 60), Vector2(r.end.x + 14, card.position.y + 74), Vector2(r.end.x, card.position.y + 88)])
+	_ci.draw_style_box(Ink.box(Ink.NIGHT_DEEP, 12, Ink.GOLD, 2, 10), r)
+	_ci.draw_colored_polygon(tip, Ink.GOLD)
+	var o := r.position + Vector2(22, 0)
+	var inner := w - 44
+	Ink.draw_label(_ci, o + Vector2(0, 44), Ink.name_of(kind), 30)
+	Ink.draw_coin(_ci, Vector2(r.end.x - 70, o.y + 34), 14)
+	Ink.draw_label(_ci, Vector2(r.end.x - 50, o.y + 45), str(YokaiDb.cost(kind)), 26, Ink.GOLD)
+	Ink.draw_stats(_ci, o + Vector2(0, 84), def["atk"], def["hp"], 22, Ink.CREAM)
+	_text(o + Vector2(130, 84), tr(Ink.speed_key(def["interval"])), 18, Color(Ink.CREAM, 0.7))
+	var cells := YokaiDb.base_cells(kind)
+	var shape_cs := 30.0
+	Ink.draw_paper_shape(_ci, Vector2(r.end.x - 22 - 3 * shape_cs, o.y + 64), cells, shape_cs)
+	Ink.draw_portrait(_ci, Vector2(r.end.x - 22 - 3 * shape_cs, o.y + 64), cells, shape_cs, kind)
+	var t: StringName = def["trait"]
+	var y := o.y + 128
+	_ci.draw_rect(Rect2(o.x, y - 15, 16, 16), Ink.TRAIT_COLORS.get(t, Ink.SLATE))
+	Ink.draw_label(_ci, Vector2(o.x + 26, y), tr("TRAIT_" + String(t).to_upper()), 20)
+	y += 12
+	var desc := tr("TRAIT_" + String(t).to_upper() + "_DESC")
+	_ci.draw_multiline_string(_font, Vector2(o.x, y + 18), desc, HORIZONTAL_ALIGNMENT_LEFT, inner, 17, -1, Color(Ink.CREAM, 0.85))
+	y += _font.get_multiline_string_size(desc, HORIZONTAL_ALIGNMENT_LEFT, inner, 17).y + 22
+	var form: StringName = def["evolve"]
+	_text(Vector2(o.x, y + 18), tr("TIP_EVOLVE") % [def["belly"], Ink.with_josa(Ink.name_of(form), "으로")], 18, Ink.GOLD, inner)
+	var fcells := YokaiDb.base_cells(form)
+	var fcs := 26.0
+	Ink.draw_paper_shape(_ci, Vector2(o.x, y + 32), fcells, fcs)
+	Ink.draw_portrait(_ci, Vector2(o.x, y + 32), fcells, fcs, form)
+	var hint := tr("TIP_DRAG")
+	_ci.draw_multiline_string(_font, Vector2(o.x, r.end.y - 34), hint, HORIZONTAL_ALIGNMENT_LEFT, inner, 16, -1, Color(Ink.CREAM, 0.6))
