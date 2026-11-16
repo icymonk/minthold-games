@@ -43,7 +43,7 @@ func start_night() -> void:
 
 
 func _roll_shelf() -> void:
-	var kinds := YokaiDb.ally_kinds()
+	var kinds := YokaiDb.market_pool(night)
 	shelf.clear()
 	for i in SHELF_SIZE:
 		shelf.append(kinds[rng.market.randi_range(0, kinds.size() - 1)])
