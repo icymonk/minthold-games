@@ -12,8 +12,8 @@ var run_seed := 0
 var rng: RngStreams
 
 
-func start_run(seed_value: int = -1) -> void:
-	run_seed = seed_value if seed_value >= 0 else randi()
+func start_run(seed_value: int) -> void:
+	run_seed = seed_value
 	rng = RngStreams.new(run_seed)
 	goto(&"counter")
 

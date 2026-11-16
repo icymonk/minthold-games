@@ -8,6 +8,12 @@ func test_start_run_keeps_given_seed() -> void:
 	Game.goto(&"title")
 
 
+func test_negative_seed_is_kept() -> void:
+	Game.start_run(-7)
+	assert_int(Game.run_seed).is_equal(-7)
+	Game.goto(&"title")
+
+
 func test_every_screen_instantiates() -> void:
 	for key in Game.SCREENS:
 		var node: Node = Game.SCREENS[key].instantiate()

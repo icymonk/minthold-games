@@ -21,7 +21,7 @@ func _ready() -> void:
 
 func _on_new_run() -> void:
 	var text := _seed_input.text.strip_edges()
-	Game.start_run(int(text) if text.is_valid_int() else -1)
+	Game.start_run(int(text) if text.is_valid_int() else randi())
 
 
 func _on_toggle_language() -> void:
