@@ -1,0 +1,90 @@
+# 게임 미리보기 모음 페이지(hub/) — games/*/game.json, docs/plan.md, git 기록으로 만들어 minthold-games 사이트에 올린다.
+name: hub
+
+on:
+  pull_request:
+    paths:
+      - games/**
+      - hub/**
+      - .github/workflows/hub.yml
+  push:
+    branches: [develop]
+    paths:
+      - games/**
+      - hub/**
+      - .github/workflows/hub.yml
+
+concurrency:
+  group: hub-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: pip install -r hub/requirements.txt
+      - name: Test
+        working-directory: hub
+        run: python3 -m unittest -v test_build
+      - name: Build
+        run: python3 hub/build.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hub-web
+          path: hub/build
+
+  deploy:
+    needs: build
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    env:
+      HAS_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: hub-web
+          path: hub/build
+      - name: Secret missing
+        if: env.HAS_SA != 'true'
+        run: echo "::warning::FIREBASE_SERVICE_ACCOUNT 없음 — 배포를 건너뜁니다."
+      - name: Ensure Hosting site
+        if: env.HAS_SA == 'true'
+        env:
+          SA_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          SITE: minthold-games
+        run: |
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
+          printf '%s' "$SA_JSON" > "$GOOGLE_APPLICATION_CREDENTIALS"
+          npx -y firebase-tools@15 hosting:sites:get "$SITE" --project minthold-preview \
+            || npx -y firebase-tools@15 hosting:sites:create "$SITE" --project minthold-preview \
+            || npx -y firebase-tools@15 hosting:sites:get "$SITE" --project minthold-preview
+          rm -f "$GOOGLE_APPLICATION_CREDENTIALS"
+      - name: Deploy PR preview
+        if: env.HAS_SA == 'true' && github.event_name == 'pull_request'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: minthold-preview
+          entryPoint: hub
+          target: web
+          expires: 3d
+      - name: Deploy live (develop)
+        if: env.HAS_SA == 'true' && github.event_name == 'push'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: minthold-preview
+          entryPoint: hub
+          target: web
+          channelId: live
