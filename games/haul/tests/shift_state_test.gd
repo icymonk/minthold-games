@@ -32,3 +32,13 @@ func test_restore_undoes_placement() -> void:
 	shift.restore(snap)
 	assert_int(shift.queue.size()).is_equal(8)
 	assert_int(shift.bay.boxes.size()).is_equal(0)
+
+
+func test_restore_keeps_queue_order() -> void:
+	var shift := ShiftState.new(2)
+	for id in [3, 1, 2]:
+		shift.queue.append(Box.new(id, &"1x1", 0))
+	var snap := shift.snapshot()
+	shift.queue.clear()
+	shift.restore(snap)
+	assert_array(shift.queue.map(func(b: Box) -> int: return b.id)).is_equal([3, 1, 2])

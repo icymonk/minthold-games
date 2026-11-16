@@ -156,7 +156,6 @@ func _undo_last() -> void:
 		return
 	_held = null
 	_shift.restore(_undo.pop_back())
-	_shift.queue.sort_custom(func(a: Box, b: Box) -> bool: return a.id < b.id)
 	_refresh_buttons()
 	queue_redraw()
 
