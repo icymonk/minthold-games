@@ -164,11 +164,28 @@ func _gui_input(_event: InputEvent) -> void:
 	accept_event()
 
 
+func _owns_focus() -> bool:
+	var f := get_viewport().gui_get_focus_owner()
+	return f != null and is_ancestor_of(f)
+
+
+## 안내 중에는 포커스가 말풍선 버튼 밖(뒤의 게임판)으로 나가지 않게 한다.
+func _cycle_focus(step: int) -> void:
+	var buttons := [_skip, _prev, _next].filter(func(b: Button) -> bool: return not b.disabled)
+	var i := buttons.find(get_viewport().gui_get_focus_owner())
+	(buttons[posmod(i + step, buttons.size()) if i >= 0 else buttons.size() - 1] as Button).grab_focus()
+
+
 func _input(event: InputEvent) -> void:
 	if not visible:
 		return
 	if event.is_action_pressed(&"ui_cancel"):
 		stop()
+	elif event.is_action_pressed(&"ui_focus_next") or event.is_action_pressed(&"ui_focus_prev") \
+			or event.is_action_pressed(&"ui_up") or event.is_action_pressed(&"ui_down"):
+		_cycle_focus(-1 if event.is_action_pressed(&"ui_focus_prev") or event.is_action_pressed(&"ui_up") else 1)
+	elif event.is_action_pressed(&"ui_accept") and not _owns_focus():
+		go(1)
 	elif event.is_action_pressed(&"ui_right"):
 		go(1)
 	elif event.is_action_pressed(&"ui_left"):

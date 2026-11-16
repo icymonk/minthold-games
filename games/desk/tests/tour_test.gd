@@ -55,6 +55,10 @@ func test_tour_walks_each_role_and_is_remembered() -> void:
 		assert_bool(Game.tour_seen.has(t.session.human)).is_true()
 		t.start_tour()
 		assert_bool(tour.is_active()).is_true()
+		for i in 4:
+			tour._cycle_focus(1)
+			assert_bool(tour._owns_focus()).is_true()
+		assert_int(t._menu.get_child(0).focus_mode).is_equal(Control.FOCUS_ALL)
 		tour.stop()
 	var again := _table(Game.Role.CHIEF)
 	await await_idle_frame()
