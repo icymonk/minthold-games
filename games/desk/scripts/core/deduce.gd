@@ -2,9 +2,13 @@ class_name Deduce
 extends RefCounted
 ## Knowledge → 가운데 줄 기록마다 번호별 확률(아키텍처 2장).
 ## 오름차순·거리·제외·틀린 단일 짚기·구역 장수(아는 카드 기준)는 DP로 정확히 센다.
-## 틀린 묶음 짚기와 뒷면끼리 같은 구역 카드를 나눠 쓰는 조건은 DP 표본을 걸러 반영한다.
+## 틀린 묶음 짚기와 뒷면끼리 같은 구역 카드를 나눠 쓰는 조건은 DP 표본을 걸러 `probs`에만 반영한다.
+## 표본은 드문 경우를 놓칠 수 있으므로 `range_of`·`sure`·`possible`은 걸러지기 전 DP로 판단한다
+## (정답 번호를 지우거나 틀린 번호를 확실하다고 하지 않는다).
 
-const SAMPLES := 2000
+const SAMPLES := 1000
+## 받아들인 표본이 samples개가 될 때까지 뽑되, samples × 이 값번 넘게는 뽑지 않는다.
+const MAX_TRIES_PER_SAMPLE := 20
 const SIZE := Cards.LAST + 1
 
 var know: Knowledge
@@ -15,6 +19,7 @@ var bwd: Array = []
 var total := 0.0
 var sampled := false
 var probs: Array = []         # i → PackedFloat64Array(SIZE). 불가능한 판이면 모두 0
+var dp_probs: Array = []      # 표본 거르기 전 확률
 var _avail: Array = []        # zone → Array[int]: j번 기록을 낼 때까지 사원이 받은 그 구역 장수
 var _known_sprints: Array = []  # zone → Array[int]: j번까지 아는 뛰기 카드 중 그 구역 장수(누적)
 var _known_cards: Array = []    # zone → Array[int]: 위 + 아는 기록 카드(누적)
@@ -39,11 +44,11 @@ func possible(i: int, c: int) -> bool:
 	return fwd[i][c] * bwd[i][c] > 0.0
 
 
-## 확률이 0보다 큰 가장 작은·큰 번호. 없으면 (-1, -1).
+## 될 수 있는 가장 작은·큰 번호. 없으면 (-1, -1).
 func range_of(i: int) -> Vector2i:
 	var r := Vector2i(-1, -1)
 	for c in SIZE:
-		if probs[i][c] > 0.0:
+		if possible(i, c):
 			if r.x < 0:
 				r.x = c
 			r.y = c
@@ -52,22 +57,26 @@ func range_of(i: int) -> Vector2i:
 
 ## 번호마다 어느 뒷면 기록이든 그 번호일 확률.
 func odds() -> PackedFloat64Array:
-	var out := PackedFloat64Array()
-	out.resize(SIZE)
-	for i in know.hideouts.size():
-		if not know.is_known(i):
-			for c in SIZE:
-				out[c] += probs[i][c]
-	return out
+	return _odds(probs)
 
 
 ## 뒷면 기록 중 확실히 있는 번호.
 func sure() -> Array[int]:
 	var out: Array[int] = []
-	var o := odds()
+	var o := _odds(dp_probs)
 	for c in SIZE:
 		if o[c] > 1.0 - 1e-9:
 			out.append(c)
+	return out
+
+
+func _odds(table: Array) -> PackedFloat64Array:
+	var out := PackedFloat64Array()
+	out.resize(SIZE)
+	for i in know.hideouts.size():
+		if not know.is_known(i):
+			for c in SIZE:
+				out[c] += table[i][c]
 	return out
 
 
@@ -172,6 +181,7 @@ func _dp() -> void:
 			for c in SIZE:
 				pr[c] = fwd[i][c] * bwd[i][c] / total
 		probs.append(pr)
+	dp_probs = probs.duplicate()
 
 
 func _needs_sampling() -> bool:
@@ -202,7 +212,9 @@ func _sample(rng: RandomNumberGenerator, samples: int) -> void:
 	var path := PackedInt32Array()
 	path.resize(n)
 	var accepted := 0
-	for s in samples:
+	var tries := 0
+	while accepted < samples and tries < samples * MAX_TRIES_PER_SAMPLE:
+		tries += 1
 		path[n - 1] = _pick(fwd[n - 1], 0, SIZE - 1, rng)
 		for i in range(n - 1, 0, -1):
 			path[i - 1] = _pick(fwd[i - 1], maxi(0, path[i] - steps[i]), path[i] - 1, rng)
@@ -211,7 +223,7 @@ func _sample(rng: RandomNumberGenerator, samples: int) -> void:
 			for i in n:
 				counts[i][path[i]] += 1.0
 	if accepted == 0:
-		return
+		return # 받아들인 표본이 없으면 DP 확률(조건을 덜 건 쪽)을 그대로 둔다.
 	sampled = true
 	for i in n:
 		for c in SIZE:

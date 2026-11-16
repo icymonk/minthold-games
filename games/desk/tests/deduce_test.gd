@@ -97,6 +97,21 @@ func test_group_miss_filters_joint_combination() -> void:
 	assert_float(d.probs[1][1]).is_between(0.2, 0.3)
 
 
+func test_small_budget_still_applies_group_miss() -> void:
+	var m := _opening()
+	_act(m, { side = S.CHIEF, action = A.GUESS, numbers = [1, 2] })
+	var d := Deduce.run(Knowledge.of(m, S.CHIEF), _rng(1), 1)
+	assert_bool(d.sampled).is_true()
+	assert_float(d.probs[2][2]).is_equal(0.0)
+
+
+func test_sure_ignores_sampling() -> void:
+	# 뒷면 1번은 1~3, 사원이 뛰기 없이 2를 냈다. 표본과 관계없이 확실한 번호는 없다.
+	var m := _opening()
+	_act(m, { side = S.CHIEF, action = A.GUESS, numbers = [1, 2] })
+	assert_array(Deduce.run(Knowledge.of(m, S.CHIEF), _rng(1), 1).sure()).is_empty()
+
+
 func test_zone_needs_a_draw() -> void:
 	assert_that(Deduce.run(_know([0, 0, 0], [[H, 1]])).range_of(1)).is_equal(Vector2i(1, 3))
 	var k := _know([0, 0, 0], [[H, 1]], [{ zone = 0, before = 1 }])
@@ -108,7 +123,10 @@ func test_hidden_records_share_zone_cards() -> void:
 	var d := Deduce.run(_know([1, 0, 0], [[H, 2], [H, 0]]), _rng(3))
 	assert_bool(d.possible(1, 5)).is_true()
 	assert_bool(d.sampled).is_true()
-	assert_that(d.range_of(1)).is_equal(Vector2i(1, 3))
+	for c in range(4, 8):
+		assert_float(d.probs[1][c]).is_equal(0.0)
+	# 범위는 표본이 놓친 번호를 지우지 않도록 DP 기준이다.
+	assert_that(d.range_of(1)).is_equal(Vector2i(1, 7))
 
 
 func test_known_revealed_cards_use_up_zone() -> void:
