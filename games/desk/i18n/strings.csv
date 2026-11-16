@@ -26,8 +26,8 @@ LOG_TITLE,기록 줄,Log
 BTN_PASS,쉬기,Pass
 BTN_GUESS,짚기,Call it
 STATUS_DRAW,더미를 눌러 %d장 뽑으세요,Tap a pile to draw %d
-STATUS_PLACE,빛나는 카드를 눌러 내세요 (지금 %s~%s까지),Tap a lit card to play it (%s–%s)
-STATUS_PLACE_OR_PASS,카드를 내거나 쉬세요 (지금 %s~%s까지),Play a card or pass (%s–%s)
+STATUS_PLACE,빛나는 카드를 가운데 줄로 끌거나 눌러 내세요 (지금 %s~%s까지),Drag a lit card to the row or tap it (%s–%s)
+STATUS_PLACE_OR_PASS,카드를 줄로 끌어 내거나 쉬세요 (지금 %s~%s까지),Drag a card to the row or pass (%s–%s)
 STATUS_GUESS,메모판에서 시각을 골라 [짚기] (여러 개 고를 수 있음),"Pick times on the notepad, then call (several allowed)"
 STATUS_MANHUNT,마지막 추궁: 틀리면 그대로 퇴근입니다,Final grilling: one miss and he clocks out
 STATUS_WAIT,%s 차례…,%s is thinking…
@@ -49,3 +49,5 @@ MEMO_MARK_OFF,직접 지우기,Cross out
 MEMO_MARK_ON,직접 지우기: 켜짐,Cross out: on
 MULTI_WARN,%d개를 한꺼번에 짚습니다. 모두 맞아야 뒤집힙니다.,Calling %d at once: all must be right to flip.
 BTN_GUESS_N,%d개 짚기,Call %d
+SLOT_TITLE,뛰기 칸 +%d (누르면 손패로),Sprint slot +%d (tap to take back)
+SLOT_HINT,뛰기 칸: 뛰기 카드를 끌어 놓으면 더 멀리 갑니다,Sprint slot: drop sprint cards here to go further

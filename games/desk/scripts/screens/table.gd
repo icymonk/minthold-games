@@ -18,6 +18,8 @@ var marks := {}
 var _mark_mode := false
 var _shown_history := 0
 var _flipped := {}
+## 사원이 이번 기록에 함께 낼 뛰기 카드.
+var _slot: Array[int] = []
 
 var _clock: HBoxContainer
 var _decks: HBoxContainer
@@ -28,6 +30,9 @@ var _mark_btn: Button
 var _warn: Label
 var _banner: Label
 var _hand: HFlowContainer
+var _slot_panel: PanelContainer
+var _slot_title: Label
+var _slot_cards: HFlowContainer
 var _status: Label
 var _log: Label
 var _pass: Button
@@ -61,6 +66,10 @@ func refresh() -> void:
 		_picked.clear()
 	else:
 		_picked.assign(_picked.filter(func(n: int) -> bool: return not _is_revealed(n)))
+	if not _staff_acting():
+		_slot.clear()
+	else:
+		_slot.assign(_slot.filter(func(c: int) -> bool: return c in _k.hand))
 	_announce()
 	_draw_clock()
 	_draw_decks()
@@ -153,7 +162,10 @@ func _build() -> void:
 	_row = HFlowContainer.new()
 	_row.add_theme_constant_override(&"h_separation", 8)
 	_row.add_theme_constant_override(&"v_separation", 8)
+	_row.mouse_filter = Control.MOUSE_FILTER_PASS
 	row_box.add_child(_row)
+	row_box.mouse_filter = Control.MOUSE_FILTER_STOP
+	row_box.set_drag_forwarding(Callable(), can_drop_row, drop_row)
 	mid.add_child(row_box)
 
 	var low := HBoxContainer.new()
@@ -199,7 +211,23 @@ func _build() -> void:
 	_hand.add_theme_constant_override(&"h_separation", 8)
 	_hand.add_theme_constant_override(&"v_separation", 8)
 	hand_box.add_child(_hand)
+	hand_box.set_drag_forwarding(Callable(), can_drop_hand, drop_hand)
 	bottom.add_child(hand_box)
+	_slot_panel = PanelContainer.new()
+	_slot_panel.custom_minimum_size = Vector2(CARD_SIZE.x * 2 + 40, 0)
+	_slot_panel.add_theme_stylebox_override(&"panel", Style.box(Color(Style.POSTIT, 0.35), 10, Style.POSTIT, 2))
+	_slot_panel.set_drag_forwarding(Callable(), can_drop_slot, drop_slot)
+	var slot_box := VBoxContainer.new()
+	slot_box.mouse_filter = Control.MOUSE_FILTER_PASS
+	_slot_title = _text("", 20, true)
+	slot_box.add_child(_slot_title)
+	_slot_cards = HFlowContainer.new()
+	_slot_cards.mouse_filter = Control.MOUSE_FILTER_PASS
+	_slot_cards.add_theme_constant_override(&"h_separation", 6)
+	_slot_cards.add_theme_constant_override(&"v_separation", 6)
+	slot_box.add_child(_slot_cards)
+	_slot_panel.add_child(slot_box)
+	bottom.add_child(_slot_panel)
 	_pass = _big_button(tr("BTN_PASS"), _on_pass)
 	bottom.add_child(_pass)
 	_guess = _big_button(tr("BTN_GUESS"), _on_guess)
@@ -226,6 +254,8 @@ func _draw_clock() -> void:
 		var color := Color(Style.INK, 0.08)
 		if known.has(n):
 			color = Style.ALERT if known[n] else Style.PARTITION
+		elif _staff_acting() and n > session.m.last_card() and n <= session.m.reach(_slot):
+			color = Style.POSTIT
 		cell.add_theme_stylebox_override(&"panel", Style.box(color, 3))
 		cell.tooltip_text = _time(n)
 		_clock.add_child(cell)
@@ -330,21 +360,38 @@ func open_numbers() -> Dictionary:
 
 func _draw_hand() -> void:
 	_clear(_hand)
-	var places := _moves_of(A.PLACE)
+	_clear(_slot_cards)
+	var staff := session.human == S.STAFF
+	var acting := _staff_acting()
 	for c in _sorted(_k.hand):
-		var b := Button.new()
-		b.custom_minimum_size = CARD_SIZE
-		b.add_theme_font_size_override(&"font_size", 20)
-		var spr := Cards.sprint_of(c)
-		b.text = "%s\n%d" % [Cards.time_text(c), c]
-		if spr > 0:
-			b.text += "\n" + tr("SPRINT_VALUE") % spr
-		var mv := _find(places, &"card", c)
-		b.disabled = session.human == S.STAFF and mv.is_empty() and not places.is_empty()
+		var b := _card_button(c)
+		if c in _slot:
+			b.pressed.connect(_unslot.bind(c))
+			_slot_cards.add_child(b)
+			continue
+		var mv := place_move(c) if acting else {}
+		b.disabled = staff and mv.is_empty() and not (acting and Cards.sprint_of(c) > 0)
 		if not mv.is_empty():
 			b.theme_type_variation = &"AccentButton"
 			b.pressed.connect(_play.bind(mv))
+		if acting:
+			b.set_drag_forwarding(_drag_card.bind(c), Callable(), Callable())
 		_hand.add_child(b)
+	_slot_panel.visible = staff
+	var bonus := 0
+	for c in _slot:
+		bonus += Cards.sprint_of(c)
+	_slot_title.text = tr("SLOT_TITLE") % bonus if not _slot.is_empty() else tr("SLOT_HINT")
+
+
+func _card_button(c: int) -> Button:
+	var b := Button.new()
+	b.custom_minimum_size = CARD_SIZE
+	b.add_theme_font_size_override(&"font_size", 20)
+	b.text = "%s\n%d" % [Cards.time_text(c), c]
+	if Cards.sprint_of(c) > 0:
+		b.text += "\n" + tr("SPRINT_VALUE") % Cards.sprint_of(c)
+	return b
 
 
 func _draw_actions() -> void:
@@ -369,8 +416,7 @@ func _status_text() -> String:
 			return tr("STATUS_MANHUNT")
 	if session.human == S.CHIEF:
 		return tr("STATUS_GUESS")
-	var all_sprints := _k.hand.filter(func(c: int) -> bool: return Cards.sprint_of(c) > 0)
-	var range_text := [_time(mini(m.last_card() + 1, Cards.LAST)), _time(mini(m.reach(all_sprints), Cards.LAST))]
+	var range_text := [_time(mini(m.last_card() + 1, Cards.LAST)), _time(mini(m.reach(_slot), Cards.LAST))]
 	if _moves_of(A.PASS).is_empty():
 		return tr("STATUS_PLACE") % range_text
 	return tr("STATUS_PLACE_OR_PASS") % range_text
@@ -420,6 +466,68 @@ func _play(mv: Dictionary) -> void:
 	if session.play(mv):
 		_picked.clear()
 		refresh()
+
+
+func _staff_acting() -> bool:
+	return session.human == S.STAFF and session.waiting_for_human() and session.m.phase == Match.Phase.ACT
+
+
+## 뛰기 칸의 카드를 함께 내는 기록. 칸이 모자라면 가장 적은 묶음을 쓴다. 못 내면 빈 사전.
+func place_move(c: int) -> Dictionary:
+	if not _staff_acting() or c in _slot:
+		return {}
+	var mv := { side = S.STAFF, action = A.PLACE, card = c, sprints = _slot.duplicate() }
+	if session.m.is_legal(mv):
+		return mv
+	return _find(_moves_of(A.PLACE), &"card", c)
+
+
+func _drag_card(_at: Vector2, c: int) -> Variant:
+	if not _staff_acting():
+		return null
+	var preview := _card_button(c)
+	preview.modulate.a = 0.8
+	set_drag_preview(preview)
+	return { card = c }
+
+
+func _dragged(data: Variant) -> int:
+	if data is Dictionary and data.get(&"card", -1) in _k.hand:
+		return data.card
+	return -1
+
+
+func can_drop_row(_at: Vector2, data: Variant) -> bool:
+	var c := _dragged(data)
+	return c >= 0 and not place_move(c).is_empty()
+
+
+func drop_row(_at: Vector2, data: Variant) -> void:
+	_play(place_move(_dragged(data)))
+
+
+func can_drop_slot(_at: Vector2, data: Variant) -> bool:
+	var c := _dragged(data)
+	return _staff_acting() and c >= 0 and Cards.sprint_of(c) > 0 and not c in _slot
+
+
+func drop_slot(_at: Vector2, data: Variant) -> void:
+	if can_drop_slot(_at, data):
+		_slot.append(_dragged(data))
+		refresh()
+
+
+func can_drop_hand(_at: Vector2, data: Variant) -> bool:
+	return _dragged(data) in _slot
+
+
+func drop_hand(_at: Vector2, data: Variant) -> void:
+	_unslot(_dragged(data))
+
+
+func _unslot(c: int) -> void:
+	_slot.erase(c)
+	refresh()
 
 
 func _on_memo(n: int) -> void:
