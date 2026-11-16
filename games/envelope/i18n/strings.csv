@@ -7,3 +7,16 @@ TITLE_SEED,시드,Seed
 TITLE_LANGUAGE,English,한국어
 TABLE_PLACEHOLDER,"테이블 화면은 다음 PR에서 만든다 (%d명, 시드 %d)","Table screen comes next (%d players, seed %d)"
 BACK_TO_TITLE,제목으로,Back to Title
+CARD_NEWBIE,관종 신입,Attention-Seeking Intern
+CARD_THIEF,봉투 털이,The Skimmer
+CARD_BUDDY,단짝 동기,Work Bestie
+CARD_MISER,구두쇠,Penny Pincher
+CARD_CHAIR,총무,Organizer
+CARD_ACCOUNTANT,경리,Bookkeeper
+CARD_HR,인사팀,HR
+CARD_SNIFFER,눈치왕,Office Gossip
+CARD_BUSYBODY,오지랖,Busybody
+CARD_BROADCAST,사내 방송,All-Staff Email
+CARD_SUPPLIES,비품 담당,Supply Clerk
+CARD_BOSS,부장님,The Director
+CARD_QUITTER,퇴사 예정자,Two Weeks' Notice
