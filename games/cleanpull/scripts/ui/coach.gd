@@ -48,7 +48,7 @@ class _Shade extends ColorRect:
 	var coach: Coach
 
 	func _has_point(point: Vector2) -> bool:
-		return not coach.current_rect().has_point(point)
+		return coach.waiting_for() == &"tap" or not coach.current_rect().has_point(point)
 
 	func _gui_input(event: InputEvent) -> void:
 		var b := event as InputEventMouseButton
@@ -75,8 +75,10 @@ func _ready() -> void:
 	add_child(_shade)
 	_bubble = PanelContainer.new()
 	_bubble.add_theme_stylebox_override(&"panel", Style.box(Style.LINEN, 24, Style.CANDLE, 4))
+	_bubble.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_bubble)
 	var row := HBoxContainer.new()
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_theme_constant_override(&"separation", 28)
 	_bubble.add_child(row)
 	_icon = TextureRect.new()
@@ -85,7 +87,9 @@ func _ready() -> void:
 	_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_icon.modulate = Style.NIGHT
 	row.add_child(_icon)
+	_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var col := VBoxContainer.new()
+	col.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_theme_constant_override(&"separation", 10)
 	row.add_child(col)
 	_text = Label.new()
@@ -94,6 +98,7 @@ func _ready() -> void:
 	_text.add_theme_color_override(&"font_color", Style.NIGHT)
 	col.add_child(_text)
 	var foot := HBoxContainer.new()
+	foot.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	foot.add_theme_constant_override(&"separation", 40)
 	col.add_child(foot)
 	_dots = Label.new()
