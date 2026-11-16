@@ -80,3 +80,28 @@ func test_ai_waits_while_help_is_open() -> void:
 	assert_int(t.session.events.size()).is_greater(before)
 	t._timer.stop()
 	remove_child(t)
+
+
+func test_keyboard_focus_stays_inside_help() -> void:
+	var title: Control = auto_free(preload("res://scenes/screens/title.tscn").instantiate())
+	add_child(title)
+	var start := get_viewport().gui_get_focus_owner()
+	assert_object(start).is_not_null()
+	title.help.open()
+	var focus := get_viewport().gui_get_focus_owner()
+	assert_bool(title.help.is_ancestor_of(focus)).is_true()
+	var seen := {}
+	for i in 12:
+		focus = focus.find_prev_valid_focus()
+		assert_bool(title.help.is_ancestor_of(focus)).is_true()
+		focus = focus.find_next_valid_focus().find_next_valid_focus()
+		assert_bool(title.help.is_ancestor_of(focus)).is_true()
+		seen[focus] = true
+	for dir in [SIDE_LEFT, SIDE_RIGHT, SIDE_TOP, SIDE_BOTTOM]:
+		for c in seen:
+			var path: NodePath = (c as Control).get_focus_neighbor(dir)
+			if not path.is_empty():
+				assert_bool(title.help.is_ancestor_of((c as Control).get_node(path)) or (c as Control).get_node(path) == c).is_true()
+	title.help.close()
+	assert_object(get_viewport().gui_get_focus_owner()).is_same(start)
+	remove_child(title)

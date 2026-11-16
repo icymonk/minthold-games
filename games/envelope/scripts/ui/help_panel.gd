@@ -9,6 +9,8 @@ const TABS := [&"FIRST", &"RULES", &"CARDS"]
 var tab: StringName = &"RULES"
 var _body: VBoxContainer
 var _tabs: HBoxContainer
+var _close_button: Button
+var _return_focus: Control
 
 
 func _init() -> void:
@@ -41,23 +43,30 @@ func _init() -> void:
 	_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_body.add_theme_constant_override(&"separation", 14)
 	scroll.add_child(_body)
-	var close_button := Button.new()
-	close_button.text = tr("HELP_CLOSE")
-	close_button.theme_type_variation = &"AccentButton"
-	close_button.custom_minimum_size = Vector2(0, 60)
-	close_button.add_theme_font_size_override(&"font_size", 26)
-	close_button.pressed.connect(close)
-	col.add_child(close_button)
+	_close_button = Button.new()
+	_close_button.text = tr("HELP_CLOSE")
+	_close_button.theme_type_variation = &"AccentButton"
+	_close_button.custom_minimum_size = Vector2(0, 60)
+	_close_button.add_theme_font_size_override(&"font_size", 26)
+	_close_button.pressed.connect(close)
+	col.add_child(_close_button)
 
 
 func open(which: StringName = &"RULES") -> void:
+	if not visible:
+		_return_focus = get_viewport().gui_get_focus_owner() if is_inside_tree() else null
 	tab = which
 	visible = true
 	_render()
+	if is_inside_tree():
+		_close_button.grab_focus()
 
 
 func close() -> void:
 	visible = false
+	if is_instance_valid(_return_focus) and _return_focus.is_visible_in_tree():
+		_return_focus.grab_focus()
+	_return_focus = null
 	closed.emit()
 
 
@@ -68,10 +77,10 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _render() -> void:
-	for c in _tabs.get_children():
-		c.free()
-	for c in _body.get_children():
-		c.free()
+	for box in [_tabs, _body]:
+		for c in box.get_children():
+			box.remove_child(c)
+			c.queue_free()
 	for t in TABS:
 		var b := Button.new()
 		b.text = tr("HELP_TAB_%s" % t)
@@ -81,12 +90,30 @@ func _render() -> void:
 		b.add_theme_font_size_override(&"font_size", 24)
 		b.pressed.connect(open.bind(t))
 		_tabs.add_child(b)
+	_trap_focus()
 	match tab:
 		&"CARDS":
 			for id in Cards.DEFS:
 				_body.add_child(_card_row(id))
 		_:
 			_body.add_child(_text(26, false, tr("HELP_%s" % tab)))
+
+
+## 도움말이 열려 있는 동안 키보드 포커스가 뒤 화면으로 빠져나가지 않게 한다.
+func _trap_focus() -> void:
+	var first: Button = _tabs.get_child(0)
+	var last: Button = _tabs.get_child(_tabs.get_child_count() - 1)
+	first.focus_previous = first.get_path_to(_close_button)
+	_close_button.focus_next = _close_button.get_path_to(first)
+	first.focus_neighbor_left = first.get_path_to(first)
+	last.focus_neighbor_right = last.get_path_to(last)
+	_close_button.focus_neighbor_top = _close_button.get_path_to(first)
+	_close_button.focus_neighbor_bottom = _close_button.get_path_to(_close_button)
+	_close_button.focus_neighbor_left = _close_button.get_path_to(_close_button)
+	_close_button.focus_neighbor_right = _close_button.get_path_to(_close_button)
+	for b: Button in _tabs.get_children():
+		b.focus_neighbor_top = b.get_path_to(b)
+		b.focus_neighbor_bottom = b.get_path_to(_close_button)
 
 
 func _card_row(id: int) -> Control:
