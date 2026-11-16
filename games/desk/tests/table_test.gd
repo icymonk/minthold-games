@@ -66,3 +66,17 @@ func test_table_shows_result_for_staff() -> void:
 	_finish(t.session, t.refresh)
 	assert_bool(t._overlay.visible).is_true()
 	Game.role = before
+
+
+func test_big_hand_wraps_inside_screen() -> void:
+	var before: int = Game.role
+	Game.role = Game.Role.CHIEF
+	Game.rng = RngStreams.new(4)
+	var t: Control = auto_free(TABLE.instantiate())
+	add_child(t)
+	t.size = Vector2(1920, 1080)
+	t.session.m.hands[S.CHIEF].assign(range(4, 29))
+	t.refresh()
+	await await_idle_frame()
+	assert_float(t._guess.get_global_rect().end.x).is_less_equal(1920.0)
+	Game.role = before

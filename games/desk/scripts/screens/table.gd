@@ -17,7 +17,7 @@ var _decks: HBoxContainer
 var _row: HFlowContainer
 var _memo_box: VBoxContainer
 var _memo: GridContainer
-var _hand: HBoxContainer
+var _hand: HFlowContainer
 var _status: Label
 var _log: Label
 var _pass: Button
@@ -165,8 +165,9 @@ func _build() -> void:
 	var hand_box := VBoxContainer.new()
 	hand_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	hand_box.add_child(_text(tr("HAND_TITLE"), 22, true))
-	_hand = HBoxContainer.new()
-	_hand.add_theme_constant_override(&"separation", 8)
+	_hand = HFlowContainer.new()
+	_hand.add_theme_constant_override(&"h_separation", 8)
+	_hand.add_theme_constant_override(&"v_separation", 8)
 	hand_box.add_child(_hand)
 	bottom.add_child(hand_box)
 	_pass = _big_button(tr("BTN_PASS"), _on_pass)
