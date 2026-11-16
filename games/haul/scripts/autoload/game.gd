@@ -11,12 +11,12 @@ const SCREENS := {
 
 const SETTINGS_PATH := "user://settings.cfg"
 const SFX := {
-	&"thud": preload("res://assets/sfx/thud.wav"),
-	&"pick": preload("res://assets/sfx/pick.wav"),
-	&"slide": preload("res://assets/sfx/slide.wav"),
-	&"error": preload("res://assets/sfx/error.wav"),
-	&"rotate": preload("res://assets/sfx/rotate.wav"),
-	&"chime": preload("res://assets/sfx/chime.wav"),
+	&"thud": preload("res://assets/sfx/thud.ogg"),
+	&"pick": preload("res://assets/sfx/pick.ogg"),
+	&"slide": preload("res://assets/sfx/slide.ogg"),
+	&"error": preload("res://assets/sfx/error.ogg"),
+	&"rotate": preload("res://assets/sfx/rotate.ogg"),
+	&"chime": preload("res://assets/sfx/chime.ogg"),
 	&"engine": preload("res://assets/sfx/engine.wav"),
 }
 

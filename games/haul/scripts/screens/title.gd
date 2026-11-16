@@ -54,8 +54,13 @@ func _process(_delta: float) -> void:
 
 
 func _draw() -> void:
-	Art.draw_cover(self, Art.BG, size)
-	var bay := Rect2(Vector2(size.x - 160 - 8 * PREVIEW_CELL, 470), Vector2(8, 4) * PREVIEW_CELL)
+	var bay := Rect2(Vector2(size.x - 160 - 8 * PREVIEW_CELL, 520), Vector2(8, 4) * PREVIEW_CELL)
+	var floor_y := bay.end.y + 12 + Art.CAB_CHASSIS * Art.BAKE_SCALE * PREVIEW_CELL / 104.0 - 4
+	var t := Time.get_ticks_msec() / 1000.0
+	Art.draw_scene(self, size, floor_y, t)
+	var shade := Color(Style.DAWN_DEEP, 0.7)
+	draw_polygon(PackedVector2Array([Vector2.ZERO, Vector2(size.x * 0.6, 0), Vector2(size.x * 0.6, size.y), Vector2(0, size.y)]),
+		PackedColorArray([shade, Color(shade, 0), Color(shade, 0), shade]))
 	var bob := sin(Time.get_ticks_msec() / 400.0) * 2.0
 	draw_set_transform(Vector2(0, bob))
 	Art.draw_truck(self, bay, PREVIEW_CELL, 12)
