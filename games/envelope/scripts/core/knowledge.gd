@@ -15,6 +15,7 @@ var envelope: Array[int] = []
 var notes: Array = []      # seat → Array[int] uid
 var placed_by := {}
 var known := {}            # uid → Cards.Id
+var located := {}          # uid → 마지막으로 그 카드를 쥐고 있던 걸 본 seat (지금도 거기 있다는 보장은 없다)
 var thief_hint := Match.NO_HINT
 var request := {}
 
@@ -37,6 +38,7 @@ static func of(m: Match, s: int) -> Knowledge:
 	k.placed_by = m.placed_by.duplicate()
 	for uid in m.seen[s]:
 		k.known[uid] = m.kinds[uid]
+	k.located = m.located[s].duplicate()
 	k.thief_hint = m.sniffs[s]
 	k.request = m.request_for(s)
 	return k

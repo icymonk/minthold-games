@@ -201,3 +201,12 @@ func test_everyone_remembers_face_up_card_after_supplies_takes_it() -> void:
 	m.apply({ seat = 1, card = 3, action = A.PLAY })
 	m.answer(1, 0)
 	assert_int(Knowledge.of(m, 2).kind_of(0)).is_equal(C.HR)
+
+
+func test_boss_victim_knows_where_drawn_card_went() -> void:
+	var m := Match.from_hands([[C.BOSS, C.HR, C.CHAIR], [C.THIEF], [C.MISER, C.MISER]])
+	m.turn = 0
+	m.apply({ seat = 0, card = 0, action = A.PLAY })
+	m.answer(0, 1)
+	m.answer(0, 1)
+	assert_int(Knowledge.of(m, 1).located.get(3, -1)).is_equal(0)
