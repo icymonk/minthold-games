@@ -26,6 +26,7 @@ var _slots: HFlowContainer
 var _banner: Label
 var _shown_events := 0
 var result_step := 0
+var help: HelpPanel
 var _target_label: Label
 var _desk: PanelContainer
 var _desk_box: VBoxContainer
@@ -61,6 +62,9 @@ func _notification(what: int) -> void:
 
 
 func _on_tick() -> void:
+	if help.visible:
+		_timer.start()
+		return
 	session.ai_step()
 	refresh()
 
@@ -174,6 +178,24 @@ func _build() -> void:
 	_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_overlay)
 
+	var help_button := Button.new()
+	help_button.text = tr("TABLE_HELP")
+	help_button.custom_minimum_size = Vector2(64, 64)
+	help_button.add_theme_font_size_override(&"font_size", 30)
+	help_button.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	help_button.offset_left = -84
+	help_button.offset_right = -20
+	help_button.offset_top = 20
+	help_button.offset_bottom = 84
+	help_button.pressed.connect(func() -> void: help.open())
+	add_child(help_button)
+	help = HelpPanel.new()
+	help.closed.connect(refresh)
+	add_child(help)
+	if not Game.seen_intro:
+		help.open(&"FIRST")
+		Game.mark_intro_seen()
+
 
 func _k_players() -> int:
 	return session.m.players
@@ -243,6 +265,7 @@ func _draw_hand() -> void:
 		var sub := money(Cards.amount(kind)) if Cards.playable(kind) else tr("CARD_LOCKED")
 		b.text = "%s\n\n%s" % [tr(Cards.name_key(kind)), sub]
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		b.tooltip_text = HelpPanel.ability(kind)
 		b.disabled = not my_turn or not Cards.playable(kind)
 		if _asking(HAND_ASKS):
 			b.disabled = not uid in _k.request.options
@@ -458,7 +481,7 @@ func option_text(ask: StringName, o: Variant) -> String:
 
 
 func money(n: int) -> String:
-	return tr("MONEY_ZERO") if n == 0 else tr("CARD_AMOUNT") % n
+	return HelpPanel.money(n)
 
 
 func _seat_name(s: int) -> String:

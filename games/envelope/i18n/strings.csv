@@ -92,3 +92,25 @@ WIN_THIEF_WINS,봉투 털이가 이기면 승리,wins with the Skimmer
 WIN_FUND_FAILED,모금 실패면 승리,wins if the fund fails
 WIN_FUND_OK,모금 성공이면 승리,wins if funded
 WIN_NOBODY_WON,아무도 못 이기면 승리,wins if nobody else does
+TITLE_HELP,규칙·카드 사전,Rules & Cards
+TABLE_HELP,?,?
+HELP_CLOSE,닫기,Close
+HELP_TAB_FIRST,첫 판 안내,First Game
+HELP_TAB_RULES,규칙 요약,Rules
+HELP_TAB_CARDS,카드 사전,Cards
+HELP_CARD_META,"%s · %d장 · 우선순위 %d · %s","%s · %d in deck · priority %d · %s"
+HELP_FIRST,"김 대리 퇴사 선물 봉투가 책상을 돕니다. 그런데 팀장 중 누군가 봉투에서 돈을 빼 가고 있습니다.\n\n1. 아래 손패가 내 팀원들입니다. 카드를 눌러 고른 뒤 버튼으로 내거나, 봉투·책상으로 끌어다 놓으세요.\n2. 봉투 털이(범인) 카드는 낼 수 없습니다. 받았다면 끝까지 숨기세요.\n3. 손에 마지막 1장이 남으면 그 카드가 내 정체입니다. 무엇을 남길지 정하고, 그 카드의 승리 조건을 노리세요.\n4. 수상한 사람 책상에 금액이 큰 카드를 쪽지로 놓아 감사에 걸리게 하세요.\n5. 내 카드 위에 마우스를 올리면 능력이 보입니다.\n\n오른쪽 위 ? 버튼으로 언제든 규칙과 카드 사전을 다시 볼 수 있습니다.","Kim is leaving after twelve years, and the farewell gift envelope is going desk to desk. But one of the team leads is skimming it.\n\n1. Your hand at the bottom is your team. Click a card and press a button, or drag it onto the envelope or a desk.\n2. The Skimmer can't be played. If you have it, keep it hidden to the end.\n3. When one card is left in your hand, that card is who you are. Decide what to keep and play for its goal.\n4. Leave high-value cards as notes on a suspicious desk to get them caught in the audit.\n5. Hover a card to see its ability.\n\nUse the ? button at the top right any time to see the rules and cards again."
+HELP_RULES,"차례마다 손패 1장을 골라 셋 중 하나로 냅니다.\n· 내 책상에 앞면: 카드 능력을 씁니다.\n· 봉투에 뒷면: 금액만큼 모금됩니다.\n· 동료 책상에 뒷면(쪽지): 금액만큼 그 사람 의심 점수가 됩니다.\n손패가 1장 남은 사람은 더 차례가 없고, 그 카드가 정체가 됩니다. 모두 1장씩 남으면 결산합니다.\n\n결산\n1. 봉투 개봉: 봉투 금액이 목표액 이상이면 모금 성공.\n2. 감사: 쪽지 점수가 가장 높은 사람이 걸립니다. 같으면 모두 걸리고, 모두 같으면 아무도 안 걸립니다.\n3. 정체 공개: 우선순위 1부터 승리 조건을 확인합니다. 이긴 사람이 나온 순위에서 끝나고, 같은 순위는 함께 이깁니다.\n아무도 못 이기면 선물은 없었다. 단, 퇴사 예정자가 있으면 그가 이깁니다.","Each turn, pick one card from your hand and play it one of three ways.\n· Face up on your desk: use its ability.\n· Face down into the envelope: adds its value to the fund.\n· Face down on a coworker's desk (a note): adds its value to their suspicion.\nOnce you have one card left you're done, and that card is who you are. When everyone has one card, the game ends.\n\nResults\n1. Opening the Envelope: the gift is funded if the envelope reaches the goal.\n2. The Audit: whoever has the most suspicion is caught. Ties are all caught; if everyone ties, nobody is.\n3. The Reveal: goals are checked from priority 1 down. The first priority with a winner ends it, and everyone at that priority wins together.\nIf nobody wins there is no gift, unless someone holds Two Weeks' Notice, who wins instead."
+ABILITY_NEWBIE,능력 없음. 쥐고 있으면 눈치왕 눈에 범인처럼 보일 수 있다,"No ability. While you hold it, the Office Gossip may take you for the Skimmer"
+ABILITY_THIEF,낼 수 없다. 남의 능력으로만 손을 떠난다,Can't be played. It only leaves your hand through other abilities
+ABILITY_BUDDY,누군가 앞의 쪽지 1장을 다른 사람 앞으로 옮긴다,Move one note from someone's desk to someone else's
+ABILITY_MISER,"다음 내 차례 시작에 아직 내 앞에 있으면, 봉투에서 1장을 손으로 가져온다","If it's still face up at the start of your next turn, take one card from the envelope into your hand"
+ABILITY_CHAIR,능력 없음. 쥐고 있는 사람이 첫 차례를 한다,No ability. Whoever holds it takes the first turn
+ABILITY_ACCOUNTANT,봉투 속 카드를 넣은 순서대로 모두 본다,"See every card in the envelope, in the order they went in"
+ABILITY_HR,다른 한 사람의 손패를 모두 본다,Look at another player's whole hand
+ABILITY_SNIFFER,봉투 털이를 쥔 사람이 누군지 나만 안다,Secretly learn who holds the Skimmer
+ABILITY_BUSYBODY,다른 한 사람과 1장씩 골라 뒷면으로 맞바꾼다,Each of you picks a card and you swap them face down with another player
+ABILITY_BROADCAST,모두 1장씩 골라 왼쪽 사람에게 넘긴다 (1장 남은 사람은 건너뜀),Everyone passes one card to the left (players with one card are skipped)
+ABILITY_SUPPLIES,다른 사람 앞의 앞면 카드 1장(비품 담당 제외)을 내 손으로 가져온다,Take a face-up card (not a Supply Clerk) from someone else's desk into your hand
+ABILITY_BOSS,"다른 사람 손에서 무작위 1장을 뽑고, 그 사람에게 1장 돌려준다 (뽑은 것도 가능)","Draw a random card from someone's hand, then give them one back (it can be the same card)"
+ABILITY_QUITTER,봉투 속 1장(위치만 보고)과 내 손 1장을 바꾼다,Swap a card in your hand with one in the envelope (you only see its position)
