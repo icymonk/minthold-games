@@ -13,6 +13,8 @@ const NONE := -1
 
 var decks: Array = []                 # zone → Array[int], 맨 뒤가 맨 위
 var hands: Array = []                 # side → Array[int]
+## 구역마다 사원이 처음 받은 장수(규칙상 공개 정보).
+var start_counts: Array[int] = []
 ## 가운데 줄. 0번은 시작 기록(17:18, 앞면). { card, sprints: Array[int], revealed }
 var hideouts: Array[Dictionary] = []
 var side := Side.STAFF
@@ -46,6 +48,8 @@ static func deal(deal_rng: RandomNumberGenerator) -> Match:
 static func setup(staff_hand: Array, decks_by_zone: Array, chief_hand: Array = []) -> Match:
 	var m := Match.new()
 	m.hands = [_ints(staff_hand), _ints(chief_hand)]
+	for z in Cards.ZONE_RANGES:
+		m.start_counts.append(staff_hand.filter(func(c: int) -> bool: return Cards.zone_of(c) == z).size())
 	for d in decks_by_zone:
 		m.decks.append(_ints(d))
 	m.hideouts.append({ card = 0, sprints = [] as Array[int], revealed = true })
