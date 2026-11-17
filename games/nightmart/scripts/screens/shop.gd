@@ -5,6 +5,8 @@ const COACH_STEPS := [
 	{"id": &"buy_tip", "text": "COACH_BUY_TIP", "icon": Art.HAND, "wait": &"bought_tip"},
 ]
 
+const OWNED_WIDTH := 168
+
 var run: Run
 var _coach: Coach
 var _tip_row: HBoxContainer
@@ -45,13 +47,14 @@ func _build() -> void:
 		var o := run.shop.offers[i]
 		_offer(_tip_row if o.kind in [Shop.TIP, Shop.EXPANSION] else other, i, o)
 	var owned := _row()
-	owned.custom_minimum_size.y = 112
+	owned.name = "Owned"
+	owned.add_theme_constant_override(&"separation", 16)
 	for i in run.tips.size():
-		_small(owned, "%s · %s" % [Names.tip(run.tips[i].id), tr("SHOP_SELL") % Names.money(run.sell_price(i))], _sell.bind(i))
+		_small(owned, "%s\n%s" % [Names.tip(run.tips[i].id), tr("SHOP_SELL") % Names.money(run.sell_price(i))], _sell.bind(i))
 	for i in run.consumables.size():
-		_small(owned, "%s · %s" % [tr("PARCEL_NAME") % Names.combo(run.consumables[i]), tr("SHOP_OPEN")], _open.bind(i))
+		_small(owned, "%s\n%s" % [tr("PARCEL_NAME") % Names.combo(run.consumables[i]), tr("SHOP_OPEN")], _open.bind(i))
 	for e in run.expansions:
-		_text(owned, Names.expansion(e.id), 32, Style.NEON)
+		_small(owned, Names.expansion(e.id), Callable()).disabled = true
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_list.add_child(spacer)
@@ -93,14 +96,19 @@ func _offer(row: HBoxContainer, i: int, o: Dictionary) -> void:
 		c.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
-func _small(row: HBoxContainer, text: String, on_pressed: Callable) -> void:
+## 가진 물건 칸. 꿀팁 5 + 택배 2 + 확장이 다 차도 한 줄에 들어가게 폭을 고정한다.
+func _small(row: HBoxContainer, text: String, on_pressed: Callable) -> Button:
 	var b := Button.new()
 	b.text = text
-	b.custom_minimum_size.y = 112
-	b.add_theme_font_size_override(&"font_size", 32)
-	b.pressed.connect(func() -> void: Sfx.play(&"click"))
-	b.pressed.connect(on_pressed)
+	b.custom_minimum_size = Vector2(OWNED_WIDTH, 112)
+	b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	b.clip_text = true
+	b.add_theme_font_size_override(&"font_size", 24)
+	if on_pressed.is_valid():
+		b.pressed.connect(func() -> void: Sfx.play(&"click"))
+		b.pressed.connect(on_pressed)
 	row.add_child(b)
+	return b
 
 
 func _build_pack() -> void:

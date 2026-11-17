@@ -50,6 +50,19 @@ func test_shop_buys_tip() -> void:
 	assert_array(_texts(shop)).contains([tr("SHOP_SOLD")])
 
 
+func test_shop_full_inventory_fits_screen() -> void:
+	var run := _shop_run()
+	for id in [&"waste_snack", &"row_obsessed", &"boss_nephew", &"same_aisle", &"last_five"]:
+		run.tips.append(Tips.make(id))
+	run.consumables.assign([Combo.Kind.STRAIGHT_FLUSH, Combo.Kind.FULL_HOUSE])
+	for id in Expansions.MAKERS:
+		run.expansions.append(Expansions.make(id))
+	var shop := _screen(SHOP)
+	var owned: HBoxContainer = shop.find_child("Owned", true, false)
+	assert_int(owned.get_child_count()).is_equal(5 + 2 + Expansions.MAKERS.size())
+	assert_float(owned.get_combined_minimum_size().x).is_less_equal(1920 * 0.9)
+
+
 func test_shop_pack_pick_adds_card() -> void:
 	var run := _shop_run()
 	var shop := _screen(SHOP)
