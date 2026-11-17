@@ -10,11 +10,13 @@ const SCREENS := {
 
 var run_seed := 0
 var rng: RngStreams
+var run: Run
 
 
 func start_run(seed_value: int) -> void:
 	run_seed = seed_value
 	rng = RngStreams.new(run_seed)
+	run = Run.new(run_seed)
 	goto(&"counter")
 
 

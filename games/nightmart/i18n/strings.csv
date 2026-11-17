@@ -26,3 +26,20 @@ COMBO_FLUSH,같은 코너,Same Aisle
 COMBO_FULL_HOUSE,세트 메뉴,Combo Meal
 COMBO_FOUR,박스째,Whole Box
 COMBO_STRAIGHT_FLUSH,완벽 진열,Perfect Shelf
+SLOT_0,일반 손님,Customer
+SLOT_1,단골,Regular
+SLOT_2,진상 손님,Nightmare Customer
+COUNTER_NIGHT,%d일째 · %s,Night %d · %s
+COUNTER_TARGET,목표 %s,Target %s
+COUNTER_MONEY,%s원,₩%s
+END_CLEARED,손님 보냄!,Customer served!
+END_PAY_PAYOUT,손님 값,Customer
+END_PAY_LEFTOVER,남은 계산,Unused checkouts
+END_PAY_OVERKILL,목표 초과,Over target
+END_PAY_INTEREST,이자,Interest
+END_PAY_TIPS,꿀팁,Tips
+END_NEXT,다음 손님,Next customer
+END_LOST,영업 끝,Shift over
+END_LOST_DETAIL,목표 %s 중 %s,Target %s · got %s
+END_WON,정직원 됐어요!,You got the job!
+END_RETRY,다시 하기,Play again
