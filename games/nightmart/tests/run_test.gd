@@ -254,6 +254,9 @@ func test_shop_discount_halves_one_purchase() -> void:
 	assert_bool(run.buy(0)).is_true()
 	assert_int(run.money).is_equal(100000 - Shop.PRICES[Shop.TIP] / 2)
 	assert_int(run.price_of(1)).is_equal(Shop.PRICES[Shop.TIP])
+	var money := run.money
+	assert_bool(run.sell_tip(0)).is_true()
+	assert_int(run.money - money).is_equal(Shop.PRICES[Shop.TIP] / 4)
 
 
 func test_free_reroll_costs_nothing_once() -> void:

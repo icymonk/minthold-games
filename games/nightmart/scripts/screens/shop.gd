@@ -47,7 +47,7 @@ func _build() -> void:
 	var owned := _row()
 	owned.custom_minimum_size.y = 112
 	for i in run.tips.size():
-		_small(owned, "%s · %s" % [Names.tip(run.tips[i].id), tr("SHOP_SELL") % Names.money(Shop.PRICES[Shop.TIP] / 2)], _sell.bind(i))
+		_small(owned, "%s · %s" % [Names.tip(run.tips[i].id), tr("SHOP_SELL") % Names.money(run.sell_price(i))], _sell.bind(i))
 	for i in run.consumables.size():
 		_small(owned, "%s · %s" % [tr("PARCEL_NAME") % Names.combo(run.consumables[i]), tr("SHOP_OPEN")], _open.bind(i))
 	for e in run.expansions:

@@ -127,7 +127,9 @@ func buy(index: int) -> bool:
 	o.sold = true
 	match o.kind:
 		Shop.TIP:
-			tips.append(Tips.make(o.id))
+			var tip := Tips.make(o.id)
+			tip.set_meta(&"paid", price)
+			tips.append(tip)
 		Shop.PARCEL:
 			consumables.append(o.id)
 		Shop.EXPANSION:
@@ -179,10 +181,15 @@ func reroll() -> bool:
 func sell_tip(index: int) -> bool:
 	if index < 0 or index >= tips.size() or phase in [Phase.WON, Phase.LOST]:
 		return false
+	money += sell_price(index)
 	shift.hooks.erase(tips[index])
 	tips.remove_at(index)
-	money += Shop.PRICES[Shop.TIP] / 2
 	return true
+
+
+## 산 값의 절반. 반값으로 산 꿀팁은 그 값의 절반이다.
+func sell_price(index: int) -> int:
+	return int(tips[index].get_meta(&"paid", Shop.PRICES[Shop.TIP])) / 2
 
 
 ## 택배를 뜯어 그 조합을 1레벨 올린다. 손님을 받는 중에도 쓸 수 있다.
