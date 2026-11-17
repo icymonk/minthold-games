@@ -144,8 +144,13 @@ func test_routine_stacks_same_combo() -> void:
 func test_veteran_grows_per_customer() -> void:
 	var vet := Tips.make(&"veteran")
 	var hooks: Array[Hook] = [vet]
+	assert_float(Receipt.ring_up(Card.parse("g9"), {}, hooks, [], 1, true).satisfaction).is_equal(1.0)
 	for i in 3:
-		Shift.new(Card.standard_deck(), 1, RandomNumberGenerator.new(), hooks)
+		var shift := Shift.new(Card.standard_deck(), 999999, RandomNumberGenerator.new(), hooks)
+		shift.play([shift.hand[0]])
+	# 건너뛴 손님(계산 없이 다음 손님)은 안 센다
+	Shift.new(Card.standard_deck(), 1, RandomNumberGenerator.new(), hooks)
+	Shift.new(Card.standard_deck(), 1, RandomNumberGenerator.new(), hooks)
 	assert_float(Receipt.ring_up(Card.parse("g9"), {}, hooks).satisfaction).is_equal_approx(1.3, 0.0001)
 
 

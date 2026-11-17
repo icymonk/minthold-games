@@ -163,4 +163,4 @@ TIP_ORDER_DESC,진열 줄이면 만족 ×3,Shelf Row: Satisfaction ×3
 TIP_TRIBE,코너 사수,Aisle Keeper
 TIP_TRIBE_DESC,같은 코너면 만족 ×2,Same Aisle: Satisfaction ×2
 TIP_VETERAN,경력직,Veteran
-TIP_VETERAN_DESC,손님을 받을 때마다 만족 ×0.1씩 커짐,Satisfaction multiplier grows ×0.1 per customer
+TIP_VETERAN_DESC,손님을 보낼 때마다 만족 ×0.1씩 커짐 (×1부터),Satisfaction ×0.1 more per customer served (from ×1)

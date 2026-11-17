@@ -443,13 +443,18 @@ class Tribe:
 			r.multiply(id, 2.0)
 
 
-## 경력직: 손님을 받을 때마다 만족 ×0.1씩 커진다(×1부터)
+## 경력직: 계산한 손님을 보낼 때마다 만족 ×0.1씩 커진다(×1부터). 건너뛴 손님은 안 센다.
 class Veteran:
 	extends Hook
 	var served := 0
+	var checked_out := false
 
 	func on_shift_start(_shift: Shift) -> void:
-		served += 1
+		if checked_out:
+			served += 1
+		checked_out = false
 
 	func on_checkout(r: Receipt) -> void:
 		r.multiply(id, 1.0 + 0.1 * served)
+		if not r.preview:
+			checked_out = true
