@@ -49,9 +49,8 @@ static func roll(rng: RandomNumberGenerator, nights: int) -> Array[StringName]:
 class CardOnly:
 	extends Hook
 
-	func on_score_card(r: Receipt, c: Card) -> void:
-		if c.corner == Card.GOODS:
-			r.add(id, -c.rank * Receipt.PRICE_UNIT, 0)
+	func modify_rules(rules: Combo.Rules) -> void:
+		rules.price_mult[Card.GOODS] = 0.0
 
 
 ## 1+1 따지는 손님: 1+1·2+2는 0점

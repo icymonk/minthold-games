@@ -139,3 +139,8 @@ func test_chilled_tag_starts_shelf_life() -> void:
 	var milk := Card.new(Card.DRINK, 4)
 	milk.tag_with(Card.TAG_CHILLED)
 	assert_int(milk.shelf_life).is_equal(Card.PERISHABLE_LIFE)
+
+
+func test_card_only_zeroes_goods_even_in_rain() -> void:
+	var hooks: Array[Hook] = [Weather.make(&"rain"), Bosses.make(&"card_only")]
+	assert_int(Receipt.ring_up(Card.parse("g9"), {}, hooks).sales).is_equal(Receipt.ring_up(Card.parse("g9")).sales - 900)

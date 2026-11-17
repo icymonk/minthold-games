@@ -35,20 +35,20 @@ static func roll(rng: RandomNumberGenerator, nights: int) -> Array[StringName]:
 class Rain:
 	extends Hook
 
-	func on_score_card(r: Receipt, c: Card) -> void:
-		if c.corner == Card.GOODS:
-			r.add(id, c.rank * Receipt.PRICE_UNIT, 0)
+	func modify_rules(rules: Combo.Rules) -> void:
+		rules.price_mult[Card.GOODS] = rules.price_mult.get(Card.GOODS, 1.0) * 2.0
 
 
 ## 한파: 음료 카드 만족 +1, 간식 가격 절반
 class Cold:
 	extends Hook
 
+	func modify_rules(rules: Combo.Rules) -> void:
+		rules.price_mult[Card.SNACK] = rules.price_mult.get(Card.SNACK, 1.0) * 0.5
+
 	func on_score_card(r: Receipt, c: Card) -> void:
-		if c.corner == Card.DRINK:
+		if c.corner == Card.DRINK and not c.is_waste():
 			r.add(id, 0, 1)
-		elif c.corner == Card.SNACK:
-			r.add(id, -c.rank * Receipt.PRICE_UNIT / 2, 0)
 
 
 ## 월드컵: 음료와 간식이 함께 든 계산 만족 ×2, 목표 ×1.2
