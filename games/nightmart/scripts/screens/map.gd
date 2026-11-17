@@ -24,6 +24,8 @@ func _build() -> void:
 	_list.add_child(row)
 	for s in 3:
 		_customer(row, s)
+	var w := run.weather_id()
+	_label(tr("MAP_WEATHER") % [Names.weather(w), Names.weather_desc(w)], Style.BODY)
 	if not run.skip_tokens.is_empty():
 		_label(tr("MAP_TOKENS") % ", ".join(run.skip_tokens.map(Names.token)), Style.BODY).add_theme_color_override(&"font_color", Style.NEON)
 	var buttons := HBoxContainer.new()
@@ -42,16 +44,19 @@ func _customer(row: HBoxContainer, s: int) -> void:
 	var past := s < run.slot
 	col.get_parent().modulate.a = 0.45 if past else 1.0
 	_text(col, tr("SLOT_%d" % s), Style.HEADLINE, Style.ANGRY if s == Run.BOSS else Style.FLUORESCENT)
-	_text(col, Style.num(Run.target_for(run.night, s)), Style.SCORE * 2 / 3, Style.PRICE)
+	_text(col, Style.num(run.target_at(s)), Style.SCORE * 2 / 3, Style.PRICE)
 	_text(col, tr("COUNTER_TARGET") % "", Style.BODY, Color(Style.FLUORESCENT, 0.6))
 	if past:
 		var done := run.history.filter(func(h: Dictionary) -> bool: return h.night == run.night and h.slot == s)
 		var skipped: bool = not done.is_empty() and done[-1].skipped
 		_text(col, tr("MAP_SKIPPED") if skipped else tr("MAP_DONE"), Style.HEADLINE, Style.NEON)
 		return
-	_text(col, tr("MAP_REWARD") % Names.money(Run.PAYOUT[s]), Style.BODY)
+	_text(col, tr("MAP_REWARD") % Names.money(run.payout_at(s)), Style.BODY)
 	if s == Run.BOSS:
-		_text(col, tr("MAP_NO_SKIP"), Style.BODY, Color(Style.FLUORESCENT, 0.6))
+		_text(col, Names.boss(run.boss_id()), Style.BODY, Style.ANGRY)
+		var rule := _text(col, Names.boss_desc(run.boss_id()), Style.BODY, Color(Style.FLUORESCENT, 0.8))
+		rule.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		rule.custom_minimum_size.x = 440
 	elif now:
 		_text(col, tr("MAP_SKIP_GETS") % Names.token(run.skip_reward), Style.BODY, Style.NEON)
 

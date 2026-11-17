@@ -42,7 +42,7 @@ static func ring_up(played: Array[Card], levels: Dictionary = {}, hooks: Array[H
 	for c in played:
 		if c.is_waste():
 			continue
-		r.add(str(c), c.rank * PRICE_UNIT, 0)
+		r.add(str(c), int(c.rank * PRICE_UNIT * r.rules.price_mult.get(c.corner, 1.0)), 0)
 		match c.tag:
 			Card.TAG_DISCOUNT:
 				r.add("tag:discount", DISCOUNT_SALES, 0)

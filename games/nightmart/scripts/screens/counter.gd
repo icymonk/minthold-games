@@ -23,6 +23,7 @@ var _info: Label
 var _money: Label
 var _score: Label
 var _target: Label
+var _rule: Label
 var _combo: Label
 var _calc: Label
 var _checkout: Button
@@ -69,6 +70,10 @@ func _ready() -> void:
 	_score.add_theme_color_override(&"font_color", Style.PRICE)
 	_target = _label("", Style.BODY)
 	_target.reparent(left)
+	_rule = _label(rule_text(), Style.BODY)
+	_rule.reparent(left)
+	_rule.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_rule.add_theme_color_override(&"font_color", Style.ANGRY)
 	var right := _column(board)
 	_combo = _label("", Style.HEADLINE)
 	_combo.reparent(right)
@@ -124,6 +129,16 @@ func picked_cards() -> Array[Card]:
 	return out
 
 
+## 지금 손님에게 걸린 규칙: 진상 손님, 날씨
+func rule_text() -> String:
+	var lines: Array[String] = []
+	if run.slot == Run.BOSS:
+		lines.append("%s: %s" % [Names.boss(run.boss_id()), Names.boss_desc(run.boss_id())])
+	if run.weather_id() != Weather.CLEAR:
+		lines.append("%s: %s" % [Names.weather(run.weather_id()), Names.weather_desc(run.weather_id())])
+	return "\n".join(lines)
+
+
 func combo_text() -> String:
 	return _combo.text
 
@@ -148,7 +163,7 @@ func _sync_hand() -> void:
 		var c := run.shift.hand[i]
 		var node: ProductCard = have.get(c)
 		if node == null:
-			node = ProductCard.new().setup_card(c)
+			node = ProductCard.new().setup_card(c, run.shift.is_hidden(c))
 			node.toggled.connect(_on_card_toggled.bind(node))
 			node.modulate.a = 0.0
 			_hand.add_child(node)
@@ -230,6 +245,10 @@ func _refresh() -> void:
 		return
 	if cards.is_empty():
 		_combo.text = tr("COUNTER_HINT")
+		_calc.text = ""
+		return
+	if cards.any(s.is_hidden):
+		_combo.text = tr("COUNTER_HIDDEN")
 		_calc.text = ""
 		return
 	var r := s.preview(cards)

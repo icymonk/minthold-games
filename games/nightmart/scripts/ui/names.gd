@@ -27,6 +27,22 @@ static func flyer_desc(flyer_id: StringName) -> String:
 	return t("FLYER_%s_DESC" % String(flyer_id).to_upper())
 
 
+static func boss(boss_id: StringName) -> String:
+	return t("BOSS_%s" % String(boss_id).to_upper())
+
+
+static func boss_desc(boss_id: StringName) -> String:
+	return t("BOSS_%s_DESC" % String(boss_id).to_upper())
+
+
+static func weather(weather_id: StringName) -> String:
+	return t("WEATHER_%s" % String(weather_id).to_upper())
+
+
+static func weather_desc(weather_id: StringName) -> String:
+	return t("WEATHER_%s_DESC" % String(weather_id).to_upper())
+
+
 static func expansion(exp_id: StringName) -> String:
 	return t("EXP_%s" % String(exp_id).to_upper())
 

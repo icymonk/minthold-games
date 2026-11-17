@@ -191,3 +191,45 @@ FLYER_MATCH,짝 맞추기,Match Up
 FLYER_MATCH_DESC,고른 2장 중 왼쪽을 오른쪽과 똑같이,Turn the left of 2 chosen cards into the right one
 FLYER_CASH,사장님 용돈,Boss's Allowance
 FLYER_CASH_DESC,가진 돈만큼 더 받음 (최대 5000원),Double your money (max +₩5000)
+CARD_WASTE,폐기,Expired
+CARD_LIFE,D-%d,D-%d
+COUNTER_HIDDEN,뒷면 카드가 섞여서 미리 볼 수 없어요,Face-down card: no preview
+MAP_WEATHER,날씨 %s: %s,Weather %s: %s
+BOSS_CARD_ONLY,카드만 내미는 손님,Card-Only Customer
+BOSS_CARD_ONLY_DESC,생활 코너 가격은 매출 0,Goods prices add no sales
+BOSS_PAIR_PICKY,1+1 따지는 손님,BOGO Stickler
+BOSS_PAIR_PICKY_DESC,1+1·2+2는 0점,Buy One Get One and Two Pairs score 0
+BOSS_DRUNK,술 취한 손님,Drunk Customer
+BOSS_DRUNK_DESC,손패 -1장,Hand size -1
+BOSS_BAG,봉투 달라는 손님,Bag Asker
+BOSS_BAG_DESC,계산할 때마다 돈 -500원,-₩500 per checkout
+BOSS_BARCODE,바코드 안 찍힘,Barcode Won't Scan
+BOSS_BARCODE_DESC,첫 계산은 0점,First checkout scores 0
+BOSS_DIET,다이어트 중,On a Diet
+BOSS_DIET_DESC,간식 카드가 뒷면으로 나옴,Snack cards are face down
+BOSS_COINS,거스름돈 동전으로,Change in Coins
+BOSS_COINS_DESC,바꾸기 0번,No swaps
+BOSS_HURRY,급한 손님,Customer in a Hurry
+BOSS_HURRY_DESC,계산 -1번,-1 checkout
+BOSS_ARMFUL,한 아름 손님,Armful Customer
+BOSS_ARMFUL_DESC,한 번에 3장까지만 계산,Check out at most 3 cards at once
+BOSS_REPEAT,같은 거 또?,Same Again?
+BOSS_REPEAT_DESC,이미 계산한 조합은 0점,A combo already checked out scores 0
+BOSS_NO_COUPON,쿠폰 안 받는 손님,No-Coupon Customer
+BOSS_NO_COUPON_DESC,할인·행사 꼬리표 효과 없음,Sale and Promo tags do nothing
+BOSS_AUDIT,본사 감사,Head Office Audit
+BOSS_AUDIT_DESC,꿀팁 하나가 꺼짐 · 목표 ×3,One tip is switched off · Target ×3
+WEATHER_CLEAR,맑음,Clear
+WEATHER_CLEAR_DESC,효과 없음,No effect
+WEATHER_RAIN,비,Rain
+WEATHER_RAIN_DESC,생활 코너 가격 ×2,Goods prices ×2
+WEATHER_COLD,한파,Cold Snap
+WEATHER_COLD_DESC,음료 카드 만족 +1 · 간식 가격 절반,Drinks +1 satisfaction · Snack prices halved
+WEATHER_WORLD_CUP,월드컵,World Cup
+WEATHER_WORLD_CUP_DESC,음료와 간식을 함께 내면 만족 ×2 · 목표 ×1.2,Drinks with snacks: satisfaction ×2 · Targets ×1.2
+WEATHER_EXAM,시험 기간,Exam Week
+WEATHER_EXAM_DESC,낱개·1+1 만족 +3,Single and Buy One Get One +3 satisfaction
+WEATHER_BLACKOUT,정전,Blackout
+WEATHER_BLACKOUT_DESC,처음 받는 카드 2장이 뒷면,First 2 cards dealt are face down
+WEATHER_PAYDAY,월급날,Payday
+WEATHER_PAYDAY_DESC,손님 값 ×2,Customer payout ×2

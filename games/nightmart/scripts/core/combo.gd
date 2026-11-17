@@ -40,6 +40,8 @@ class Rules:
 	var run_len := 5
 	var flush_len := 5
 	var chilled_mult := 1.5
+	## 코너별 가격 배수(날씨·진상 손님). 0이면 가격이 매출에 안 들어간다.
+	var price_mult := {}
 
 
 static func detect(cards: Array[Card], rules: Rules = null) -> Kind:

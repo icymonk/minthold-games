@@ -53,11 +53,18 @@ var last_pay := {}
 var history: Array[Dictionary] = []
 ## 조합별 계산 횟수
 var combo_counts := {}
+## 밤마다 진상 손님·날씨 id(밤 지도에 미리 보인다)
+var bosses: Array[StringName] = []
+var weather: Array[StringName] = []
+## 본사 감사가 끈 꿀팁 index. -1은 없음.
+var off_tip := -1
 
 
 func _init(run_seed: int) -> void:
 	rng = RngStreams.new(run_seed)
 	deck = Card.standard_deck()
+	bosses = Bosses.roll(rng.night, NIGHTS)
+	weather = Weather.roll(rng.night, NIGHTS)
 	_start_shift()
 
 
@@ -69,12 +76,36 @@ static func target_for(n: int, s: int) -> int:
 
 
 func target() -> int:
-	return target_for(night, slot)
+	return target_at(slot)
 
 
+## 날씨까지 넣은 오늘 밤 손님 목표
+func target_at(s: int) -> int:
+	return int(target_for(night, s) * Weather.TARGET_MULT.get(weather_id(), 1.0))
+
+
+## 날씨까지 넣은 손님 값(월급날 ×2)
+func payout_at(s: int) -> int:
+	return PAYOUT[s] * (2 if weather_id() == Weather.PAYDAY else 1)
+
+
+func boss_id() -> StringName:
+	return bosses[mini(night, NIGHTS) - 1]
+
+
+func weather_id() -> StringName:
+	return weather[mini(night, NIGHTS) - 1]
+
+
+## 발동 순서: 매장 확장 → 날씨 → 꿀팁(감사가 끈 것 빼고) → 진상 손님
 func hooks() -> Array[Hook]:
 	var out: Array[Hook] = expansions.duplicate()
-	out.append_array(tips)
+	out.append(Weather.make(weather_id()))
+	for i in tips.size():
+		if i != off_tip:
+			out.append(tips[i])
+	if slot == BOSS:
+		out.append(Bosses.make(boss_id()))
 	return out
 
 
@@ -191,6 +222,10 @@ func sell_tip(index: int) -> bool:
 	money += sell_price(index)
 	shift.hooks.erase(tips[index])
 	tips.remove_at(index)
+	if index == off_tip:
+		off_tip = -1
+	elif index < off_tip:
+		off_tip -= 1
 	return true
 
 
@@ -264,7 +299,7 @@ func _end_shift() -> void:
 	last_pay = {
 		"tips": shift.money,
 		"interest": mini(maxi(money, 0) / INTEREST_STEP * INTEREST_UNIT, INTEREST_MAX),
-		"payout": PAYOUT[slot],
+		"payout": payout_at(slot),
 		"leftover": shift.leftover_bonus(),
 		"overkill": over * OVERKILL_UNIT,
 	}
@@ -282,11 +317,16 @@ func _advance() -> void:
 	if slot > BOSS:
 		slot = NORMAL
 		night += 1
+		for c in deck:
+			c.age()
 	_start_shift()
 
 
 func _start_shift() -> void:
 	phase = Phase.SHIFT
+	off_tip = -1
+	if slot == BOSS and boss_id() == Bosses.AUDIT and not tips.is_empty():
+		off_tip = rng.night.randi_range(0, tips.size() - 1)
 	shift = Shift.new(deck, target(), rng.deck, hooks(), levels)
 	skip_reward = &"" if slot == BOSS else SKIP_REWARDS[rng.night.randi_range(0, SKIP_REWARDS.size() - 1)]
 

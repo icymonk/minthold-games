@@ -26,7 +26,7 @@ static func best_play(shift: Shift) -> Array[Card]:
 	var best_total := -1
 	var n := shift.hand.size()
 	for mask in range(1, 1 << n):
-		if _bits(mask) > Combo.MAX_CARDS:
+		if _bits(mask) > shift.max_cards:
 			continue
 		var pick: Array[Card] = []
 		for i in n:
