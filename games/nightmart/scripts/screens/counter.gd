@@ -168,7 +168,8 @@ func _sync_flyers() -> void:
 		b.tooltip_text = Names.flyer_desc(id)
 		b.custom_minimum_size = Vector2(FLYER_WIDTH, Style.BUTTON_H)
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		b.add_theme_font_size_override(&"font_size", 28)
+		b.add_theme_font_size_override(&"font_size", Style.BODY)
+		b.add_theme_font_override(&"font", Style.bold())
 		b.pressed.connect(_on_flyer.bind(i))
 		_flyer_row.add_child(b)
 
