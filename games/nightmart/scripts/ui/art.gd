@@ -20,6 +20,7 @@ const ICON_DISCARD := preload("res://assets/art/kenney/icon_discard.png")
 const ICON_SETTINGS := preload("res://assets/art/kenney/icon_settings.png")
 const ICON_HELP := preload("res://assets/art/kenney/icon_help.png")
 const ICON_SOUND_ON := preload("res://assets/art/kenney/icon_sound_on.png")
+const ICON_FLYER := preload("res://assets/art/kenney/icon_flyer.png")
 const ICON_SOUND_OFF := preload("res://assets/art/kenney/icon_sound_off.png")
 
 

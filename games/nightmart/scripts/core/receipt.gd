@@ -5,6 +5,8 @@ extends RefCounted
 ## 바뀐 값은 log에 한 줄씩 남는다(연출·테스트·「무엇 때문에 졌나」가 같은 기록을 쓴다).
 
 const PRICE_UNIT := 100
+## 금박: 손에 남아 있으면 계산마다 돈
+const GOLD_MONEY := 500
 const DISCOUNT_SALES := 500
 const EVENT_SATISFACTION := 2
 
@@ -50,6 +52,9 @@ static func ring_up(played: Array[Card], levels: Dictionary = {}, hooks: Array[H
 				r.multiply("tag:chilled", r.rules.chilled_mult)
 		for h in hooks:
 			h.on_score_card(r, c)
+	for c in held_cards:
+		if c.tag == Card.TAG_GOLD:
+			r.money += GOLD_MONEY
 	for h in hooks:
 		h.on_checkout(r)
 	return r

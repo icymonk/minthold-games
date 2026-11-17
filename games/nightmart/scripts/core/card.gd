@@ -52,6 +52,12 @@ static func standard_deck() -> Array[Card]:
 	return deck
 
 
+func copy() -> Card:
+	var c := Card.new(corner, rank, tag)
+	c.shelf_life = shelf_life
+	return c
+
+
 func is_waste() -> bool:
 	return shelf_life == 0
 

@@ -25,8 +25,8 @@ const CONSUMABLE_SLOTS := 2
 const FREE_PARCEL := &"free_parcel"
 const SHOP_DISCOUNT := &"shop_discount"
 const FREE_REROLL := &"free_reroll"
-## 건너뛰기 보상. 공짜 전단지는 전단지가 생기는 3-1에서 더한다.
-const SKIP_REWARDS: Array[StringName] = [FREE_PARCEL, SHOP_DISCOUNT, FREE_REROLL]
+const FREE_FLYER := &"free_flyer"
+const SKIP_REWARDS: Array[StringName] = [FREE_PARCEL, SHOP_DISCOUNT, FREE_REROLL, FREE_FLYER]
 
 var rng: RngStreams
 var phase := Phase.SHIFT
@@ -38,6 +38,8 @@ var tips: Array[Hook] = []
 var expansions: Array[Hook] = []
 ## 택배: 조합 Kind
 var consumables: Array[int] = []
+## 전단지 id. 택배와 같은 칸(CONSUMABLE_SLOTS)을 나눠 쓴다.
+var flyers: Array[StringName] = []
 var levels := {}
 var shift: Shift
 var shop := Shop.new()
@@ -107,6 +109,9 @@ func skip() -> bool:
 	if skip_reward == FREE_PARCEL:
 		if _has_room(Shop.PARCEL):
 			consumables.append(rng.shop.randi_range(Combo.Kind.SINGLE, Combo.Kind.STRAIGHT_FLUSH))
+	elif skip_reward == FREE_FLYER:
+		if _has_room(Shop.FLYER):
+			flyers.append(Shop.random_flyer(rng.shop))
 	else:
 		skip_tokens.append(skip_reward)
 	_record(false, true)
@@ -132,6 +137,8 @@ func buy(index: int) -> bool:
 			tips.append(tip)
 		Shop.PARCEL:
 			consumables.append(o.id)
+		Shop.FLYER:
+			flyers.append(o.id)
 		Shop.EXPANSION:
 			expansions.append(Expansions.make(o.id))
 		Shop.PACK:
@@ -202,6 +209,40 @@ func use_consumable(index: int) -> bool:
 	return true
 
 
+## 전단지를 쓴다. 카드를 고르는 전단지는 손님을 받는 중에 손패 카드에만 쓴다.
+func can_use_flyer(index: int, cards: Array[Card]) -> bool:
+	if index < 0 or index >= flyers.size() or phase in [Phase.WON, Phase.LOST]:
+		return false
+	var id := flyers[index]
+	if not Flyers.fits(id, cards.size()):
+		return false
+	if cards.is_empty():
+		return true
+	if phase != Phase.SHIFT or shift.is_over() or not cards.all(func(c: Card) -> bool: return shift.hand.has(c)):
+		return false
+	return id != &"remove" or deck.size() - cards.size() >= Flyers.MIN_DECK
+
+
+func use_flyer(index: int, cards: Array[Card] = []) -> bool:
+	if not can_use_flyer(index, cards):
+		return false
+	var id := flyers[index]
+	flyers.remove_at(index)
+	match id:
+		&"cash":
+			money += clampi(money, 0, Flyers.CASH_MAX)
+		&"copy":
+			deck.append(cards[0].copy())
+		&"remove":
+			for c in cards:
+				deck.erase(c)
+				shift.hand.erase(c)
+			shift._refill()
+		_:
+			Flyers.apply(id, cards)
+	return true
+
+
 func leave_shop() -> bool:
 	if phase != Phase.SHOP:
 		return false
@@ -261,8 +302,8 @@ func _has_room(kind: StringName) -> bool:
 	match kind:
 		Shop.TIP:
 			return tips.size() < TIP_SLOTS
-		Shop.PARCEL:
-			return consumables.size() < CONSUMABLE_SLOTS
+		Shop.PARCEL, Shop.FLYER:
+			return consumables.size() + flyers.size() < CONSUMABLE_SLOTS
 	return true
 
 

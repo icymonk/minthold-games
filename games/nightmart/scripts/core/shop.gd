@@ -6,9 +6,10 @@ const TIP := &"tip"
 const PARCEL := &"parcel"
 const PACK := &"pack"
 const EXPANSION := &"expansion"
+const FLYER := &"flyer"
 
 ## 꿀팁 값은 등급마다 다르다(Tips.PRICE). TIP은 기준값이다.
-const PRICES := {TIP: 5000, PARCEL: 3000, PACK: 4000, EXPANSION: 10000}
+const PRICES := {TIP: 5000, PARCEL: 3000, PACK: 4000, EXPANSION: 10000, FLYER: 3000}
 const REROLL_BASE := 5000
 const REROLL_STEP := 1000
 const PACK_SIZE := 3
@@ -16,7 +17,7 @@ const PACK_SIZE := 3
 const PACK_TAG_CHANCE := 0.4
 const PACK_TAGS: Array[StringName] = [Card.TAG_DISCOUNT, Card.TAG_EVENT, Card.TAG_CHILLED, Card.TAG_PB]
 
-## [{kind, id, price, sold}] — 꿀팁 2, 택배 2, 상품 팩 2, 매장 확장 1(남은 것이 있으면)
+## [{kind, id, price, sold}] — 꿀팁 2, 택배 2, 전단지 1, 상품 팩 2, 매장 확장 1(남은 것이 있으면)
 var offers: Array[Dictionary] = []
 var reroll_cost := REROLL_BASE
 
@@ -36,11 +37,16 @@ static func roll(rng: RandomNumberGenerator, owned_tips: Array, owned_expansions
 		out.append(o)
 	for i in 2:
 		out.append(_offer(PARCEL, rng.randi_range(Combo.Kind.SINGLE, Combo.Kind.STRAIGHT_FLUSH)))
+	out.append(_offer(FLYER, random_flyer(rng)))
 	for i in 2:
 		out.append(_offer(PACK, &"product"))
 	for e in _pick(rng, Expansions.MAKERS.keys().filter(func(x: StringName) -> bool: return not owned_expansions.has(x)), 1):
 		out.append(_offer(EXPANSION, e))
 	return out
+
+
+static func random_flyer(rng: RandomNumberGenerator) -> StringName:
+	return Flyers.PICKS.keys()[rng.randi_range(0, Flyers.PICKS.size() - 1)]
 
 
 ## 상품 팩을 열면 나오는 카드 3장.

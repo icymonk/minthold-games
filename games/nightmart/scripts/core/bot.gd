@@ -56,7 +56,7 @@ static func _shift_step(run: Run) -> void:
 static func _shop(run: Run) -> void:
 	for i in run.shop.offers.size():
 		var o := run.shop.offers[i]
-		if o.kind != Shop.PACK and run.buy(i) and o.kind == Shop.PARCEL:
+		if o.kind not in [Shop.PACK, Shop.FLYER] and run.buy(i) and o.kind == Shop.PARCEL:
 			run.use_consumable(run.consumables.size() - 1)
 	run.leave_shop()
 

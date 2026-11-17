@@ -19,6 +19,14 @@ static func tip(tip_id: StringName) -> String:
 	return t("TIP_%s" % String(tip_id).to_upper())
 
 
+static func flyer(flyer_id: StringName) -> String:
+	return t("FLYER_%s" % String(flyer_id).to_upper())
+
+
+static func flyer_desc(flyer_id: StringName) -> String:
+	return t("FLYER_%s_DESC" % String(flyer_id).to_upper())
+
+
 static func expansion(exp_id: StringName) -> String:
 	return t("EXP_%s" % String(exp_id).to_upper())
 
@@ -31,6 +39,8 @@ static func offer_name(o: Dictionary) -> String:
 			return expansion(o.id)
 		Shop.PARCEL:
 			return t("PARCEL_NAME") % combo(o.id)
+		Shop.FLYER:
+			return flyer(o.id)
 	return t("PACK_NAME")
 
 
@@ -42,6 +52,8 @@ static func offer_desc(o: Dictionary) -> String:
 			return t("EXP_%s_DESC" % String(o.id).to_upper())
 		Shop.PARCEL:
 			return t("PARCEL_DESC") % combo(o.id)
+		Shop.FLYER:
+			return flyer_desc(o.id)
 	return t("PACK_DESC")
 
 
