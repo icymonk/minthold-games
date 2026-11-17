@@ -15,13 +15,23 @@ func _ready() -> void:
 	_seed_input.custom_minimum_size = Vector2(560, 96)
 	_seed_input.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_list.add_child(_seed_input)
-	var start := _button(Art.ICON_NEXT, tr("TITLE_NEW_RUN"), _on_new_run)
-	start.theme_type_variation = &"AccentButton"
-	start.grab_focus()
+	var starts := HBoxContainer.new()
+	starts.alignment = BoxContainer.ALIGNMENT_CENTER
+	starts.add_theme_constant_override(&"separation", Style.GAP)
+	_list.add_child(starts)
+	if Game.has_save():
+		var go_on := _button(Art.ICON_NEXT, tr("TITLE_CONTINUE"), _on_continue, starts)
+		go_on.theme_type_variation = &"AccentButton"
+		go_on.grab_focus()
+	var start := _button(Art.ICON_NEXT, tr("TITLE_NEW_RUN"), _on_new_run, starts)
+	if not Game.has_save():
+		start.theme_type_variation = &"AccentButton"
+		start.grab_focus()
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override(&"separation", Style.GAP)
 	_list.add_child(row)
+	_button(Art.ICON_HELP, tr("TITLE_LEDGER"), Game.goto.bind(&"ledger"), row).custom_minimum_size.x = 264
 	_button(Art.ICON_SETTINGS, tr("TITLE_LANGUAGE"), _on_toggle_language, row).custom_minimum_size.x = 264
 	_sound = _button(Art.ICON_SOUND_ON, "", _on_toggle_sound, row)
 	_sound.custom_minimum_size.x = 264
@@ -64,6 +74,11 @@ func _on_toggle_sound() -> void:
 func _on_new_run() -> void:
 	var text := _seed_input.text.strip_edges()
 	Game.start_run(int(text) if text.is_valid_int() else randi())
+
+
+func _on_continue() -> void:
+	if not Game.continue_run():
+		Game.goto(&"title")
 
 
 func _on_toggle_language() -> void:

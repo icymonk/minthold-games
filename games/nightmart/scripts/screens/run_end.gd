@@ -19,6 +19,8 @@ func _ready() -> void:
 	_label(tr("END_BEST") % Style.num(best)).add_theme_color_override(&"font_color", Style.PRICE)
 	if not run.tips.is_empty():
 		_label(", ".join(run.tips.map(func(h: Hook) -> String: return Names.tip(h.id))), Style.BODY).add_theme_color_override(&"font_color", Style.CORNER[&"goods"])
+	if not Game.new_unlocks.is_empty():
+		_label(tr("END_UNLOCKED") % ", ".join(Game.new_unlocks.map(Names.tip)), Style.HEADLINE).add_theme_color_override(&"font_color", Style.NEON)
 	_button(Art.ICON_RETRY, tr("END_RETRY"), func() -> void: Game.start_run(randi())).theme_type_variation = &"AccentButton"
 	_button(Art.ICON_HOME, tr("BACK_TO_TITLE"), Game.goto.bind(&"title"))
 	Sfx.play(&"chime" if won else &"error")

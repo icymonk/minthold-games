@@ -233,3 +233,21 @@ WEATHER_BLACKOUT,정전,Blackout
 WEATHER_BLACKOUT_DESC,처음 받는 카드 2장이 뒷면,First 2 cards dealt are face down
 WEATHER_PAYDAY,월급날,Payday
 WEATHER_PAYDAY_DESC,손님 값 ×2,Customer payout ×2
+TITLE_CONTINUE,이어 하기,Continue
+TITLE_LEDGER,장부,Ledger
+LEDGER_TITLE,해금 장부,Unlock Ledger
+LEDGER_RECORDS,%d판 · 완주 %d · 최고 %d일째 · 최고 %s,%d runs · %d wins · Night %d · Best %s
+LEDGER_SEEN,꿀팁 %d/%d · 전단지 %d/%d · 진상 %d/%d · 날씨 %d/%d,Tips %d/%d · Flyers %d/%d · Bosses %d/%d · Weather %d/%d
+LEDGER_UNLOCKED,%s 풀림,%s unlocked
+LEDGER_LOCKED,→ %s,→ %s
+END_UNLOCKED,새 꿀팁: %s,New tips: %s
+CH_REACH_3,3일째 밤까지 가기,Reach night 3
+CH_SERVE_BOSS_3,진상 손님 3명 보내기,Serve 3 nightmare customers
+CH_BIG_CHECKOUT,한 번에 5만 점 넘기기,Score 50000 in one checkout
+CH_FLUSH_3,같은 코너 3번 계산,Check out Same Aisle 3 times
+CH_MEAL_SET_5,한 끼 세트 5번 계산,Check out Meal Deal 5 times
+CH_RICH,돈 2만 원 모으기,Hold ₩20000
+CH_FULL_TIPS,꿀팁 5칸 채우기,Fill all 5 tip slots
+CH_NO_SKIP_5,안 건너뛰고 5일째,Reach night 5 without skipping
+CH_ALL_WEATHER,날씨 7가지 다 보기,See all 7 weathers
+CH_WIN,8일 완주하기,Survive all 8 nights
