@@ -100,7 +100,12 @@ func target_at(s: int) -> int:
 
 ## 날씨까지 넣은 손님 값(월급날 ×2)
 func payout_at(s: int) -> int:
-	return PAYOUT[s] * (2 if weather_id() == Weather.PAYDAY else 1)
+	var cctv := Expansions.CCTV_PAYOUT if s == BOSS and has_expansion(&"cctv") else 0
+	return (PAYOUT[s] + cctv) * (2 if weather_id() == Weather.PAYDAY else 1)
+
+
+func has_expansion(exp_id: StringName) -> bool:
+	return expansions.any(func(h: Hook) -> bool: return h.id == exp_id)
 
 
 func boss_id() -> StringName:
@@ -248,7 +253,7 @@ func buy(index: int) -> bool:
 		Shop.EXPANSION:
 			expansions.append(Expansions.make(o.id))
 		Shop.PACK:
-			pack = Shop.open_pack(rng.shop)
+			pack = Shop.open_pack(rng.shop, Expansions.BIG_PACK_SIZE if has_expansion(&"big_pack") else Shop.PACK_SIZE)
 			phase = Phase.PACK
 	_log(["buy", index])
 	return true
@@ -269,6 +274,8 @@ func choose_pack(index: int) -> bool:
 ## 다음 발주 반값 보상이 있으면 한 번 반값이다.
 func price_of(index: int) -> int:
 	var price: int = shop.offers[index].price
+	if has_expansion(&"discount_deal"):
+		price = int(price * Expansions.DISCOUNT)
 	return price / 2 if skip_tokens.has(SHOP_DISCOUNT) else price
 
 
@@ -382,7 +389,7 @@ func _end_shift() -> void:
 	var over := mini((shift.score - shift.target) / maxi(shift.target, 1), OVERKILL_MAX)
 	last_pay = {
 		"tips": shift.money,
-		"interest": mini(maxi(money, 0) / INTEREST_STEP * INTEREST_UNIT, INTEREST_MAX),
+		"interest": mini(maxi(money, 0) / INTEREST_STEP * INTEREST_UNIT, INTEREST_MAX + (Expansions.SAFE_INTEREST if has_expansion(&"safe") else 0)),
 		"payout": payout_at(slot),
 		"leftover": shift.leftover_bonus(),
 		"overkill": over * OVERKILL_UNIT,
@@ -393,6 +400,8 @@ func _end_shift() -> void:
 		return
 	phase = Phase.SHOP
 	shop = Shop.new()
+	if has_expansion(&"back_room"):
+		shop.reroll_cost -= Expansions.BACK_ROOM_REROLL
 	shop.offers = Shop.roll(rng.shop, _ids(tips) + locked, _ids(expansions))
 
 
@@ -401,8 +410,10 @@ func _advance() -> void:
 	if slot > BOSS:
 		slot = NORMAL
 		night += 1
+		var fridge := has_expansion(&"fridge_case")
 		for c in deck:
-			c.age()
+			if not (fridge and c.tag == Card.TAG_CHILLED):
+				c.age()
 	_start_shift()
 
 

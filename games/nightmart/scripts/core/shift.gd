@@ -17,6 +17,7 @@ var hidden_corners: Array[StringName] = []
 var hidden_cards: Array[Card] = []
 var checkouts_left := CHECKOUTS
 var swaps_left := SWAPS
+var leftover_unit := LEFTOVER_BONUS
 var hand: Array[Card] = []
 var draw_pile: Array[Card] = []
 var discard_pile: Array[Card] = []
@@ -59,7 +60,7 @@ func is_over() -> bool:
 
 ## 손님을 보냈을 때 남은 계산 1번당 보너스.
 func leftover_bonus() -> int:
-	return checkouts_left * LEFTOVER_BONUS if cleared() else 0
+	return checkouts_left * leftover_unit if cleared() else 0
 
 
 func can_play(cards: Array[Card]) -> bool:

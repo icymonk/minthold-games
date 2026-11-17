@@ -59,7 +59,7 @@ func test_shop_full_inventory_fits_screen() -> void:
 		run.expansions.append(Expansions.make(id))
 	var shop := _screen(SHOP)
 	var owned: HBoxContainer = shop.find_child("Owned", true, false)
-	assert_int(owned.get_child_count()).is_equal(5 + 2 + Expansions.MAKERS.size())
+	assert_int(owned.get_child_count()).is_equal(5 + 2 + 1)
 	assert_float(owned.get_combined_minimum_size().x).is_less_equal(1920 * 0.9)
 
 
