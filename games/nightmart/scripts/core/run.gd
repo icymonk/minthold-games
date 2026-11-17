@@ -58,9 +58,23 @@ var bosses: Array[StringName] = []
 var weather: Array[StringName] = []
 ## 본사 감사가 끈 꿀팁 index. -1은 없음.
 var off_tip := -1
+## 아직 해금 안 된 꿀팁(발주에 안 나온다)
+var locked: Array = []
+## 저장용: 성공한 행동 기록. 카드는 그때 손패 index로 남긴다. `replay`로 같은 판을 다시 만든다.
+var actions: Array = []
+## 해금 과제·기록용
+var best_checkout := 0
+var best_money := 0
+var max_tips := 0
+var bought_tips: Array[StringName] = []
+var used_flyers: Array[StringName] = []
+
+## 행동이 하나 성공할 때마다(저장 시점)
+signal acted
 
 
-func _init(run_seed: int) -> void:
+func _init(run_seed: int, locked_tips: Array = []) -> void:
+	locked = locked_tips.duplicate()
 	rng = RngStreams.new(run_seed)
 	deck = Card.standard_deck()
 	bosses = Bosses.roll(rng.night, NIGHTS)
@@ -109,23 +123,81 @@ func hooks() -> Array[Hook]:
 	return out
 
 
+static func replay(run_seed: int, locked_tips: Array, log: Array) -> Run:
+	var r := Run.new(run_seed, locked_tips)
+	for a in log:
+		if not r.apply(a):
+			return null
+	return r
+
+
+func apply(a: Array) -> bool:
+	match String(a[0]):
+		"play":
+			return play(_cards(a[1])) != null
+		"discard":
+			return discard(_cards(a[1]))
+		"skip":
+			return skip()
+		"buy":
+			return buy(int(a[1]))
+		"pack":
+			return choose_pack(int(a[1]))
+		"reroll":
+			return reroll()
+		"sell":
+			return sell_tip(int(a[1]))
+		"parcel":
+			return use_consumable(int(a[1]))
+		"flyer":
+			return use_flyer(int(a[1]), _cards(a[2]))
+		"leave":
+			return leave_shop()
+	return false
+
+
+func _cards(idx: Array) -> Array[Card]:
+	var out: Array[Card] = []
+	for i in idx:
+		if int(i) < 0 or int(i) >= shift.hand.size():
+			return []
+		out.append(shift.hand[int(i)])
+	return out
+
+
+func _idx(cards: Array[Card]) -> Array:
+	return cards.map(func(c: Card) -> int: return shift.hand.find(c))
+
+
+func _log(a: Array) -> void:
+	best_money = maxi(best_money, money)
+	actions.append(a)
+	acted.emit()
+
+
 func play(cards: Array[Card]) -> Receipt:
 	if phase != Phase.SHIFT:
 		return null
+	var idx := _idx(cards)
 	var r := shift.play(cards)
 	if r != null:
 		combo_counts[r.kind] = combo_counts.get(r.kind, 0) + 1
+		best_checkout = maxi(best_checkout, r.total())
 		if shift.is_over():
 			_end_shift()
+		_log(["play", idx])
 	return r
 
 
 func discard(cards: Array[Card]) -> bool:
 	if phase != Phase.SHIFT:
 		return false
+	var idx := _idx(cards)
 	var ok := shift.discard(cards)
-	if ok and shift.is_over():
-		_end_shift()
+	if ok:
+		if shift.is_over():
+			_end_shift()
+		_log(["discard", idx])
 	return ok
 
 
@@ -147,6 +219,7 @@ func skip() -> bool:
 		skip_tokens.append(skip_reward)
 	_record(false, true)
 	_advance()
+	_log(["skip"])
 	return true
 
 
@@ -166,6 +239,8 @@ func buy(index: int) -> bool:
 			var tip := Tips.make(o.id)
 			tip.set_meta(&"paid", price)
 			tips.append(tip)
+			bought_tips.append(o.id)
+			max_tips = maxi(max_tips, tips.size())
 		Shop.PARCEL:
 			consumables.append(o.id)
 		Shop.FLYER:
@@ -175,6 +250,7 @@ func buy(index: int) -> bool:
 		Shop.PACK:
 			pack = Shop.open_pack(rng.shop)
 			phase = Phase.PACK
+	_log(["buy", index])
 	return true
 
 
@@ -186,6 +262,7 @@ func choose_pack(index: int) -> bool:
 		deck.append(pack[index])
 	pack.clear()
 	phase = Phase.SHOP
+	_log(["pack", index])
 	return true
 
 
@@ -212,7 +289,8 @@ func reroll() -> bool:
 	else:
 		money -= shop.reroll_cost
 		shop.reroll_cost += Shop.REROLL_STEP
-	shop.offers = Shop.roll(rng.shop, _ids(tips), _ids(expansions))
+	shop.offers = Shop.roll(rng.shop, _ids(tips) + locked, _ids(expansions))
+	_log(["reroll"])
 	return true
 
 
@@ -226,6 +304,7 @@ func sell_tip(index: int) -> bool:
 		off_tip = -1
 	elif index < off_tip:
 		off_tip -= 1
+	_log(["sell", index])
 	return true
 
 
@@ -241,6 +320,7 @@ func use_consumable(index: int) -> bool:
 	var kind := consumables[index]
 	consumables.remove_at(index)
 	levels[kind] = levels.get(kind, 1) + 1
+	_log(["parcel", index])
 	return true
 
 
@@ -262,7 +342,9 @@ func use_flyer(index: int, cards: Array[Card] = []) -> bool:
 	if not can_use_flyer(index, cards):
 		return false
 	var id := flyers[index]
+	var idx := _idx(cards)
 	flyers.remove_at(index)
+	used_flyers.append(id)
 	match id:
 		&"cash":
 			money += clampi(money, 0, Flyers.CASH_MAX)
@@ -275,6 +357,7 @@ func use_flyer(index: int, cards: Array[Card] = []) -> bool:
 			shift._refill()
 		_:
 			Flyers.apply(id, cards)
+	_log(["flyer", index, idx])
 	return true
 
 
@@ -282,6 +365,7 @@ func leave_shop() -> bool:
 	if phase != Phase.SHOP:
 		return false
 	_advance()
+	_log(["leave"])
 	return true
 
 
@@ -309,7 +393,7 @@ func _end_shift() -> void:
 		return
 	phase = Phase.SHOP
 	shop = Shop.new()
-	shop.offers = Shop.roll(rng.shop, _ids(tips), _ids(expansions))
+	shop.offers = Shop.roll(rng.shop, _ids(tips) + locked, _ids(expansions))
 
 
 func _advance() -> void:
