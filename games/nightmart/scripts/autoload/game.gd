@@ -31,9 +31,8 @@ func _ready() -> void:
 func start_run(seed_value: int) -> void:
 	run_seed = seed_value
 	rng = RngStreams.new(run_seed)
-	run = Run.new(run_seed, ledger.locked_tips())
+	_watch(Run.new(run_seed, ledger.locked_tips()))
 	new_unlocks = []
-	_watch()
 	save_run()
 	goto(&"map")
 
@@ -62,10 +61,9 @@ func continue_run() -> bool:
 	if loaded == null or loaded.is_over():
 		clear_save()
 		return false
-	run = loaded
+	_watch(loaded)
 	rng = RngStreams.new(run_seed)
 	new_unlocks = []
-	_watch()
 	goto(screen_for(run))
 	return true
 
@@ -95,13 +93,16 @@ func save_ledger() -> void:
 		f.store_string(JSON.stringify(ledger.to_dict()))
 
 
-func _watch() -> void:
-	run.acted.connect(_on_acted.bind(run))
+## 지난 런의 연결을 끊고 새 런을 지켜본다. 연결에 런을 묶지 않아야 지난 런이 풀린다.
+func _watch(r: Run) -> void:
+	if run and run.acted.is_connected(_on_acted):
+		run.acted.disconnect(_on_acted)
+	run = r
+	run.acted.connect(_on_acted)
 
 
-func _on_acted(r: Run) -> void:
-	if r != run:
-		return
+func _on_acted() -> void:
+	var r := run
 	if r.is_over():
 		new_unlocks = ledger.record(r)
 		save_ledger()
