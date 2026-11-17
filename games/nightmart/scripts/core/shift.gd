@@ -63,7 +63,7 @@ func leftover_bonus() -> int:
 
 
 func can_play(cards: Array[Card]) -> bool:
-	return not is_over() and checkouts_left > 0 and _valid(cards)
+	return not is_over() and checkouts_left > 0 and cards.size() <= max_cards and _valid(cards)
 
 
 func can_discard(cards: Array[Card]) -> bool:
@@ -106,7 +106,7 @@ func discard(cards: Array[Card]) -> bool:
 
 
 func _valid(cards: Array[Card]) -> bool:
-	if cards.is_empty() or cards.size() > max_cards:
+	if cards.is_empty() or cards.size() > Combo.MAX_CARDS:
 		return false
 	var seen := {}
 	for c in cards:

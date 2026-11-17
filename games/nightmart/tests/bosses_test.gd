@@ -39,6 +39,7 @@ func test_shift_rules() -> void:
 	var armful := _shift(&"armful")
 	assert_bool(armful.can_play(armful.hand.slice(0, 4))).is_false()
 	assert_bool(armful.can_play(armful.hand.slice(0, 3))).is_true()
+	assert_bool(armful.can_discard(armful.hand.slice(0, 5))).is_true()
 	var diet := _shift(&"diet")
 	for c in diet.hand:
 		assert_bool(diet.is_hidden(c)).is_equal(c.corner == Card.SNACK)

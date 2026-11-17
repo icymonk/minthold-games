@@ -220,7 +220,7 @@ func _on_flyer(i: int) -> void:
 
 
 func _on_card_toggled(on: bool, card: ProductCard) -> void:
-	if on and picked().size() > run.shift.max_cards:
+	if on and picked().size() > Combo.MAX_CARDS:
 		card.set_pressed_no_signal(false)
 		Sfx.play(&"error")
 		return

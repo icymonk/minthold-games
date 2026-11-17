@@ -47,7 +47,7 @@ static func _shift_step(run: Run) -> void:
 	if expected < need and s.swaps_left > 0:
 		var rest: Array[Card] = s.hand.filter(func(c: Card) -> bool: return not pick.has(c))
 		rest.sort_custom(func(a: Card, b: Card) -> bool: return a.rank < b.rank)
-		rest.resize(mini(rest.size(), s.max_cards))
+		rest.resize(mini(rest.size(), Combo.MAX_CARDS))
 		if not rest.is_empty() and run.discard(rest):
 			return
 	run.play(pick)
