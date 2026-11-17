@@ -12,7 +12,8 @@ const SCREENS := {
 	&"run_end": preload("res://scenes/screens/run_end.tscn"),
 	&"ledger": preload("res://scenes/screens/ledger.tscn"),
 }
-const SAVE_VERSION := 1
+## 저장은 행동 기록을 다시 돌려 만든다. 발주·덱·진상 손님에 나오는 내용이 바뀌면 올려서 옛 저장을 버린다.
+const SAVE_VERSION := 2
 
 var run_seed := 0
 var rng: RngStreams

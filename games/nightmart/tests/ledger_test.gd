@@ -128,3 +128,13 @@ func test_no_skip_ignores_skips_after_night_five() -> void:
 	assert_bool(Ledger.new().met(&"no_skip_5", run)).is_true()
 	run.history.append({"night": 4, "slot": Run.NORMAL, "target": 1, "score": 0, "cleared": false, "skipped": true})
 	assert_bool(Ledger.new().met(&"no_skip_5", run)).is_false()
+
+
+func test_old_save_version_is_dropped() -> void:
+	Game.save_path = "user://test_old_run.json"
+	var f := FileAccess.open(Game.save_path, FileAccess.WRITE)
+	f.store_string(JSON.stringify({"version": Game.SAVE_VERSION - 1, "seed": "1", "locked": [], "actions": []}))
+	f.close()
+	assert_bool(Game.continue_run()).is_false()
+	assert_bool(Game.has_save()).is_false()
+	Game.save_path = "user://nightmart_run.json"
