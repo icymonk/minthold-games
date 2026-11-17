@@ -90,6 +90,34 @@ EXP_EXTRA_REGISTER,계산대 하나 더,Extra Register
 EXP_EXTRA_REGISTER_DESC,손님마다 계산 +1,+1 checkout per customer
 EXP_STORAGE,창고,Storage
 EXP_STORAGE_DESC,손패 +1,+1 hand size
+EXP_EXTRA_SWAP,교대 근무,Shift Swap
+EXP_EXTRA_SWAP_DESC,손님마다 바꾸기 +1,+1 swap per customer
+EXP_OPENING_EVENT,오픈 이벤트,Opening Event
+EXP_OPENING_EVENT_DESC,손님마다 첫 계산 매출 +2000,First checkout per customer +2000 sales
+EXP_ATM,ATM,ATM
+EXP_ATM_DESC,계산마다 돈 +200,+200 money per checkout
+EXP_LOYALTY,포인트 적립,Loyalty Points
+EXP_LOYALTY_DESC,남은 계산 1번당 보너스 +500,+500 per leftover checkout
+EXP_HOT_CASE,온장고,Hot Case
+EXP_HOT_CASE_DESC,식사 가격 ×1.5,Meal prices ×1.5
+EXP_SNACK_RACK,과자 진열대,Snack Rack
+EXP_SNACK_RACK_DESC,간식 가격 ×1.5,Snack prices ×1.5
+EXP_COFFEE_MACHINE,커피 머신,Coffee Machine
+EXP_COFFEE_MACHINE_DESC,음료 가격 ×1.5,Drink prices ×1.5
+EXP_GOODS_SHELF,생활용품 매대,Goods Shelf
+EXP_GOODS_SHELF_DESC,생활 가격 ×1.5,Goods prices ×1.5
+EXP_DISCOUNT_DEAL,할인 계약,Supplier Deal
+EXP_DISCOUNT_DEAL_DESC,발주 25% 할인,Shop prices −25%
+EXP_FRIDGE_CASE,냉장 쇼케이스,Fridge Case
+EXP_FRIDGE_CASE_DESC,냉장 상품은 유통기한이 안 줄어듦,Chilled items never age
+EXP_SAFE,금고,Safe
+EXP_SAFE_DESC,이자 한도 +5000,Interest cap +5000
+EXP_CCTV,CCTV,CCTV
+EXP_CCTV_DESC,진상 손님 보상 +2000,Nuisance customer reward +2000
+EXP_BIG_PACK,대용량 팩,Bulk Pack
+EXP_BIG_PACK_DESC,상품 팩 4장 중 고르기,Packs show 4 cards
+EXP_BACK_ROOM,재고 창고,Back Room
+EXP_BACK_ROOM_DESC,새로 고침 −2000,Reroll −2000
 TAG_DISCOUNT,할인,Sale
 TAG_EVENT,행사,Promo
 TAG_CHILLED,냉장,Chilled
@@ -167,6 +195,7 @@ TIP_VETERAN_DESC,손님을 보낼 때마다 만족 ×0.1씩 커짐 (×1부터),S
 TOKEN_FREE_FLYER,공짜 전단지,Free flyer
 SHOP_USE,쓰기,Use
 SHOP_AT_COUNTER,계산대에서,At counter
+SHOP_EXPANSIONS,매장 확장\n%d개,Expansions\n%d
 FLYER_DISCOUNT,할인 전단지,Sale Flyer
 FLYER_DISCOUNT_DESC,고른 카드 1~2장에 할인 꼬리표,Tag 1-2 chosen cards: Sale
 FLYER_EVENT,행사 전단지,Promo Flyer

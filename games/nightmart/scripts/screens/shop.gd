@@ -57,8 +57,11 @@ func _build() -> void:
 	for i in run.flyers.size():
 		var b := _small(owned, "%s\n%s" % [Names.flyer(run.flyers[i]), tr("SHOP_USE") if Flyers.fits(run.flyers[i], 0) else tr("SHOP_AT_COUNTER")], _use_flyer.bind(i))
 		b.tooltip_text = Names.flyer_desc(run.flyers[i])
-	for e in run.expansions:
-		_small(owned, Names.expansion(e.id), Callable()).disabled = true
+	if not run.expansions.is_empty():
+		var e := _small(owned, tr("SHOP_EXPANSIONS") % run.expansions.size(), Callable())
+		e.name = "Expansions"
+		e.disabled = true
+		e.tooltip_text = "\n".join(run.expansions.map(func(h: Hook) -> String: return "%s: %s" % [Names.expansion(h.id), tr("EXP_%s_DESC" % String(h.id).to_upper())]))
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_list.add_child(spacer)

@@ -50,9 +50,9 @@ static func random_flyer(rng: RandomNumberGenerator) -> StringName:
 
 
 ## 상품 팩을 열면 나오는 카드 3장.
-static func open_pack(rng: RandomNumberGenerator) -> Array[Card]:
+static func open_pack(rng: RandomNumberGenerator, size: int = PACK_SIZE) -> Array[Card]:
 	var out: Array[Card] = []
-	for i in PACK_SIZE:
+	for i in size:
 		var c := Card.new(Card.CORNERS[rng.randi_range(0, Card.CORNERS.size() - 1)], rng.randi_range(1, 13))
 		if rng.randf() < PACK_TAG_CHANCE:
 			c.tag_with(PACK_TAGS[rng.randi_range(0, PACK_TAGS.size() - 1)])
