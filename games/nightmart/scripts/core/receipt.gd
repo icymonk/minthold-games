@@ -21,10 +21,13 @@ var checkouts_left := 1
 var rules := Combo.Rules.new()
 ## [{source, sales, sat_add, sat_mul}]
 var log: Array[Dictionary] = []
+## 미리 보기 계산이면 꿀팁이 쌓는 값을 바꾸지 않는다.
+var preview := false
 
 
-static func ring_up(played: Array[Card], levels: Dictionary = {}, hooks: Array[Hook] = [], held_cards: Array[Card] = [], left := 1) -> Receipt:
+static func ring_up(played: Array[Card], levels: Dictionary = {}, hooks: Array[Hook] = [], held_cards: Array[Card] = [], left := 1, is_preview := false) -> Receipt:
 	var r := Receipt.new()
+	r.preview = is_preview
 	r.cards = played
 	r.held = held_cards
 	r.checkouts_left = left

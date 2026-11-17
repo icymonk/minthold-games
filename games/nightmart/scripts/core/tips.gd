@@ -38,10 +38,11 @@ class PairMaster:
 	var stacks := 0
 
 	func on_checkout(r: Receipt) -> void:
-		if r.kind == Combo.Kind.PAIR:
-			stacks += 1
-		if stacks > 0:
-			r.add(id, 0, stacks)
+		var next := stacks + (1 if r.kind == Combo.Kind.PAIR else 0)
+		if next > 0:
+			r.add(id, 0, next)
+		if not r.preview:
+			stacks = next
 
 
 ## 냉장고 정리왕: 냉장 ×1.5 대신 ×2
@@ -104,8 +105,10 @@ class Points:
 	var stacks := 0
 
 	func on_checkout(r: Receipt) -> void:
-		stacks += 50 * r.live_cards().size()
-		r.add(id, stacks, 0)
+		var next := stacks + 50 * r.live_cards().size()
+		r.add(id, next, 0)
+		if not r.preview:
+			stacks = next
 
 
 ## 퇴근 5분 전: 남은 계산이 1번이면 만족 ×2
