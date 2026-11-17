@@ -84,6 +84,11 @@ func target_at(s: int) -> int:
 	return int(target_for(night, s) * Weather.TARGET_MULT.get(weather_id(), 1.0))
 
 
+## 날씨까지 넣은 손님 값(월급날 ×2)
+func payout_at(s: int) -> int:
+	return PAYOUT[s] * (2 if weather_id() == Weather.PAYDAY else 1)
+
+
 func boss_id() -> StringName:
 	return bosses[mini(night, NIGHTS) - 1]
 
@@ -294,7 +299,7 @@ func _end_shift() -> void:
 	last_pay = {
 		"tips": shift.money,
 		"interest": mini(maxi(money, 0) / INTEREST_STEP * INTEREST_UNIT, INTEREST_MAX),
-		"payout": PAYOUT[slot] * (2 if weather_id() == Weather.PAYDAY else 1),
+		"payout": payout_at(slot),
 		"leftover": shift.leftover_bonus(),
 		"overkill": over * OVERKILL_UNIT,
 	}

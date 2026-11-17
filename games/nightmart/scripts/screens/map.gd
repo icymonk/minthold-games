@@ -51,7 +51,7 @@ func _customer(row: HBoxContainer, s: int) -> void:
 		var skipped: bool = not done.is_empty() and done[-1].skipped
 		_text(col, tr("MAP_SKIPPED") if skipped else tr("MAP_DONE"), Style.HEADLINE, Style.NEON)
 		return
-	_text(col, tr("MAP_REWARD") % Names.money(Run.PAYOUT[s]), Style.BODY)
+	_text(col, tr("MAP_REWARD") % Names.money(run.payout_at(s)), Style.BODY)
 	if s == Run.BOSS:
 		_text(col, Names.boss(run.boss_id()), Style.BODY, Style.ANGRY)
 		var rule := _text(col, Names.boss_desc(run.boss_id()), Style.BODY, Color(Style.FLUORESCENT, 0.8))

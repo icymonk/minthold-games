@@ -107,6 +107,7 @@ func test_run_weather_targets_and_payday() -> void:
 	run._start_shift()
 	run.shift.score = run.shift.target
 	run._end_shift()
+	assert_int(run.payout_at(Run.BOSS)).is_equal(Run.PAYOUT[Run.BOSS] * 2)
 	assert_int(run.last_pay.payout).is_equal(Run.PAYOUT[Run.NORMAL] * 2)
 
 
