@@ -106,7 +106,7 @@ func test_multiplying_tips_are_rare() -> void:
 	assert_float(_ring("m5 g5 s5 d9", [&"store_tour"]).satisfaction).is_equal(plain.satisfaction * 3)
 	assert_float(_ring("m5 g5 s6", [&"store_tour"]).satisfaction).is_equal(_ring("m5 g5 s6", []).satisfaction)
 	assert_float(_ring("m9?", [&"store_tour"]).satisfaction).is_equal(_ring("m9?", []).satisfaction)
-	assert_float(_ring("m5 g5 s6?", [&"store_tour"]).satisfaction).is_equal(_ring("m5 g5 s6?", []).satisfaction * 3)
+	assert_float(_ring("m5 g5 s6 m9?", [&"store_tour"]).satisfaction).is_equal(_ring("m5 g5 s6 m9?", []).satisfaction * 3)
 
 
 func test_opening_only_first_checkout() -> void:
@@ -166,3 +166,12 @@ func test_shop_rarity_mix_and_price() -> void:
 	assert_int(counts[Tips.COMMON]).is_greater(counts[Tips.UNCOMMON])
 	assert_int(counts[Tips.UNCOMMON]).is_greater(counts[Tips.RARE])
 	assert_int(counts[Tips.RARE]).is_greater(0)
+
+
+func test_row_and_aisle_tips_check_contains() -> void:
+	# 같은 코너 4장 + 진열 줄 5장: 조합은 같은 코너(더 셈)로 정해져도 진열 줄 꿀팁이 켜진다
+	var cards := "m1 m2 m3 m4 s5"
+	var hooks := [&"same_aisle"]
+	assert_int(_ring(cards, hooks).kind).is_not_equal(Combo.Kind.STRAIGHT)
+	assert_float(_ring(cards, hooks + [&"row_fan"]).satisfaction).is_equal(_ring(cards, hooks).satisfaction + 12)
+	assert_float(_ring(cards, hooks + [&"tribe"]).satisfaction).is_equal(_ring(cards, hooks).satisfaction * 2)

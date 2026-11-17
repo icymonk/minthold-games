@@ -71,6 +71,15 @@ static func price(tip_id: StringName) -> int:
 
 
 ## 가장 많이 겹친 가격의 장수(1+1이면 2).
+## 조합 이름이 더 센 것으로 정해져도 진열 줄·같은 코너가 "들어 있으면" 된다.
+static func has_row(r: Receipt) -> bool:
+	return Combo._is_straight(r.live_cards(), r.rules.run_len)
+
+
+static func has_aisle(r: Receipt) -> bool:
+	return Combo._is_flush(r.live_cards(), r.rules.flush_len)
+
+
 static func most_same(r: Receipt) -> int:
 	var counts := Combo._rank_counts(r.live_cards())
 	return counts[0] if not counts.is_empty() else 0
@@ -222,7 +231,7 @@ class RowFan:
 	extends Hook
 
 	func on_checkout(r: Receipt) -> void:
-		if r.kind in [Combo.Kind.STRAIGHT, Combo.Kind.STRAIGHT_FLUSH]:
+		if Tips.has_row(r):
 			r.add(id, 0, 12)
 
 
@@ -231,7 +240,7 @@ class AisleFan:
 	extends Hook
 
 	func on_checkout(r: Receipt) -> void:
-		if r.kind in [Combo.Kind.FLUSH, Combo.Kind.STRAIGHT_FLUSH]:
+		if Tips.has_aisle(r):
 			r.add(id, 0, 10)
 
 
@@ -430,7 +439,7 @@ class Order:
 	extends Hook
 
 	func on_checkout(r: Receipt) -> void:
-		if r.kind in [Combo.Kind.STRAIGHT, Combo.Kind.STRAIGHT_FLUSH]:
+		if Tips.has_row(r):
 			r.multiply(id, 3.0)
 
 
@@ -439,7 +448,7 @@ class Tribe:
 	extends Hook
 
 	func on_checkout(r: Receipt) -> void:
-		if r.kind in [Combo.Kind.FLUSH, Combo.Kind.STRAIGHT_FLUSH]:
+		if Tips.has_aisle(r):
 			r.multiply(id, 2.0)
 
 
