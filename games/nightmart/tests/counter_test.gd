@@ -55,5 +55,5 @@ func test_cleared_customer_shows_next_button() -> void:
 	await counter.checkout_done
 	assert_int(Game.run.phase).is_equal(Run.Phase.SHOP)
 	var texts := counter.find_children("*", "Button", true, false).map(func(b: Button) -> String: return b.text)
-	assert_array(texts).contains([tr("END_NEXT")])
+	assert_array(texts).contains([tr("END_TO_SHOP")])
 	Game.goto(&"title")

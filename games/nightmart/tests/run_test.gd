@@ -83,7 +83,7 @@ func test_skip() -> void:
 	assert_bool(run.skip()).is_true()
 	assert_int(run.slot).is_equal(Run.REGULAR)
 	assert_int(run.phase).is_equal(Run.Phase.SHIFT)
-	assert_int(run.skip_tokens.size()).is_equal(1)
+	assert_int(run.skip_tokens.size() + run.consumables.size()).is_equal(1)
 	assert_int(run.money).is_equal(Run.START_MONEY)
 	run.play([run.shift.hand[0]])
 	assert_bool(run.can_skip()).is_false()
@@ -229,3 +229,42 @@ func test_sold_tip_stops_during_shift() -> void:
 	assert_bool(run.sell_tip(0)).is_true()
 	assert_bool(run.shift.hooks.is_empty()).is_true()
 	assert_int(run.play([run.shift.hand[0]]).money).is_equal(0)
+
+
+func test_skip_reward_is_shown_before_skipping() -> void:
+	var run := Run.new(1)
+	var reward := run.skip_reward
+	assert_bool(Run.SKIP_REWARDS.has(reward)).is_true()
+	run.skip()
+	if reward == Run.FREE_PARCEL:
+		assert_int(run.consumables.size()).is_equal(1)
+	else:
+		assert_array(run.skip_tokens).is_equal([reward])
+	run.skip()
+	assert_str(run.skip_reward).is_empty()
+
+
+func test_shop_discount_halves_one_purchase() -> void:
+	var run := Run.new(1)
+	run.phase = Run.Phase.SHOP
+	run.shop.offers = Shop.roll(run.rng.shop, [], [])
+	run.money = 100000
+	run.skip_tokens.append(Run.SHOP_DISCOUNT)
+	assert_int(run.price_of(0)).is_equal(Shop.PRICES[Shop.TIP] / 2)
+	assert_bool(run.buy(0)).is_true()
+	assert_int(run.money).is_equal(100000 - Shop.PRICES[Shop.TIP] / 2)
+	assert_int(run.price_of(1)).is_equal(Shop.PRICES[Shop.TIP])
+	var money := run.money
+	assert_bool(run.sell_tip(0)).is_true()
+	assert_int(run.money - money).is_equal(Shop.PRICES[Shop.TIP] / 4)
+
+
+func test_free_reroll_costs_nothing_once() -> void:
+	var run := Run.new(1)
+	run.phase = Run.Phase.SHOP
+	run.money = 0
+	run.skip_tokens.append(Run.FREE_REROLL)
+	assert_int(run.reroll_price()).is_equal(0)
+	assert_bool(run.reroll()).is_true()
+	assert_int(run.shop.reroll_cost).is_equal(Shop.REROLL_BASE)
+	assert_bool(run.reroll()).is_false()

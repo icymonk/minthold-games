@@ -51,6 +51,17 @@ func _ready() -> void:
 	price.add_theme_font_size_override(&"font_size", 48)
 	price.add_theme_color_override(&"font_color", Style.CORNER[corner].darkened(0.2))
 	add_child(price)
+	if card and card.tag != Card.TAG_NONE:
+		var tag := Label.new()
+		tag.text = Names.t("TAG_%s" % String(card.tag).to_upper())
+		tag.position = Vector2(SIZE.x - 120, 30)
+		tag.size = Vector2(100, 40)
+		tag.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		tag.add_theme_font_override(&"font", Style.bold())
+		tag.add_theme_font_size_override(&"font_size", 28)
+		tag.add_theme_color_override(&"font_color", Style.ANGRY)
+		tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(tag)
 	button_down.connect(_bump.bind(0.94))
 	toggled.connect(func(on: bool) -> void: _bump(1.08 if on else 1.0))
 

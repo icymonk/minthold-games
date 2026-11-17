@@ -22,7 +22,11 @@ const INTEREST_MAX := 5000
 const START_MONEY := 4000
 const TIP_SLOTS := 5
 const CONSUMABLE_SLOTS := 2
-const SKIP_REWARDS: Array[StringName] = [&"free_flyer", &"shop_discount", &"free_reroll"]
+const FREE_PARCEL := &"free_parcel"
+const SHOP_DISCOUNT := &"shop_discount"
+const FREE_REROLL := &"free_reroll"
+## 건너뛰기 보상. 공짜 전단지는 전단지가 생기는 3-1에서 더한다.
+const SKIP_REWARDS: Array[StringName] = [FREE_PARCEL, SHOP_DISCOUNT, FREE_REROLL]
 
 var rng: RngStreams
 var phase := Phase.SHIFT
@@ -39,6 +43,8 @@ var shift: Shift
 var shop := Shop.new()
 var pack: Array[Card] = []
 var skip_tokens: Array[StringName] = []
+## 지금 손님을 건너뛰면 받는 보상(밤 지도에 미리 보인다). 진상 손님은 비어 있다.
+var skip_reward: StringName = &""
 ## 마지막 손님 정산 {interest, payout, leftover, overkill, tips}
 var last_pay := {}
 ## 손님마다 {night, slot, target, score, cleared, skipped}
@@ -98,7 +104,11 @@ func can_skip() -> bool:
 func skip() -> bool:
 	if not can_skip():
 		return false
-	skip_tokens.append(SKIP_REWARDS[rng.night.randi_range(0, SKIP_REWARDS.size() - 1)])
+	if skip_reward == FREE_PARCEL:
+		if _has_room(Shop.PARCEL):
+			consumables.append(rng.shop.randi_range(Combo.Kind.SINGLE, Combo.Kind.STRAIGHT_FLUSH))
+	else:
+		skip_tokens.append(skip_reward)
 	_record(false, true)
 	_advance()
 	return true
@@ -108,13 +118,18 @@ func buy(index: int) -> bool:
 	if phase != Phase.SHOP or index < 0 or index >= shop.offers.size():
 		return false
 	var o := shop.offers[index]
-	if o.sold or money < o.price or not _has_room(o.kind):
+	var price := price_of(index)
+	if o.sold or money < price or not _has_room(o.kind):
 		return false
-	money -= o.price
+	money -= price
+	if price < o.price:
+		skip_tokens.erase(SHOP_DISCOUNT)
 	o.sold = true
 	match o.kind:
 		Shop.TIP:
-			tips.append(Tips.make(o.id))
+			var tip := Tips.make(o.id)
+			tip.set_meta(&"paid", price)
+			tips.append(tip)
 		Shop.PARCEL:
 			consumables.append(o.id)
 		Shop.EXPANSION:
@@ -136,11 +151,29 @@ func choose_pack(index: int) -> bool:
 	return true
 
 
+## 다음 발주 반값 보상이 있으면 한 번 반값이다.
+func price_of(index: int) -> int:
+	var price: int = shop.offers[index].price
+	return price / 2 if skip_tokens.has(SHOP_DISCOUNT) else price
+
+
+func reroll_price() -> int:
+	return 0 if skip_tokens.has(FREE_REROLL) else shop.reroll_cost
+
+
+func can_buy(index: int) -> bool:
+	var o := shop.offers[index]
+	return phase == Phase.SHOP and not o.sold and money >= price_of(index) and _has_room(o.kind)
+
+
 func reroll() -> bool:
-	if phase != Phase.SHOP or money < shop.reroll_cost:
+	if phase != Phase.SHOP or money < reroll_price():
 		return false
-	money -= shop.reroll_cost
-	shop.reroll_cost += Shop.REROLL_STEP
+	if skip_tokens.has(FREE_REROLL):
+		skip_tokens.erase(FREE_REROLL)
+	else:
+		money -= shop.reroll_cost
+		shop.reroll_cost += Shop.REROLL_STEP
 	shop.offers = Shop.roll(rng.shop, _ids(tips), _ids(expansions))
 	return true
 
@@ -148,10 +181,15 @@ func reroll() -> bool:
 func sell_tip(index: int) -> bool:
 	if index < 0 or index >= tips.size() or phase in [Phase.WON, Phase.LOST]:
 		return false
+	money += sell_price(index)
 	shift.hooks.erase(tips[index])
 	tips.remove_at(index)
-	money += Shop.PRICES[Shop.TIP] / 2
 	return true
+
+
+## 산 값의 절반. 반값으로 산 꿀팁은 그 값의 절반이다.
+func sell_price(index: int) -> int:
+	return int(tips[index].get_meta(&"paid", Shop.PRICES[Shop.TIP])) / 2
 
 
 ## 택배를 뜯어 그 조합을 1레벨 올린다. 손님을 받는 중에도 쓸 수 있다.
@@ -209,6 +247,7 @@ func _advance() -> void:
 func _start_shift() -> void:
 	phase = Phase.SHIFT
 	shift = Shift.new(deck, target(), rng.deck, hooks(), levels)
+	skip_reward = &"" if slot == BOSS else SKIP_REWARDS[rng.night.randi_range(0, SKIP_REWARDS.size() - 1)]
 
 
 func _record(was_cleared: bool, skipped: bool) -> void:
