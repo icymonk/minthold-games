@@ -189,7 +189,7 @@ func sell_tip(index: int) -> bool:
 
 ## 산 값의 절반. 반값으로 산 꿀팁은 그 값의 절반이다.
 func sell_price(index: int) -> int:
-	return int(tips[index].get_meta(&"paid", Shop.PRICES[Shop.TIP])) / 2
+	return int(tips[index].get_meta(&"paid", Tips.price(tips[index].id))) / 2
 
 
 ## 택배를 뜯어 그 조합을 1레벨 올린다. 손님을 받는 중에도 쓸 수 있다.

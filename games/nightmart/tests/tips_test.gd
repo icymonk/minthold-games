@@ -78,3 +78,100 @@ func test_tips_fire_on_waste_only_checkout() -> void:
 	assert_int(r.kind).is_equal(Combo.Kind.NONE)
 	assert_int(r.total()).is_equal(0)
 	assert_int(r.money).is_equal(Tips.NEPHEW_MONEY)
+
+
+func test_every_tip_has_name_desc_and_price() -> void:
+	for id in Tips.MAKERS:
+		var key := "TIP_%s" % String(id).to_upper()
+		assert_str(Names.t(key)).is_not_equal(key)
+		assert_str(Names.t(key + "_DESC")).is_not_equal(key + "_DESC")
+		assert_int(Tips.price(id)).is_greater(0)
+	assert_int(Tips.MAKERS.size()).is_equal(40)
+
+
+func test_corner_clerk_counts_its_corner() -> void:
+	var base := _ring("m5 g5", []).satisfaction
+	assert_float(_ring("m5 g5", [&"meal_clerk"]).satisfaction).is_equal(base + 1)
+	assert_float(_ring("m5 g5", [&"drink_clerk"]).satisfaction).is_equal(base)
+
+
+func test_multiplying_tips_are_rare() -> void:
+	var plain := _ring("m5 g5 s5 d9", [])
+	for id in Tips.MAKERS:
+		var r := _ring("m5 g5 s5 d9", [id], "", 1)
+		if r.log.any(func(e: Dictionary) -> bool: return e.source == String(id) and e.sat_mul != 1.0):
+			assert_str(Tips.rarity(id)).is_equal(Tips.RARE)
+	assert_float(_ring("m5 g5 s5 d9", [&"duo"]).satisfaction).is_equal(plain.satisfaction * 2)
+	assert_float(_ring("m5 g5 s5 d9", [&"trio"]).satisfaction).is_equal(plain.satisfaction * 3)
+	assert_float(_ring("m5 g5 s5 d9", [&"store_tour"]).satisfaction).is_equal(plain.satisfaction * 3)
+	assert_float(_ring("m5 g5 s6", [&"store_tour"]).satisfaction).is_equal(_ring("m5 g5 s6", []).satisfaction)
+	assert_float(_ring("m9?", [&"store_tour"]).satisfaction).is_equal(_ring("m9?", []).satisfaction)
+	assert_float(_ring("m5 g5 s6 m9?", [&"store_tour"]).satisfaction).is_equal(_ring("m5 g5 s6 m9?", []).satisfaction * 3)
+
+
+func test_opening_only_first_checkout() -> void:
+	var tip := Tips.make(&"opening")
+	var hooks: Array[Hook] = [tip]
+	var deck := Card.standard_deck()
+	var rng := RandomNumberGenerator.new()
+	var shift := Shift.new(deck, 999999, rng, hooks)
+	var first := shift.play([shift.hand[0]])
+	assert_bool(first.log.any(func(e: Dictionary) -> bool: return e.source == "opening")).is_true()
+	var second := shift.play([shift.hand[0]])
+	assert_bool(second.log.any(func(e: Dictionary) -> bool: return e.source == "opening")).is_false()
+
+
+func test_recycling_and_spare_swaps_follow_shift() -> void:
+	var recycling := Tips.make(&"recycling")
+	var spare := Tips.make(&"spare_swaps")
+	var hooks: Array[Hook] = [recycling, spare]
+	var shift := Shift.new(Card.standard_deck(), 999999, RandomNumberGenerator.new(), hooks)
+	var before := shift.preview([shift.hand[0]]).satisfaction
+	shift.discard([shift.hand[0]])
+	# 분리수거 +1, 남은 바꾸기 1번 줄어 -2
+	assert_float(shift.preview([shift.hand[0]]).satisfaction).is_equal(before - 1)
+
+
+func test_routine_stacks_same_combo() -> void:
+	var hooks: Array[Hook] = [Tips.make(&"routine")]
+	var base := Receipt.ring_up(Card.parse("g9"), {}, []).satisfaction
+	assert_float(Receipt.ring_up(Card.parse("g9"), {}, hooks).satisfaction).is_equal(base)
+	assert_float(Receipt.ring_up(Card.parse("m3"), {}, hooks).satisfaction).is_equal(base + 3)
+	assert_float(Receipt.ring_up(Card.parse("m3"), {}, hooks, [], 1, true).satisfaction).is_equal(base + 6)
+	assert_float(Receipt.ring_up(Card.parse("m3 g3"), {}, hooks).satisfaction).is_equal(Receipt.ring_up(Card.parse("m3 g3"), {}, []).satisfaction)
+
+
+func test_veteran_grows_per_customer() -> void:
+	var vet := Tips.make(&"veteran")
+	var hooks: Array[Hook] = [vet]
+	assert_float(Receipt.ring_up(Card.parse("g9"), {}, hooks, [], 1, true).satisfaction).is_equal(1.0)
+	for i in 3:
+		var shift := Shift.new(Card.standard_deck(), 999999, RandomNumberGenerator.new(), hooks)
+		shift.play([shift.hand[0]])
+	# 건너뛴 손님(계산 없이 다음 손님)은 안 센다
+	Shift.new(Card.standard_deck(), 1, RandomNumberGenerator.new(), hooks)
+	Shift.new(Card.standard_deck(), 1, RandomNumberGenerator.new(), hooks)
+	assert_float(Receipt.ring_up(Card.parse("g9"), {}, hooks).satisfaction).is_equal_approx(1.3, 0.0001)
+
+
+func test_shop_rarity_mix_and_price() -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7
+	var counts := {Tips.COMMON: 0, Tips.UNCOMMON: 0, Tips.RARE: 0}
+	for i in 500:
+		for o in Shop.roll(rng, [], []):
+			if o.kind == Shop.TIP:
+				counts[Tips.rarity(o.id)] += 1
+				assert_int(o.price).is_equal(Tips.price(o.id))
+	assert_int(counts[Tips.COMMON]).is_greater(counts[Tips.UNCOMMON])
+	assert_int(counts[Tips.UNCOMMON]).is_greater(counts[Tips.RARE])
+	assert_int(counts[Tips.RARE]).is_greater(0)
+
+
+func test_row_and_aisle_tips_check_contains() -> void:
+	# 같은 코너 4장 + 진열 줄 5장: 조합은 같은 코너(더 셈)로 정해져도 진열 줄 꿀팁이 켜진다
+	var cards := "m1 m2 m3 m4 s5"
+	var hooks := [&"same_aisle"]
+	assert_int(_ring(cards, hooks).kind).is_not_equal(Combo.Kind.STRAIGHT)
+	assert_float(_ring(cards, hooks + [&"row_fan"]).satisfaction).is_equal(_ring(cards, hooks).satisfaction + 12)
+	assert_float(_ring(cards, hooks + [&"tribe"]).satisfaction).is_equal(_ring(cards, hooks).satisfaction * 2)
