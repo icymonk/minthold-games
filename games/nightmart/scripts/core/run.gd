@@ -148,6 +148,7 @@ func reroll() -> bool:
 func sell_tip(index: int) -> bool:
 	if index < 0 or index >= tips.size() or phase in [Phase.WON, Phase.LOST]:
 		return false
+	shift.hooks.erase(tips[index])
 	tips.remove_at(index)
 	money += Shop.PRICES[Shop.TIP] / 2
 	return true

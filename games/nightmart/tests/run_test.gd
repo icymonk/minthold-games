@@ -217,3 +217,12 @@ func test_same_seed_same_run() -> void:
 	var c := Run.new(43)
 	Bot.play_out(c)
 	assert_array(c.history).is_not_equal(a.history)
+
+
+func test_sold_tip_stops_during_shift() -> void:
+	var run := Run.new(1)
+	run.tips.append(Tips.make(&"boss_nephew"))
+	run._start_shift()
+	assert_bool(run.sell_tip(0)).is_true()
+	assert_bool(run.shift.hooks.is_empty()).is_true()
+	assert_int(run.play([run.shift.hand[0]]).money).is_equal(0)
