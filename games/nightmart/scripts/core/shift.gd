@@ -73,7 +73,7 @@ func play(cards: Array[Card]) -> Receipt:
 	money += r.money
 	discard_pile.append_array(cards)
 	receipts.append(r)
-	if not is_over():
+	if not cleared():
 		_refill()
 	return r
 

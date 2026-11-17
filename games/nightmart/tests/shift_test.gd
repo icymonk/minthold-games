@@ -91,3 +91,12 @@ func test_boss_nephew_trades_swap_for_money() -> void:
 	s.play([s.hand[0]] as Array[Card])
 	s.play([s.hand[0]] as Array[Card])
 	assert_int(s.money).is_equal(2 * Tips.NEPHEW_MONEY)
+
+
+func test_small_hand_refills_before_failing() -> void:
+	var s := _shift()
+	s.hand_size = 5
+	s.hand.resize(5)
+	s.play(s.hand.duplicate())
+	assert_bool(s.failed()).is_false()
+	assert_int(s.hand.size()).is_equal(5)
