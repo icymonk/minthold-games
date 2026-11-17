@@ -105,6 +105,8 @@ func test_multiplying_tips_are_rare() -> void:
 	assert_float(_ring("m5 g5 s5 d9", [&"trio"]).satisfaction).is_equal(plain.satisfaction * 3)
 	assert_float(_ring("m5 g5 s5 d9", [&"store_tour"]).satisfaction).is_equal(plain.satisfaction * 3)
 	assert_float(_ring("m5 g5 s6", [&"store_tour"]).satisfaction).is_equal(_ring("m5 g5 s6", []).satisfaction)
+	assert_float(_ring("m9?", [&"store_tour"]).satisfaction).is_equal(_ring("m9?", []).satisfaction)
+	assert_float(_ring("m5 g5 s6?", [&"store_tour"]).satisfaction).is_equal(_ring("m5 g5 s6?", []).satisfaction * 3)
 
 
 func test_opening_only_first_checkout() -> void:

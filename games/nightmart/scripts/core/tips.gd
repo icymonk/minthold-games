@@ -395,10 +395,16 @@ class StoreTour:
 	extends Hook
 
 	func on_checkout(r: Receipt) -> void:
-		for corner in Card.CORNERS:
-			if not r.live_cards().any(func(c: Card) -> bool: return c.counts_as(corner)):
-				return
-		r.multiply(id, 3.0)
+		# PB 한 장은 빈 코너 하나만 채운다.
+		var corners := {}
+		var pb := 0
+		for c in r.live_cards():
+			if c.tag == Card.TAG_PB:
+				pb += 1
+			else:
+				corners[c.corner] = true
+		if corners.size() + pb >= Card.CORNERS.size():
+			r.multiply(id, 3.0)
 
 
 ## 짝꿍: 같은 가격이 2장 이상 있으면 만족 ×2
