@@ -12,7 +12,7 @@ const COACH_STEPS := [
 ]
 const STEP_TIME := 0.14
 const HITSTOP := 0.15
-const FLYER_WIDTH := 240
+const FLYER_WIDTH := 360
 
 ## 테스트에서 연출을 빨리 돌릴 때 올린다.
 var speed := 1.0
@@ -86,9 +86,9 @@ func _ready() -> void:
 	_checkout.theme_type_variation = &"AccentButton"
 	_discard = _button(Art.ICON_DISCARD, "", _on_discard, row)
 	for b in [_checkout, _discard]:
-		b.custom_minimum_size.x = 480
+		b.custom_minimum_size.x = 440
 	_flyer_row = HBoxContainer.new()
-	_flyer_row.add_theme_constant_override(&"separation", 16)
+	_flyer_row.add_theme_constant_override(&"separation", Style.GAP)
 	row.add_child(_flyer_row)
 	_sync_flyers()
 	_shown_score = run.shift.score
