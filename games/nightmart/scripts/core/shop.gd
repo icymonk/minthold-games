@@ -55,7 +55,7 @@ static func open_pack(rng: RandomNumberGenerator) -> Array[Card]:
 	for i in PACK_SIZE:
 		var c := Card.new(Card.CORNERS[rng.randi_range(0, Card.CORNERS.size() - 1)], rng.randi_range(1, 13))
 		if rng.randf() < PACK_TAG_CHANCE:
-			c.tag = PACK_TAGS[rng.randi_range(0, PACK_TAGS.size() - 1)]
+			c.tag_with(PACK_TAGS[rng.randi_range(0, PACK_TAGS.size() - 1)])
 		out.append(c)
 	return out
 

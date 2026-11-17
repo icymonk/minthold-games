@@ -26,7 +26,7 @@ static func best_play(shift: Shift) -> Array[Card]:
 	var best_total := -1
 	var n := shift.hand.size()
 	for mask in range(1, 1 << n):
-		if _bits(mask) > Combo.MAX_CARDS:
+		if _bits(mask) > shift.max_cards:
 			continue
 		var pick: Array[Card] = []
 		for i in n:
@@ -47,7 +47,7 @@ static func _shift_step(run: Run) -> void:
 	if expected < need and s.swaps_left > 0:
 		var rest: Array[Card] = s.hand.filter(func(c: Card) -> bool: return not pick.has(c))
 		rest.sort_custom(func(a: Card, b: Card) -> bool: return a.rank < b.rank)
-		rest.resize(mini(rest.size(), Combo.MAX_CARDS))
+		rest.resize(mini(rest.size(), s.max_cards))
 		if not rest.is_empty() and run.discard(rest):
 			return
 	run.play(pick)

@@ -15,6 +15,10 @@ const TAG_EVENT := &"event"
 const TAG_CHILLED := &"chilled"
 const TAG_PB := &"pb"
 const TAG_GOLD := &"gold"
+## 유통기한(밤 수). 도시락·우유는 처음부터, 냉장 꼬리표를 붙이면 그때부터.
+const PERISHABLE := {&"meal": [12], &"drink": [3, 4]}
+const PERISHABLE_LIFE := 5
+const CHILLED_LIFE := 3
 
 var corner: StringName
 var rank: int
@@ -28,6 +32,21 @@ func _init(card_corner: StringName, card_rank: int, card_tag: StringName = TAG_N
 	corner = card_corner
 	rank = card_rank
 	tag = card_tag
+	if PERISHABLE.get(corner, []).has(rank):
+		shelf_life = PERISHABLE_LIFE
+
+
+## 꼬리표를 붙인다. 냉장이면 유통기한이 생긴다(이미 있으면 그대로).
+func tag_with(t: StringName) -> void:
+	tag = t
+	if t == TAG_CHILLED and shelf_life < 0:
+		shelf_life = CHILLED_LIFE
+
+
+## 밤이 지날 때 1 준다. 0이 되면 폐기.
+func age() -> void:
+	if shelf_life > 0:
+		shelf_life -= 1
 
 
 ## 디버그·테스트용 표기: "m5 s12+ d7?" — 코너 첫 글자, 가격, 꼬리표 기호(+ 할인, * 행사, ~ 냉장, ? PB, $ 금박, x 폐기).

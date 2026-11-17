@@ -39,7 +39,7 @@ static func fits(flyer_id: StringName, n: int) -> bool:
 static func apply(flyer_id: StringName, cards: Array[Card]) -> void:
 	if TAGS.has(flyer_id):
 		for c in cards:
-			c.tag = TAGS[flyer_id]
+			c.tag_with(TAGS[flyer_id])
 		return
 	match flyer_id:
 		&"price_up":

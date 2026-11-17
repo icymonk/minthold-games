@@ -7,6 +7,8 @@ const SIZE := Vector2(200, 280)
 var corner: StringName
 var rank: int
 var card: Card
+## 뒷면(진상 손님·정전): 그림·가격·꼬리표를 숨긴다.
+var face_down := false
 
 
 func setup(card_corner: StringName, card_rank: int) -> ProductCard:
@@ -15,8 +17,9 @@ func setup(card_corner: StringName, card_rank: int) -> ProductCard:
 	return self
 
 
-func setup_card(c: Card) -> ProductCard:
+func setup_card(c: Card, face_down := false) -> ProductCard:
 	card = c
+	self.face_down = face_down
 	return setup(c.corner, c.rank)
 
 
@@ -30,6 +33,11 @@ func _ready() -> void:
 	add_theme_stylebox_override(&"pressed", Style.card_box(true))
 	add_theme_stylebox_override(&"hover_pressed", Style.card_box(true))
 	add_theme_stylebox_override(&"focus", Style.box(Color(0, 0, 0, 0), 18, Style.PRICE, 6))
+	button_down.connect(_bump.bind(0.94))
+	toggled.connect(func(on: bool) -> void: _bump(1.08 if on else 1.0))
+	if face_down:
+		_back()
+		return
 	var band := ColorRect.new()
 	band.color = Style.CORNER[corner]
 	band.position = Vector2(14, 14)
@@ -62,8 +70,40 @@ func _ready() -> void:
 		tag.add_theme_color_override(&"font_color", Style.ANGRY)
 		tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		add_child(tag)
-	button_down.connect(_bump.bind(0.94))
-	toggled.connect(func(on: bool) -> void: _bump(1.08 if on else 1.0))
+	if card and card.is_waste():
+		art.modulate = Color(0.35, 0.35, 0.35)
+		_corner_label(Names.t("CARD_WASTE"), Style.ANGRY)
+	elif card and card.shelf_life > 0:
+		_corner_label(Names.t("CARD_LIFE") % card.shelf_life, Style.ANGRY if card.shelf_life <= 1 else Style.CORNER[corner].darkened(0.3))
+
+
+## 아래 가운데 작은 도장(유통기한·폐기)
+func _corner_label(text: String, color: Color) -> void:
+	var l := Label.new()
+	l.text = text
+	l.position = Vector2(0, SIZE.y - 56)
+	l.size = Vector2(SIZE.x, 40)
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	l.add_theme_font_override(&"font", Style.bold())
+	l.add_theme_font_size_override(&"font_size", 32)
+	l.add_theme_color_override(&"font_color", color)
+	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(l)
+
+
+func _back() -> void:
+	for state in [&"normal", &"hover", &"disabled"]:
+		add_theme_stylebox_override(state, Style.box(Style.NIGHT.lightened(0.15), 18, Color(Style.FLUORESCENT, 0.3), 4))
+	var q := Label.new()
+	q.text = "?"
+	q.set_anchors_preset(Control.PRESET_FULL_RECT)
+	q.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	q.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	q.add_theme_font_override(&"font", Style.bold())
+	q.add_theme_font_size_override(&"font_size", 120)
+	q.add_theme_color_override(&"font_color", Color(Style.FLUORESCENT, 0.5))
+	q.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(q)
 
 
 ## 계산 연출: 상품 하나 찍힐 때 튀어 오른다.

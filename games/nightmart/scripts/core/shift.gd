@@ -11,6 +11,10 @@ var target: int
 var score := 0
 var money := 0
 var hand_size := HAND_SIZE
+var max_cards := Combo.MAX_CARDS
+## 뒷면으로 나오는 카드(진상 손님·날씨)
+var hidden_corners: Array[StringName] = []
+var hidden_cards: Array[Card] = []
 var checkouts_left := CHECKOUTS
 var swaps_left := SWAPS
 var hand: Array[Card] = []
@@ -34,6 +38,10 @@ func _init(deck: Array[Card], target_sales: int, rng: RandomNumberGenerator, tip
 	for h in hooks:
 		h.on_shift_start(self)
 	_refill()
+
+
+func is_hidden(c: Card) -> bool:
+	return hidden_cards.has(c) or hidden_corners.has(c.corner)
 
 
 func cleared() -> bool:
@@ -98,7 +106,7 @@ func discard(cards: Array[Card]) -> bool:
 
 
 func _valid(cards: Array[Card]) -> bool:
-	if cards.is_empty() or cards.size() > Combo.MAX_CARDS:
+	if cards.is_empty() or cards.size() > max_cards:
 		return false
 	var seen := {}
 	for c in cards:

@@ -65,7 +65,7 @@ func test_night_advances_after_boss() -> void:
 		run.leave_shop()
 	assert_int(run.night).is_equal(2)
 	assert_int(run.slot).is_equal(Run.NORMAL)
-	assert_int(run.shift.target).is_equal(8000)
+	assert_int(run.shift.target).is_equal(int(8000 * Weather.TARGET_MULT.get(run.weather_id(), 1.0)))
 
 
 func test_final_boss_wins() -> void:
@@ -229,7 +229,7 @@ func test_sold_tip_stops_during_shift() -> void:
 	run.tips.append(Tips.make(&"boss_nephew"))
 	run._start_shift()
 	assert_bool(run.sell_tip(0)).is_true()
-	assert_bool(run.shift.hooks.is_empty()).is_true()
+	assert_bool(run.shift.hooks.any(func(h: Hook) -> bool: return h.id == &"boss_nephew")).is_false()
 	assert_int(run.play([run.shift.hand[0]]).money).is_equal(0)
 
 
