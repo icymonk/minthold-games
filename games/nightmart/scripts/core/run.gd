@@ -170,6 +170,7 @@ func _idx(cards: Array[Card]) -> Array:
 
 
 func _log(a: Array) -> void:
+	best_money = maxi(best_money, money)
 	actions.append(a)
 	acted.emit()
 
@@ -387,7 +388,6 @@ func _end_shift() -> void:
 		"overkill": over * OVERKILL_UNIT,
 	}
 	money += last_pay.interest + last_pay.payout + last_pay.leftover + last_pay.overkill
-	best_money = maxi(best_money, money)
 	if night == NIGHTS and slot == BOSS:
 		phase = Phase.WON
 		return

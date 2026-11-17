@@ -107,3 +107,15 @@ func test_game_saves_and_continues() -> void:
 	Game.save_path = "user://nightmart_run.json"
 	Game.ledger_path = "user://nightmart_ledger.json"
 	Game.ledger = Ledger.new()
+
+
+func test_rich_counts_money_from_flyers_and_sales() -> void:
+	var run := Run.new(1)
+	run.money = 12000
+	run.flyers.append(&"cash")
+	assert_bool(run.use_flyer(0)).is_true()
+	assert_int(run.best_money).is_equal(17000)
+	run.tips.append(Tips.make(&"three_am"))
+	run.money = 19000
+	assert_bool(run.sell_tip(0)).is_true()
+	assert_bool(Ledger.new().met(&"rich", run)).is_true()
