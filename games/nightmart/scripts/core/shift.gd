@@ -78,6 +78,12 @@ func play(cards: Array[Card]) -> Receipt:
 	return r
 
 
+## 계산하지 않고 점수만 본다(조합 미리 보기·봇).
+func preview(cards: Array[Card]) -> Receipt:
+	var held := hand.filter(func(c: Card) -> bool: return not cards.has(c))
+	return Receipt.ring_up(cards, levels, hooks, Array(held, TYPE_OBJECT, &"RefCounted", Card), checkouts_left, true)
+
+
 func discard(cards: Array[Card]) -> bool:
 	if not can_discard(cards):
 		return false
