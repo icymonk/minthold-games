@@ -92,7 +92,7 @@ func discard(cards: Array[Card]) -> bool:
 
 ## 일반 손님·단골은 첫 행동 전에 건너뛸 수 있다. 돈 대신 건너뛰기 보상.
 func can_skip() -> bool:
-	return phase == Phase.SHIFT and slot != BOSS and shift.receipts.is_empty()
+	return phase == Phase.SHIFT and slot != BOSS and shift.receipts.is_empty() and shift.discard_pile.is_empty()
 
 
 func skip() -> bool:
