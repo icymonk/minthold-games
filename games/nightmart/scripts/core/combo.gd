@@ -32,17 +32,26 @@ const NAME_KEYS := {
 	Kind.STRAIGHT_FLUSH: "COMBO_STRAIGHT_FLUSH",
 }
 const MAX_CARDS := 5
-const RUN := 5
 
 
-static func detect(cards: Array[Card]) -> Kind:
+## 꿀팁이 바꿀 수 있는 판정 규칙.
+class Rules:
+	extends RefCounted
+	var run_len := 5
+	var flush_len := 5
+	var chilled_mult := 1.5
+
+
+static func detect(cards: Array[Card], rules: Rules = null) -> Kind:
+	if rules == null:
+		rules = Rules.new()
 	var live := cards.filter(func(c: Card) -> bool: return not c.is_waste())
 	if live.is_empty():
 		return Kind.NONE
 	var counts := _rank_counts(live)
-	var straight := _is_straight(live)
-	var flush := _is_flush(live)
-	if straight and flush:
+	var straight := _is_straight(live, rules.run_len)
+	var flush := _is_flush(live, rules.flush_len)
+	if _is_straight_flush(live, rules):
 		return Kind.STRAIGHT_FLUSH
 	if counts[0] >= 4:
 		return Kind.FOUR
@@ -84,24 +93,31 @@ static func _rank_counts(cards: Array) -> Array[int]:
 	return out
 
 
-static func _is_straight(cards: Array) -> bool:
-	if cards.size() != RUN:
-		return false
-	var ranks: Array[int] = []
+## 서로 다른 가격이 run_len개 이상 이어지나. 13 다음은 1이 아니다.
+static func _is_straight(cards: Array, run_len: int) -> bool:
+	var has := {}
 	for c: Card in cards:
-		ranks.append(c.rank)
-	ranks.sort()
-	for i in range(1, ranks.size()):
-		if ranks[i] != ranks[i - 1] + 1:
-			return false
-	return true
+		has[c.rank] = true
+	var run := 0
+	for r in range(1, 14):
+		run = run + 1 if has.has(r) else 0
+		if run >= run_len:
+			return true
+	return false
 
 
-static func _is_flush(cards: Array) -> bool:
-	if cards.size() != RUN:
-		return false
+static func _is_flush(cards: Array, flush_len: int) -> bool:
 	for corner in Card.CORNERS:
-		if cards.all(func(c: Card) -> bool: return c.counts_as(corner)):
+		if cards.filter(func(c: Card) -> bool: return c.counts_as(corner)).size() >= flush_len:
+			return true
+	return false
+
+
+## 같은 코너 카드들만으로 이어진 줄이 되어야 한다.
+static func _is_straight_flush(cards: Array, rules: Rules) -> bool:
+	for corner in Card.CORNERS:
+		var same := cards.filter(func(c: Card) -> bool: return c.counts_as(corner))
+		if same.size() >= rules.flush_len and _is_straight(same, rules.run_len):
 			return true
 	return false
 

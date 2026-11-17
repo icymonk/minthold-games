@@ -1,19 +1,7 @@
 extends GdUnitTestSuite
 
-const CORNER := {"m": Card.MEAL, "s": Card.SNACK, "d": Card.DRINK, "g": Card.GOODS}
-const TAG := {"": Card.TAG_NONE, "+": Card.TAG_DISCOUNT, "*": Card.TAG_EVENT, "~": Card.TAG_CHILLED, "?": Card.TAG_PB, "x": Card.TAG_NONE}
-
-
-## "m5 s5 d7?" → 카드. 뒤 기호: + 할인, * 행사, ~ 냉장, ? PB, x 폐기.
 func _cards(text: String) -> Array[Card]:
-	var out: Array[Card] = []
-	for word in text.split(" ", false):
-		var mark := word.right(1) if not word.right(1).is_valid_int() else ""
-		var c := Card.new(CORNER[word.left(1)], int(word.substr(1, word.length() - 1 - mark.length())), TAG[mark])
-		if mark == "x":
-			c.shelf_life = 0
-		out.append(c)
-	return out
+	return Card.parse(text)
 
 
 func _kind(text: String) -> Combo.Kind:
