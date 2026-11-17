@@ -51,7 +51,7 @@ static func detect(cards: Array[Card], rules: Rules = null) -> Kind:
 	var counts := _rank_counts(live)
 	var straight := _is_straight(live, rules.run_len)
 	var flush := _is_flush(live, rules.flush_len)
-	if straight and flush:
+	if _is_straight_flush(live, rules):
 		return Kind.STRAIGHT_FLUSH
 	if counts[0] >= 4:
 		return Kind.FOUR
@@ -109,6 +109,15 @@ static func _is_straight(cards: Array, run_len: int) -> bool:
 static func _is_flush(cards: Array, flush_len: int) -> bool:
 	for corner in Card.CORNERS:
 		if cards.filter(func(c: Card) -> bool: return c.counts_as(corner)).size() >= flush_len:
+			return true
+	return false
+
+
+## 같은 코너 카드들만으로 이어진 줄이 되어야 한다.
+static func _is_straight_flush(cards: Array, rules: Rules) -> bool:
+	for corner in Card.CORNERS:
+		var same := cards.filter(func(c: Card) -> bool: return c.counts_as(corner))
+		if same.size() >= rules.flush_len and _is_straight(same, rules.run_len):
 			return true
 	return false
 

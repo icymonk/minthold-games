@@ -50,6 +50,9 @@ func test_rule_tips() -> void:
 	assert_int(_ring("g1 g4 g9 g11", [&"same_aisle"]).kind).is_equal(Combo.Kind.FLUSH)
 	assert_int(_ring("g1 g4 g9 g11 m2", [&"same_aisle"]).kind).is_equal(Combo.Kind.FLUSH)
 	assert_float(_ring("g9~", [&"fridge_king"]).satisfaction).is_equal(2.0)
+	# 같은 코너 4장 + 다른 코너로 채운 진열 줄은 완벽 진열이 아니다
+	assert_int(_ring("g1 g2 g3 g4 m5", [&"same_aisle"]).kind).is_equal(Combo.Kind.STRAIGHT)
+	assert_int(_ring("g1 g2 g3 g4 m9", [&"same_aisle", &"row_obsessed"]).kind).is_equal(Combo.Kind.STRAIGHT_FLUSH)
 
 
 func test_waste_snack_counts_held_waste() -> void:
