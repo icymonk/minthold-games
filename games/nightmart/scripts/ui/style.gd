@@ -76,3 +76,13 @@ static func make_theme() -> Theme:
 ## 상품 카드 틀: 흰 카드, 그림자, 고르면 네온 테두리.
 static func card_box(picked: bool) -> StyleBoxFlat:
 	return box(CARD, 18, NEON if picked else Color(NIGHT, 0.25), 8 if picked else 2, 28 if picked else 14)
+
+
+## 1234567 → "1,234,567"
+static func num(n: int) -> String:
+	var digits := str(absi(n))
+	var out := ""
+	while digits.length() > 3:
+		out = "," + digits.right(3) + out
+		digits = digits.left(digits.length() - 3)
+	return ("-" if n < 0 else "") + digits + out

@@ -6,12 +6,18 @@ const SIZE := Vector2(200, 280)
 
 var corner: StringName
 var rank: int
+var card: Card
 
 
 func setup(card_corner: StringName, card_rank: int) -> ProductCard:
 	corner = card_corner
 	rank = card_rank
 	return self
+
+
+func setup_card(c: Card) -> ProductCard:
+	card = c
+	return setup(c.corner, c.rank)
 
 
 func _ready() -> void:
@@ -47,6 +53,15 @@ func _ready() -> void:
 	add_child(price)
 	button_down.connect(_bump.bind(0.94))
 	toggled.connect(func(on: bool) -> void: _bump(1.08 if on else 1.0))
+
+
+## 계산 연출: 상품 하나 찍힐 때 튀어 오른다.
+func flash() -> void:
+	var tw := create_tween()
+	tw.tween_property(self, ^"scale", Vector2.ONE * 1.18, 0.06)
+	tw.parallel().tween_property(self, ^"modulate", Color(Style.NEON.lightened(0.5), 1.0), 0.06)
+	tw.tween_property(self, ^"scale", Vector2.ONE * 1.08, 0.16).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tw.parallel().tween_property(self, ^"modulate", Color.WHITE, 0.16)
 
 
 func _bump(to: float) -> void:

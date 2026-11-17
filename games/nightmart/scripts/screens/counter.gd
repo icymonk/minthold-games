@@ -1,43 +1,76 @@
 extends ScreenBase
-## 0-2 계산대 맛보기: 손패 8장에서 골라 계산하거나 바꾼다. 점수는 가격 합만 센다(조합은 1-1).
+## 계산대: 지금 손님 한 명을 상대한다. 고르면 조합을 미리 보여 주고,
+## 계산하면 영수증 기록(`Receipt.log`)을 한 줄씩 다시 보여 준 뒤 매출 × 만족을 터뜨린다.
 
-const HAND_SIZE := 8
-const MAX_PICK := 5
+signal checkout_done
+
 const COACH_STEPS := [
 	{"id": &"pick", "text": "COACH_PICK", "icon": Art.HAND, "wait": &"picked"},
 	{"id": &"checkout", "text": "COACH_CHECKOUT", "icon": Art.ICON_CHECKOUT, "wait": &"checked_out"},
 	{"id": &"discard", "text": "COACH_DISCARD", "icon": Art.ICON_DISCARD, "wait": &"discarded"},
 ]
+const STEP_TIME := 0.14
+const HITSTOP := 0.15
 
-var _rng: RandomNumberGenerator
+## 테스트에서 연출을 빨리 돌릴 때 올린다.
+var speed := 1.0
+var run: Run
+var _root: MarginContainer
 var _hand: HBoxContainer
-var _sales: Label
+var _info: Label
+var _money: Label
+var _score: Label
+var _target: Label
+var _combo: Label
+var _calc: Label
 var _checkout: Button
 var _discard: Button
 var _coach: Coach
-var _total := 0
 var _busy := false
+var _shown_score := 0
+var _shown_money := 0
 
 
 func _ready() -> void:
-	_rng = (Game.rng if Game.rng else RngStreams.new(Game.run_seed)).deck
-	var margin := MarginContainer.new()
-	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	if Game.run == null:
+		Game.run = Run.new(Game.run_seed)
+	run = Game.run
+	_root = MarginContainer.new()
+	_root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	for side in [&"margin_left", &"margin_right"]:
-		margin.add_theme_constant_override(side, 96)
+		_root.add_theme_constant_override(side, 96)
 	for side in [&"margin_top", &"margin_bottom"]:
-		margin.add_theme_constant_override(side, 54)
-	add_child(margin)
+		_root.add_theme_constant_override(side, 54)
+	add_child(_root)
 	_list = VBoxContainer.new()
 	_list.add_theme_constant_override(&"separation", Style.GAP)
-	margin.add_child(_list)
+	_root.add_child(_list)
 	var top := HBoxContainer.new()
+	top.add_theme_constant_override(&"separation", Style.GAP)
 	_list.add_child(top)
 	_button(Art.ICON_HOME, tr("BACK_TO_TITLE"), Game.goto.bind(&"title"), top).custom_minimum_size = Vector2(300, 112)
-	_label(tr("COUNTER_HINT"), Style.HEADLINE).size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_sales = _label(tr("COUNTER_SALES") % 0, Style.SCORE)
-	_sales.add_theme_color_override(&"font_color", Style.PRICE)
-	_sales.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_info = _label("", Style.HEADLINE)
+	_info.reparent(top)
+	_info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_money = _label("", Style.HEADLINE)
+	_money.reparent(top)
+	_money.add_theme_color_override(&"font_color", Style.PRICE)
+	var board := HBoxContainer.new()
+	board.add_theme_constant_override(&"separation", Style.GAP * 2)
+	board.alignment = BoxContainer.ALIGNMENT_CENTER
+	board.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_list.add_child(board)
+	var left := _column(board)
+	_score = _label("0", Style.SCORE)
+	_score.reparent(left)
+	_score.add_theme_color_override(&"font_color", Style.PRICE)
+	_target = _label("", Style.BODY)
+	_target.reparent(left)
+	var right := _column(board)
+	_combo = _label("", Style.HEADLINE)
+	_combo.reparent(right)
+	_calc = _label("", Style.HEADLINE)
+	_calc.reparent(right)
 	_hand = HBoxContainer.new()
 	_hand.alignment = BoxContainer.ALIGNMENT_CENTER
 	_hand.add_theme_constant_override(&"separation", 16)
@@ -46,11 +79,12 @@ func _ready() -> void:
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override(&"separation", Style.GAP)
 	_list.add_child(row)
-	_checkout = _button(Art.ICON_CHECKOUT, tr("COUNTER_CHECKOUT"), _on_checkout, row)
+	_checkout = _button(Art.ICON_CHECKOUT, "", _on_checkout, row)
 	_checkout.theme_type_variation = &"AccentButton"
-	_discard = _button(Art.ICON_DISCARD, tr("COUNTER_DISCARD"), _on_discard, row)
-	for i in HAND_SIZE:
-		_deal()
+	_discard = _button(Art.ICON_DISCARD, "", _on_discard, row)
+	_shown_score = run.shift.score
+	_shown_money = run.money
+	_sync_hand()
 	_refresh()
 	_coach = Coach.new()
 	_coach.rect_of = _coach_rect
@@ -74,14 +108,47 @@ func picked() -> Array[ProductCard]:
 	return hand().filter(func(c: ProductCard) -> bool: return c.button_pressed)
 
 
-func _deal() -> void:
-	var card := ProductCard.new().setup(Art.CORNERS[_rng.randi_range(0, 3)], _rng.randi_range(1, 13))
-	card.toggled.connect(_on_card_toggled.bind(card))
-	_hand.add_child(card)
+func picked_cards() -> Array[Card]:
+	var out: Array[Card] = []
+	for node in picked():
+		out.append(node.card)
+	return out
+
+
+func combo_text() -> String:
+	return _combo.text
+
+
+func _column(parent: Control) -> VBoxContainer:
+	var col := VBoxContainer.new()
+	col.alignment = BoxContainer.ALIGNMENT_CENTER
+	col.custom_minimum_size.x = 640
+	parent.add_child(col)
+	return col
+
+
+## 손패 노드를 `run.shift.hand` 순서에 맞춘다. 새로 들어온 카드만 만든다.
+func _sync_hand() -> void:
+	var have := {}
+	for node in hand():
+		if run.shift.hand.has(node.card):
+			have[node.card] = node
+		else:
+			node.queue_free()
+	for i in run.shift.hand.size():
+		var c := run.shift.hand[i]
+		var node: ProductCard = have.get(c)
+		if node == null:
+			node = ProductCard.new().setup_card(c)
+			node.toggled.connect(_on_card_toggled.bind(node))
+			node.modulate.a = 0.0
+			_hand.add_child(node)
+			create_tween().tween_property(node, ^"modulate:a", 1.0, 0.2 / speed).set_ease(Tween.EASE_OUT)
+		_hand.move_child(node, i)
 
 
 func _on_card_toggled(on: bool, card: ProductCard) -> void:
-	if on and picked().size() > MAX_PICK:
+	if on and picked().size() > Combo.MAX_CARDS:
 		card.set_pressed_no_signal(false)
 		Sfx.play(&"error")
 		return
@@ -92,67 +159,177 @@ func _on_card_toggled(on: bool, card: ProductCard) -> void:
 
 
 func _refresh() -> void:
-	var none := picked().is_empty()
-	_checkout.disabled = none or _busy
-	_discard.disabled = none or _busy
+	var s := run.shift
+	_info.text = tr("COUNTER_NIGHT") % [run.night, tr("SLOT_%d" % run.slot)]
+	_money.text = tr("COUNTER_MONEY") % Style.num(_shown_money)
+	_target.text = tr("COUNTER_TARGET") % Style.num(s.target)
+	_score.text = Style.num(_shown_score)
+	_checkout.text = "%s %d" % [tr("COUNTER_CHECKOUT"), s.checkouts_left]
+	_discard.text = "%s %d" % [tr("COUNTER_DISCARD"), s.swaps_left]
+	var cards := picked_cards()
+	_checkout.disabled = _busy or not s.can_play(cards)
+	_discard.disabled = _busy or not s.can_discard(cards)
+	if _busy:
+		return
+	if cards.is_empty():
+		_combo.text = tr("COUNTER_HINT")
+		_calc.text = ""
+		return
+	var r := s.preview(cards)
+	_combo.text = _combo_name(r.kind)
+	_calc.text = _calc_text(r.sales, r.satisfaction)
+
+
+func _combo_name(kind: Combo.Kind) -> String:
+	var key := "COMBO_%s" % Combo.Kind.keys()[kind]
+	return tr(key)
+
+
+func _calc_text(sales: int, sat: float) -> String:
+	return "%s × %s" % [Style.num(sales), String.num(sat, 1).trim_suffix(".0")]
 
 
 func _on_checkout() -> void:
-	var cards := picked()
+	var nodes := picked()
+	var r := run.play(picked_cards())
+	if r == null:
+		return
 	_busy = true
 	_refresh()
 	_coach.pause()
-	for card in cards:
-		_total += card.rank * 100
-		Sfx.play(&"scan", 0.8, 1.0 + card.rank * 0.02)
-		_sales.text = tr("COUNTER_SALES") % _total
-		_pop(_sales, 1.15)
-		var tw := create_tween()
-		tw.tween_property(card, ^"modulate", Color(Style.NEON, 1.0), 0.08)
-		tw.tween_property(card, ^"modulate:a", 0.0, 0.18)
-		await tw.finished
-	Sfx.play(&"cash")
-	_pop(_sales, 1.35)
-	await _replace(cards)
-	_coach_done(&"checked_out")
+	await _replay(r, nodes)
+	var tw := create_tween().set_parallel()
+	for node in nodes:
+		tw.tween_property(node, ^"modulate:a", 0.0, 0.18 / speed)
+	await tw.finished
+	_after_action(&"checked_out")
 
 
 func _on_discard() -> void:
-	var cards := picked()
+	var nodes := picked()
+	if not run.discard(picked_cards()):
+		return
 	_busy = true
 	_refresh()
 	_coach.pause()
 	var tw := create_tween().set_parallel()
-	for card in cards:
-		tw.tween_property(card, ^"modulate:a", 0.0, 0.2)
+	for node in nodes:
+		tw.tween_property(node, ^"modulate:a", 0.0, 0.2 / speed)
 	await tw.finished
-	await _replace(cards)
-	_coach_done(&"discarded")
+	_after_action(&"discarded")
 
 
-func _replace(cards: Array[ProductCard]) -> void:
-	for card in cards:
-		card.queue_free()
-	for card in cards:
-		_deal()
+## 영수증 기록을 한 줄씩: 조합 → 상품(띵) → 꼬리표 → 꿀팁. 끝에 매출 × 만족 폭발.
+func _replay(r: Receipt, nodes: Array[ProductCard]) -> void:
+	var by_name := {}
+	for node in nodes:
+		by_name[str(node.card)] = node
+	_combo.text = _combo_name(r.kind)
+	var sales := 0
+	var sat := 0.0
+	var step := 0
+	for e in r.log:
+		sales += e.sales
+		sat = (sat + e.sat_add) * e.sat_mul
+		_calc.text = _calc_text(sales, sat)
+		var node: ProductCard = by_name.get(e.source)
+		if node:
+			node.flash()
+			Sfx.play(&"scan", 0.8, 1.0 + step * 0.06)
+			step += 1
+		elif e.source != "combo":
+			Sfx.play(&"chime", 0.7)
+		_pop(_calc, 1.12 if e.sat_mul == 1.0 else 1.3)
+		await get_tree().create_timer(STEP_TIME / speed).timeout
+	_calc.text = Style.num(r.total())
+	_pop(_calc, 1.5)
+	Sfx.play(&"cash")
+	_shake()
+	await get_tree().create_timer(HITSTOP / speed).timeout
+	_shown_score = run.shift.score
+	_score.text = Style.num(_shown_score)
+	_pop(_score, 1.3)
+	await get_tree().create_timer(STEP_TIME * 2 / speed).timeout
+
+
+func _after_action(event: StringName) -> void:
+	_sync_hand()
 	Sfx.play(&"deal")
 	await get_tree().process_frame
+	_shown_money = run.money
 	_busy = false
 	_refresh()
-
-
-func _coach_done(event: StringName) -> void:
-	if _coach.waiting_for() == event:
+	if run.phase != Run.Phase.SHIFT:
+		_coach.pause()
+		_show_end()
+	elif _coach.waiting_for() == event:
 		_coach.notify(event)
 	else:
 		_coach.resume()
+	checkout_done.emit()
+
+
+func _show_end() -> void:
+	var dim := ColorRect.new()
+	dim.color = Color(Style.NIGHT_DEEP, 0.85)
+	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	add_child(dim)
+	var center := CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dim.add_child(center)
+	var panel := PanelContainer.new()
+	var sb := Style.box(Style.NIGHT, 24, Color(Style.FLUORESCENT, 0.3), 3, 32)
+	sb.set_content_margin_all(64)
+	panel.add_theme_stylebox_override(&"panel", sb)
+	center.add_child(panel)
+	_list = VBoxContainer.new()
+	_list.add_theme_constant_override(&"separation", Style.GAP)
+	panel.add_child(_list)
+	match run.phase:
+		Run.Phase.LOST:
+			Sfx.play(&"error")
+			_label(tr("END_LOST"), Style.SCORE).add_theme_color_override(&"font_color", Style.ANGRY)
+			_label(tr("END_LOST_DETAIL") % [Style.num(run.shift.target), Style.num(run.shift.score)])
+			_button(Art.ICON_RETRY, tr("END_RETRY"), func() -> void: Game.start_run(randi())).theme_type_variation = &"AccentButton"
+			_button(Art.ICON_HOME, tr("BACK_TO_TITLE"), Game.goto.bind(&"title"))
+		Run.Phase.WON:
+			Sfx.play(&"chime")
+			_label(tr("END_WON"), Style.SCORE).add_theme_color_override(&"font_color", Style.NEON)
+			_button(Art.ICON_HOME, tr("BACK_TO_TITLE"), Game.goto.bind(&"title")).theme_type_variation = &"AccentButton"
+		_:
+			Sfx.play(&"cash")
+			_label(tr("END_CLEARED"), Style.SCORE).add_theme_color_override(&"font_color", Style.NEON)
+			for key in ["payout", "leftover", "overkill", "interest", "tips"]:
+				if run.last_pay.get(key, 0) > 0:
+					_label("%s  +%s" % [tr(StringName("END_PAY_%s" % key.to_upper())), tr("COUNTER_MONEY") % Style.num(run.last_pay[key])])
+			_label(tr("COUNTER_MONEY") % Style.num(run.money), Style.HEADLINE).add_theme_color_override(&"font_color", Style.PRICE)
+			_button(Art.ICON_NEXT, tr("END_NEXT"), _next_customer).theme_type_variation = &"AccentButton"
+	panel.pivot_offset = panel.size / 2.0
+	panel.modulate.a = 0.0
+	var tw := create_tween().set_parallel()
+	tw.tween_property(panel, ^"modulate:a", 1.0, 0.25 / speed).set_ease(Tween.EASE_OUT)
+
+
+## 발주 화면(2-2) 전까지는 바로 다음 손님으로 간다.
+func _next_customer() -> void:
+	if run.phase == Run.Phase.PACK:
+		run.choose_pack(-1)
+	run.leave_shop()
+	Game.goto(&"counter")
 
 
 func _pop(node: Control, to: float) -> void:
 	node.pivot_offset = node.size / 2.0
 	var tw := create_tween()
-	tw.tween_property(node, ^"scale", Vector2.ONE * to, 0.08)
-	tw.tween_property(node, ^"scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tw.tween_property(node, ^"scale", Vector2.ONE * to, 0.06 / speed)
+	tw.tween_property(node, ^"scale", Vector2.ONE, 0.2 / speed).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
+func _shake() -> void:
+	var tw := create_tween()
+	for i in 4:
+		tw.tween_property(_root, ^"position", Vector2(randf_range(-12, 12), randf_range(-8, 8)), 0.03 / speed)
+	tw.tween_property(_root, ^"position", Vector2.ZERO, 0.05 / speed)
 
 
 func _coach_rect(step: StringName) -> Rect2:
