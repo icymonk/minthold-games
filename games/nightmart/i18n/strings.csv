@@ -43,3 +43,61 @@ END_LOST,영업 끝,Shift over
 END_LOST_DETAIL,목표 %s 중 %s,Target %s · got %s
 END_WON,정직원 됐어요!,You got the job!
 END_RETRY,다시 하기,Play again
+MAP_TITLE,%d일째 밤,Night %d
+MAP_SERVE,손님 받기,Serve
+MAP_SKIP,건너뛰기,Skip
+MAP_REWARD,보상 %s,Reward %s
+MAP_SKIP_GETS,건너뛰면 %s,Skip for %s
+MAP_NO_SKIP,건너뛸 수 없음,Can't skip
+MAP_DONE,보냄,Served
+MAP_SKIPPED,건너뜀,Skipped
+MAP_TOKENS,가진 보상: %s,Rewards held: %s
+TOKEN_FREE_PARCEL,공짜 택배,Free parcel
+TOKEN_SHOP_DISCOUNT,다음 발주 반값,Half-price order
+TOKEN_FREE_REROLL,새로 고침 공짜,Free reroll
+SHOP_TITLE,발주,Restock
+SHOP_REROLL,새로 고침 %s,Reroll %s
+SHOP_SOLD,품절,Sold out
+SHOP_SELL,팔기 %s,Sell %s
+SHOP_OPEN,뜯기,Open
+SHOP_PACK_PICK,진열대에 넣을 상품 하나를 골라요,Pick one product for your shelf
+SHOP_PACK_SKIP,넘기기,Skip
+PACK_NAME,상품 팩,Product Pack
+PACK_DESC,상품 3장 중 1장을 진열대에,Add 1 of 3 products to your shelf
+PARCEL_NAME,택배: %s,Parcel: %s
+PARCEL_DESC,%s 레벨 +1,%s level +1
+TIP_MEAL_PAIR,컵라면엔 삼각김밥,Ramen & Rice Ball
+TIP_MEAL_PAIR_DESC,식사 카드 2장 이상이면 만족 +4,2+ meal cards: Satisfaction +4
+TIP_PAIR_MASTER,1+1 장인,BOGO Master
+TIP_PAIR_MASTER_DESC,1+1을 낼 때마다 이 메모의 만족 +1,Each BOGO adds +1 Satisfaction to this memo
+TIP_FRIDGE_KING,냉장고 정리왕,Fridge King
+TIP_FRIDGE_KING_DESC,냉장 상품이 만족 ×1.5 대신 ×2,Chilled items give ×2 Satisfaction instead of ×1.5
+TIP_WASTE_SNACK,폐기 도시락 야식,Expired Midnight Snack
+TIP_WASTE_SNACK_DESC,손패의 폐기 1장당 만족 +2,+2 Satisfaction per expired card in hand
+TIP_ROW_OBSESSED,진열 줄 집착,Shelf Row Obsessed
+TIP_ROW_OBSESSED_DESC,진열 줄이 4장으로도 돼요,Shelf Row needs only 4 cards
+TIP_BOSS_NEPHEW,사장님 조카,Boss's Nephew
+TIP_BOSS_NEPHEW_DESC,계산마다 돈 +2천원 · 바꾸기 -1,₩2k per checkout · 1 fewer swap
+TIP_THREE_AM,새벽 3시,3 A.M.
+TIP_THREE_AM_DESC,손님의 마지막 계산 점수 ×3,Last checkout for a customer scores ×3
+TIP_SAME_AISLE,같은 코너 고집,Aisle Loyalist
+TIP_SAME_AISLE_DESC,같은 코너가 4장으로도 돼요,Same Aisle needs only 4 cards
+TIP_POINTS,포인트 적립,Points Card
+TIP_POINTS_DESC,낸 카드 1장당 이 메모 매출 +50,Each card played adds +50 Sales to this memo
+TIP_LAST_FIVE,퇴근 5분 전,Five to Clock-out
+TIP_LAST_FIVE_DESC,남은 계산이 1번이면 만족 ×2,Satisfaction ×2 on your last checkout
+EXP_EXTRA_REGISTER,계산대 하나 더,Extra Register
+EXP_EXTRA_REGISTER_DESC,손님마다 계산 +1,+1 checkout per customer
+EXP_STORAGE,창고,Storage
+EXP_STORAGE_DESC,손패 +1,+1 hand size
+TAG_DISCOUNT,할인,Sale
+TAG_EVENT,행사,Promo
+TAG_CHILLED,냉장,Chilled
+TAG_PB,PB,PB
+TAG_GOLD,골드,Gold
+END_TO_SHOP,발주하러,Go restock
+END_REACHED,%d일째 %s까지,Reached night %d · %s
+END_SERVED,보낸 손님 %d명,Customers served: %d
+END_BEST,가장 큰 매출 %s,Best sales %s
+COACH_COMBO,조합 이름과 예상 점수예요,Here's the combo and its expected score
+COACH_BUY_TIP,꿀팁 하나를 사 봐요,Buy a tip

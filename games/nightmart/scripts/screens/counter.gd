@@ -6,6 +6,7 @@ signal checkout_done
 
 const COACH_STEPS := [
 	{"id": &"pick", "text": "COACH_PICK", "icon": Art.HAND, "wait": &"picked"},
+	{"id": &"combo", "text": "COACH_COMBO", "wait": &"tap"},
 	{"id": &"checkout", "text": "COACH_CHECKOUT", "icon": Art.ICON_CHECKOUT, "wait": &"checked_out"},
 	{"id": &"discard", "text": "COACH_DISCARD", "icon": Art.ICON_DISCARD, "wait": &"discarded"},
 ]
@@ -154,7 +155,7 @@ func _on_card_toggled(on: bool, card: ProductCard) -> void:
 		return
 	Sfx.play(&"pick" if on else &"place")
 	_refresh()
-	if on:
+	if on and picked().size() >= 2:
 		_coach.notify(&"picked")
 
 
@@ -181,8 +182,7 @@ func _refresh() -> void:
 
 
 func _combo_name(kind: Combo.Kind) -> String:
-	var key := "COMBO_%s" % Combo.Kind.keys()[kind]
-	return tr(key)
+	return Names.combo(kind)
 
 
 func _calc_text(sales: int, sat: float) -> String:
@@ -270,6 +270,10 @@ func _after_action(event: StringName) -> void:
 
 
 func _show_end() -> void:
+	if run.is_over():
+		await get_tree().create_timer(0.6 / speed).timeout
+		Game.goto(&"run_end")
+		return
 	var dim := ColorRect.new()
 	dim.color = Color(Style.NIGHT_DEEP, 0.85)
 	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -285,37 +289,17 @@ func _show_end() -> void:
 	_list = VBoxContainer.new()
 	_list.add_theme_constant_override(&"separation", Style.GAP)
 	panel.add_child(_list)
-	match run.phase:
-		Run.Phase.LOST:
-			Sfx.play(&"error")
-			_label(tr("END_LOST"), Style.SCORE).add_theme_color_override(&"font_color", Style.ANGRY)
-			_label(tr("END_LOST_DETAIL") % [Style.num(run.shift.target), Style.num(run.shift.score)])
-			_button(Art.ICON_RETRY, tr("END_RETRY"), func() -> void: Game.start_run(randi())).theme_type_variation = &"AccentButton"
-			_button(Art.ICON_HOME, tr("BACK_TO_TITLE"), Game.goto.bind(&"title"))
-		Run.Phase.WON:
-			Sfx.play(&"chime")
-			_label(tr("END_WON"), Style.SCORE).add_theme_color_override(&"font_color", Style.NEON)
-			_button(Art.ICON_HOME, tr("BACK_TO_TITLE"), Game.goto.bind(&"title")).theme_type_variation = &"AccentButton"
-		_:
-			Sfx.play(&"cash")
-			_label(tr("END_CLEARED"), Style.SCORE).add_theme_color_override(&"font_color", Style.NEON)
-			for key in ["payout", "leftover", "overkill", "interest", "tips"]:
-				if run.last_pay.get(key, 0) > 0:
-					_label("%s  +%s" % [tr(StringName("END_PAY_%s" % key.to_upper())), tr("COUNTER_MONEY") % Style.num(run.last_pay[key])])
-			_label(tr("COUNTER_MONEY") % Style.num(run.money), Style.HEADLINE).add_theme_color_override(&"font_color", Style.PRICE)
-			_button(Art.ICON_NEXT, tr("END_NEXT"), _next_customer).theme_type_variation = &"AccentButton"
+	Sfx.play(&"cash")
+	_label(tr("END_CLEARED"), Style.SCORE).add_theme_color_override(&"font_color", Style.NEON)
+	for key in ["payout", "leftover", "overkill", "interest", "tips"]:
+		if run.last_pay.get(key, 0) > 0:
+			_label("%s  +%s" % [tr(StringName("END_PAY_%s" % key.to_upper())), Names.money(run.last_pay[key])])
+	_label(Names.money(run.money), Style.HEADLINE).add_theme_color_override(&"font_color", Style.PRICE)
+	_button(Art.ICON_NEXT, tr("END_TO_SHOP"), Game.goto.bind(&"shop")).theme_type_variation = &"AccentButton"
 	panel.pivot_offset = panel.size / 2.0
 	panel.modulate.a = 0.0
 	var tw := create_tween().set_parallel()
 	tw.tween_property(panel, ^"modulate:a", 1.0, 0.25 / speed).set_ease(Tween.EASE_OUT)
-
-
-## 발주 화면(2-2) 전까지는 바로 다음 손님으로 간다.
-func _next_customer() -> void:
-	if run.phase == Run.Phase.PACK:
-		run.choose_pack(-1)
-	run.leave_shop()
-	Game.goto(&"counter")
 
 
 func _pop(node: Control, to: float) -> void:
@@ -337,6 +321,8 @@ func _coach_rect(step: StringName) -> Rect2:
 	match step:
 		&"pick":
 			return hand_rect
+		&"combo":
+			return _combo.get_global_rect().merge(_calc.get_global_rect()).grow(24)
 		&"checkout":
 			return _checkout.get_global_rect().grow(16)
 		&"discard":
