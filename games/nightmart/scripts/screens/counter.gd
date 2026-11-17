@@ -164,6 +164,8 @@ func _sync_flyers() -> void:
 		var id := run.flyers[i]
 		var b := Button.new()
 		b.name = "Flyer%d" % i
+		b.icon = Art.ICON_FLYER
+		b.add_theme_constant_override(&"icon_max_width", 56)
 		b.text = Names.flyer(id)
 		b.tooltip_text = Names.flyer_desc(id)
 		b.custom_minimum_size = Vector2(FLYER_WIDTH, Style.BUTTON_H)

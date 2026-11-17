@@ -14,7 +14,7 @@ mkdir -p "$ART/products" "$ART/kenney" "$SFX"
 
 cp "$K/cursor-pack/Vector/Outline/hand_point_n.svg" "$ART/kenney/hand.svg"
 GI="$K/game-icons/PNG/White/2x"
-for i in home:home return:retry arrowRight:next shoppingCart:checkout trashcan:discard audioOn:sound_on audioOff:sound_off question:help gear:settings; do
+for i in home:home return:retry arrowRight:next shoppingCart:checkout trashcan:discard audioOn:sound_on audioOff:sound_off question:help gear:settings star:flyer; do
 	cp "$GI/${i%%:*}.png" "$ART/kenney/icon_${i##*:}.png"
 done
 
