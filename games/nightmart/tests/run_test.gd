@@ -30,7 +30,7 @@ func test_clear_pays_and_opens_shop() -> void:
 	# 시작 4천 → 이자 0, 일반 손님 3천, 남은 계산 3번 3천, 목표를 한참 넘겨 3천
 	assert_dict(run.last_pay).is_equal({"tips": 0, "interest": 0, "payout": 3000, "leftover": 3000, "overkill": 3000})
 	assert_int(run.money).is_equal(13000)
-	assert_int(run.shop.offers.size()).is_equal(7)
+	assert_int(run.shop.offers.size()).is_equal(8)
 	assert_bool(run.leave_shop()).is_true()
 	assert_int(run.slot).is_equal(Run.REGULAR)
 	assert_int(run.shift.target).is_equal(4500)
@@ -83,7 +83,7 @@ func test_skip() -> void:
 	assert_bool(run.skip()).is_true()
 	assert_int(run.slot).is_equal(Run.REGULAR)
 	assert_int(run.phase).is_equal(Run.Phase.SHIFT)
-	assert_int(run.skip_tokens.size() + run.consumables.size()).is_equal(1)
+	assert_int(run.skip_tokens.size() + run.consumables.size() + run.flyers.size()).is_equal(1)
 	assert_int(run.money).is_equal(Run.START_MONEY)
 	run.play([run.shift.hand[0]])
 	assert_bool(run.can_skip()).is_false()
@@ -240,6 +240,8 @@ func test_skip_reward_is_shown_before_skipping() -> void:
 	run.skip()
 	if reward == Run.FREE_PARCEL:
 		assert_int(run.consumables.size()).is_equal(1)
+	elif reward == Run.FREE_FLYER:
+		assert_int(run.flyers.size()).is_equal(1)
 	else:
 		assert_array(run.skip_tokens).is_equal([reward])
 	run.skip()

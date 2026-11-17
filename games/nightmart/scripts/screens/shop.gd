@@ -46,7 +46,7 @@ func _build() -> void:
 	var other := _row()
 	for i in run.shop.offers.size():
 		var o := run.shop.offers[i]
-		_offer(_tip_row if o.kind in [Shop.TIP, Shop.EXPANSION] else other, i, o)
+		_offer(_tip_row if o.kind in [Shop.TIP, Shop.EXPANSION, Shop.FLYER] else other, i, o)
 	var owned := _row()
 	owned.name = "Owned"
 	owned.add_theme_constant_override(&"separation", 16)
@@ -54,6 +54,9 @@ func _build() -> void:
 		_small(owned, "%s\n%s" % [Names.tip(run.tips[i].id), tr("SHOP_SELL") % Names.money(run.sell_price(i))], _sell.bind(i))
 	for i in run.consumables.size():
 		_small(owned, "%s\n%s" % [tr("PARCEL_NAME") % Names.combo(run.consumables[i]), tr("SHOP_OPEN")], _open.bind(i))
+	for i in run.flyers.size():
+		var b := _small(owned, "%s\n%s" % [Names.flyer(run.flyers[i]), tr("SHOP_USE") if Flyers.fits(run.flyers[i], 0) else tr("SHOP_AT_COUNTER")], _use_flyer.bind(i))
+		b.tooltip_text = Names.flyer_desc(run.flyers[i])
 	for e in run.expansions:
 		_small(owned, Names.expansion(e.id), Callable()).disabled = true
 	var spacer := Control.new()
@@ -88,7 +91,9 @@ func _offer(row: HBoxContainer, i: int, o: Dictionary) -> void:
 	col.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	b.add_child(col)
 	var fade := 0.4 if b.disabled else 1.0
-	_text(col, Names.offer_name(o), Style.BODY, Color(RARITY_COLOR[Tips.rarity(o.id)] if o.kind == Shop.TIP else Style.FLUORESCENT, fade))
+	var title := _text(col, Names.offer_name(o), Style.BODY, Color(RARITY_COLOR[Tips.rarity(o.id)] if o.kind == Shop.TIP else Style.FLUORESCENT, fade))
+	title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	title.clip_text = true
 	var desc := _text(col, Names.offer_desc(o), 28, Color(Style.FLUORESCENT, 0.75 * fade))
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	var price := tr("SHOP_SOLD") if o.sold else Names.money(run.price_of(i))
@@ -153,6 +158,14 @@ func _open(i: int) -> void:
 	if run.use_consumable(i):
 		Sfx.play(&"chime")
 		_build()
+
+
+func _use_flyer(i: int) -> void:
+	if run.use_flyer(i):
+		Sfx.play(&"cash")
+		_build()
+	else:
+		Sfx.play(&"error")
 
 
 func _reroll() -> void:

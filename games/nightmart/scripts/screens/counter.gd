@@ -12,6 +12,7 @@ const COACH_STEPS := [
 ]
 const STEP_TIME := 0.14
 const HITSTOP := 0.15
+const FLYER_WIDTH := 240
 
 ## 테스트에서 연출을 빨리 돌릴 때 올린다.
 var speed := 1.0
@@ -26,6 +27,7 @@ var _combo: Label
 var _calc: Label
 var _checkout: Button
 var _discard: Button
+var _flyer_row: HBoxContainer
 var _coach: Coach
 var _busy := false
 var _shown_score := 0
@@ -83,6 +85,12 @@ func _ready() -> void:
 	_checkout = _button(Art.ICON_CHECKOUT, "", _on_checkout, row)
 	_checkout.theme_type_variation = &"AccentButton"
 	_discard = _button(Art.ICON_DISCARD, "", _on_discard, row)
+	for b in [_checkout, _discard]:
+		b.custom_minimum_size.x = 480
+	_flyer_row = HBoxContainer.new()
+	_flyer_row.add_theme_constant_override(&"separation", 16)
+	row.add_child(_flyer_row)
+	_sync_flyers()
 	_shown_score = run.shift.score
 	_shown_money = run.money
 	_sync_hand()
@@ -146,6 +154,51 @@ func _sync_hand() -> void:
 			_hand.add_child(node)
 			create_tween().tween_property(node, ^"modulate:a", 1.0, 0.2 / speed).set_ease(Tween.EASE_OUT)
 		_hand.move_child(node, i)
+
+
+## 전단지 버튼. 카드를 고른 뒤 누르면 그 카드에 쓴다.
+func _sync_flyers() -> void:
+	for b in _flyer_row.get_children():
+		b.queue_free()
+	for i in run.flyers.size():
+		var id := run.flyers[i]
+		var b := Button.new()
+		b.name = "Flyer%d" % i
+		b.text = Names.flyer(id)
+		b.tooltip_text = Names.flyer_desc(id)
+		b.custom_minimum_size = Vector2(FLYER_WIDTH, Style.BUTTON_H)
+		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		b.add_theme_font_size_override(&"font_size", 28)
+		b.pressed.connect(_on_flyer.bind(i))
+		_flyer_row.add_child(b)
+
+
+func flyer_buttons() -> Array[Button]:
+	var out: Array[Button] = []
+	for b in _flyer_row.get_children():
+		if b is Button and not b.is_queued_for_deletion():
+			out.append(b)
+	return out
+
+
+func _on_flyer(i: int) -> void:
+	if _busy:
+		return
+	var id := run.flyers[i]
+	var cards := picked_cards()
+	if not run.use_flyer(i, cards):
+		Sfx.play(&"error")
+		_combo.text = Names.flyer_desc(id)
+		return
+	Sfx.play(&"chime")
+	# 바뀐 카드는 다시 그린다.
+	for node in hand():
+		if cards.has(node.card):
+			node.queue_free()
+	_shown_money = run.money
+	_sync_hand()
+	_sync_flyers()
+	_refresh()
 
 
 func _on_card_toggled(on: bool, card: ProductCard) -> void:

@@ -164,3 +164,30 @@ TIP_TRIBE,코너 사수,Aisle Keeper
 TIP_TRIBE_DESC,같은 코너면 만족 ×2,Same Aisle: Satisfaction ×2
 TIP_VETERAN,경력직,Veteran
 TIP_VETERAN_DESC,손님을 보낼 때마다 만족 ×0.1씩 커짐 (×1부터),Satisfaction ×0.1 more per customer served (from ×1)
+TOKEN_FREE_FLYER,공짜 전단지,Free flyer
+SHOP_USE,쓰기,Use
+SHOP_AT_COUNTER,계산대에서,At counter
+FLYER_DISCOUNT,할인 전단지,Sale Flyer
+FLYER_DISCOUNT_DESC,고른 카드 1~2장에 할인 꼬리표,Tag 1-2 chosen cards: Sale
+FLYER_EVENT,행사 전단지,Promo Flyer
+FLYER_EVENT_DESC,고른 카드 1~2장에 행사 꼬리표,Tag 1-2 chosen cards: Promo
+FLYER_CHILLED,냉장 스티커,Chilled Sticker
+FLYER_CHILLED_DESC,고른 카드 1장에 냉장 꼬리표,Tag 1 chosen card: Chilled
+FLYER_PB,PB 라벨,PB Label
+FLYER_PB_DESC,고른 카드 1장을 PB로 (어느 코너로도 셈),Make 1 chosen card PB (counts as any aisle)
+FLYER_GOLD,금박 스티커,Gold Sticker
+FLYER_GOLD_DESC,고른 카드 1장에 금박 (손에 남아 있으면 계산마다 500원),Tag 1 card Gold (₩500 per checkout while held)
+FLYER_PRICE_UP,가격 인상,Price Hike
+FLYER_PRICE_UP_DESC,고른 카드 1~2장 가격 +1,+1 price on 1-2 chosen cards
+FLYER_PRICE_DOWN,가격 인하,Price Cut
+FLYER_PRICE_DOWN_DESC,고른 카드 1~2장 가격 -1,-1 price on 1-2 chosen cards
+FLYER_SAME_CORNER,코너 정리,Aisle Sort
+FLYER_SAME_CORNER_DESC,고른 카드 2~3장을 맨 오른쪽 카드의 코너로,Move 2-3 chosen cards to the rightmost card's aisle
+FLYER_COPY,복사 전단지,Copy Flyer
+FLYER_COPY_DESC,고른 카드 1장을 복사해 진열대에 넣음,Add a copy of 1 chosen card to your shelf
+FLYER_REMOVE,재고 정리,Clearance
+FLYER_REMOVE_DESC,고른 카드 1~2장을 진열대에서 뺌,Remove 1-2 chosen cards from your shelf
+FLYER_MATCH,짝 맞추기,Match Up
+FLYER_MATCH_DESC,고른 2장 중 왼쪽을 오른쪽과 똑같이,Turn the left of 2 chosen cards into the right one
+FLYER_CASH,사장님 용돈,Boss's Allowance
+FLYER_CASH_DESC,가진 돈만큼 더 받음 (최대 5000원),Double your money (max +₩5000)
