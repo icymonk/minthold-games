@@ -87,7 +87,7 @@ func met(id: StringName, run: Run) -> bool:
 		&"full_tips":
 			return run.max_tips >= Run.TIP_SLOTS
 		&"no_skip_5":
-			return run.night >= 5 and not run.history.any(func(h: Dictionary) -> bool: return h.skipped)
+			return run.night >= 5 and not run.history.any(func(h: Dictionary) -> bool: return h.skipped and h.night < 5)
 		&"all_weather":
 			return seen[&"weather"].size() >= total(&"weather")
 		&"win":

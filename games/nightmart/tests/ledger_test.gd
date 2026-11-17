@@ -119,3 +119,12 @@ func test_rich_counts_money_from_flyers_and_sales() -> void:
 	run.money = 19000
 	assert_bool(run.sell_tip(0)).is_true()
 	assert_bool(Ledger.new().met(&"rich", run)).is_true()
+
+
+func test_no_skip_ignores_skips_after_night_five() -> void:
+	var run := Run.new(1)
+	run.night = 6
+	run.history.append({"night": 5, "slot": Run.NORMAL, "target": 1, "score": 0, "cleared": false, "skipped": true})
+	assert_bool(Ledger.new().met(&"no_skip_5", run)).is_true()
+	run.history.append({"night": 4, "slot": Run.NORMAL, "target": 1, "score": 0, "cleared": false, "skipped": true})
+	assert_bool(Ledger.new().met(&"no_skip_5", run)).is_false()
