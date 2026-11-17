@@ -101,3 +101,10 @@ func test_skip_for_free_flyer() -> void:
 	run.skip_reward = Run.FREE_FLYER
 	assert_bool(run.skip()).is_true()
 	assert_int(run.flyers.size()).is_equal(1)
+
+
+func test_match_copies_shelf_life() -> void:
+	var cards := Card.parse("m5 d7~")
+	cards[1].shelf_life = 2
+	Flyers.apply(&"match", cards)
+	assert_int(cards[0].shelf_life).is_equal(2)
