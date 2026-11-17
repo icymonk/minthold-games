@@ -109,12 +109,14 @@ func test_buy_tip_and_sell() -> void:
 	_clear(run)
 	var i := _offer(run, Shop.TIP)
 	var id: StringName = run.shop.offers[i].id
+	var price := Tips.price(id)
+	var start := run.money
 	assert_bool(run.buy(i)).is_true()
 	assert_bool(run.buy(i)).is_false()
-	assert_int(run.money).is_equal(8000)
+	assert_int(run.money).is_equal(start - price)
 	assert_str(run.tips[0].id).is_equal(id)
 	assert_bool(run.sell_tip(0)).is_true()
-	assert_int(run.money).is_equal(10500)
+	assert_int(run.money).is_equal(start - price / 2)
 	assert_bool(run.tips.is_empty()).is_true()
 
 
@@ -250,13 +252,14 @@ func test_shop_discount_halves_one_purchase() -> void:
 	run.shop.offers = Shop.roll(run.rng.shop, [], [])
 	run.money = 100000
 	run.skip_tokens.append(Run.SHOP_DISCOUNT)
-	assert_int(run.price_of(0)).is_equal(Shop.PRICES[Shop.TIP] / 2)
+	var full: int = run.shop.offers[0].price
+	assert_int(run.price_of(0)).is_equal(full / 2)
 	assert_bool(run.buy(0)).is_true()
-	assert_int(run.money).is_equal(100000 - Shop.PRICES[Shop.TIP] / 2)
-	assert_int(run.price_of(1)).is_equal(Shop.PRICES[Shop.TIP])
+	assert_int(run.money).is_equal(100000 - full / 2)
+	assert_int(run.price_of(1)).is_equal(run.shop.offers[1].price)
 	var money := run.money
 	assert_bool(run.sell_tip(0)).is_true()
-	assert_int(run.money - money).is_equal(Shop.PRICES[Shop.TIP] / 4)
+	assert_int(run.money - money).is_equal(full / 4)
 
 
 func test_free_reroll_costs_nothing_once() -> void:

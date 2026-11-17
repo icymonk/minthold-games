@@ -101,3 +101,66 @@ END_SERVED,보낸 손님 %d명,Customers served: %d
 END_BEST,가장 큰 매출 %s,Best sales %s
 COACH_COMBO,조합 이름과 예상 점수예요,Here's the combo and its expected score
 COACH_BUY_TIP,꿀팁 하나를 사 봐요,Buy a tip
+RARITY_COMMON,흔함,Common
+RARITY_UNCOMMON,보통,Uncommon
+RARITY_RARE,귀함,Rare
+TIP_MEAL_CLERK,도시락 담당,Meal Clerk
+TIP_MEAL_CLERK_DESC,식사 카드 1장당 만족 +1,+1 Satisfaction per meal card
+TIP_SNACK_CLERK,과자 담당,Snack Clerk
+TIP_SNACK_CLERK_DESC,과자 카드 1장당 만족 +1,+1 Satisfaction per snack card
+TIP_DRINK_CLERK,음료 담당,Drink Clerk
+TIP_DRINK_CLERK_DESC,음료 카드 1장당 만족 +1,+1 Satisfaction per drink card
+TIP_GOODS_CLERK,생활 담당,Goods Clerk
+TIP_GOODS_CLERK_DESC,생활 카드 1장당 만족 +1,+1 Satisfaction per goods card
+TIP_COFFEE,커피 수혈,Coffee IV
+TIP_COFFEE_DESC,만족 +4,Satisfaction +4
+TIP_SAME_PRICE,같은 가격 둘,Matching Pair
+TIP_SAME_PRICE_DESC,같은 가격이 2장 이상이면 만족 +6,2+ cards of one price: Satisfaction +6
+TIP_THREE_PRICE,같은 가격 셋,Matching Three
+TIP_THREE_PRICE_DESC,같은 가격이 3장 이상이면 만족 +12,3+ cards of one price: Satisfaction +12
+TIP_ROW_FAN,진열 줄 팬,Shelf Row Fan
+TIP_ROW_FAN_DESC,진열 줄이면 만족 +12,Shelf Row: Satisfaction +12
+TIP_AISLE_FAN,코너 팬,Aisle Fan
+TIP_AISLE_FAN_DESC,같은 코너면 만족 +10,Same Aisle: Satisfaction +10
+TIP_SET_MENU,세트 메뉴판,Set Menu Board
+TIP_SET_MENU_DESC,한 끼 세트면 매출 +1500,Meal Set: Sales +1500
+TIP_SMALL_CHANGE,잔돈 모으기,Small Change
+TIP_SMALL_CHANGE_DESC,가격 5 이하 카드 1장당 매출 +300,+300 Sales per card priced 5 or less
+TIP_PREMIUM,고급 진열,Premium Shelf
+TIP_PREMIUM_DESC,가격 10 이상 카드 1장당 만족 +2,+2 Satisfaction per card priced 10 or more
+TIP_ODD_PRICE,홀수 손님,Odd Shopper
+TIP_ODD_PRICE_DESC,홀수 가격 카드 1장당 매출 +300,+300 Sales per odd-priced card
+TIP_COIN_JAR,동전 통,Coin Jar
+TIP_COIN_JAR_DESC,계산한 카드 1장당 돈 +200원,₩200 per card checked out
+TIP_HALF_BASKET,반 바구니,Half Basket
+TIP_HALF_BASKET_DESC,3장 이하로 계산하면 만족 +12,3 or fewer cards: Satisfaction +12
+TIP_DISCOUNT_HUNTER,할인 사냥꾼,Bargain Hunter
+TIP_DISCOUNT_HUNTER_DESC,할인 카드 1장당 매출 +800 더,+800 more Sales per Sale card
+TIP_EVENT_FAN,행사 매니아,Promo Fan
+TIP_EVENT_FAN_DESC,행사 카드 1장당 만족 +3 더,+3 more Satisfaction per Promo card
+TIP_OPENING,개시 손님,First Sale
+TIP_OPENING_DESC,손님마다 첫 계산 매출 +2000,First checkout per customer: Sales +2000
+TIP_QUICK_HANDS,손 빠른 알바,Quick Hands
+TIP_QUICK_HANDS_DESC,손님마다 바꾸기 +1,+1 swap per customer
+TIP_SPARE_SWAPS,바꾸기 아끼기,Swap Saver
+TIP_SPARE_SWAPS_DESC,남은 바꾸기 1번당 만족 +2,+2 Satisfaction per swap left
+TIP_RECYCLING,분리수거,Recycling
+TIP_RECYCLING_DESC,바꿀 때마다 이 메모 만족 +1 (계속 쌓임),Each swap adds +1 Satisfaction to this memo
+TIP_WASTE_DISPOSAL,폐기 처분,Waste Disposal
+TIP_WASTE_DISPOSAL_DESC,같이 계산한 폐기 1장당 매출 +1000,+1000 Sales per expired card checked out
+TIP_LAST_TRAIN,막차 손님,Last Train
+TIP_LAST_TRAIN_DESC,남은 계산이 1번이면 매출 +3000,Last checkout: Sales +3000
+TIP_ROUTINE,루틴,Routine
+TIP_ROUTINE_DESC,같은 조합을 이어 내면 만족 +3씩 쌓임,Repeat the same combo: +3 Satisfaction each time
+TIP_STORE_TOUR,편의점 한 바퀴,Store Tour
+TIP_STORE_TOUR_DESC,4코너가 다 있으면 만족 ×3,All 4 aisles: Satisfaction ×3
+TIP_DUO,짝꿍,The Duo
+TIP_DUO_DESC,같은 가격이 2장 이상이면 만족 ×2,2+ cards of one price: Satisfaction ×2
+TIP_TRIO,삼총사,The Trio
+TIP_TRIO_DESC,같은 가격이 3장 이상이면 만족 ×3,3+ cards of one price: Satisfaction ×3
+TIP_ORDER,줄 세우기,Lined Up
+TIP_ORDER_DESC,진열 줄이면 만족 ×3,Shelf Row: Satisfaction ×3
+TIP_TRIBE,코너 사수,Aisle Keeper
+TIP_TRIBE_DESC,같은 코너면 만족 ×2,Same Aisle: Satisfaction ×2
+TIP_VETERAN,경력직,Veteran
+TIP_VETERAN_DESC,손님을 받을 때마다 만족 ×0.1씩 커짐,Satisfaction multiplier grows ×0.1 per customer

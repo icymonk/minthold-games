@@ -7,6 +7,7 @@ const PARCEL := &"parcel"
 const PACK := &"pack"
 const EXPANSION := &"expansion"
 
+## 꿀팁 값은 등급마다 다르다(Tips.PRICE). TIP은 기준값이다.
 const PRICES := {TIP: 5000, PARCEL: 3000, PACK: 4000, EXPANSION: 10000}
 const REROLL_BASE := 5000
 const REROLL_STEP := 1000
@@ -22,8 +23,17 @@ var reroll_cost := REROLL_BASE
 
 static func roll(rng: RandomNumberGenerator, owned_tips: Array, owned_expansions: Array) -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
-	for tip_id in _pick(rng, Tips.MAKERS.keys().filter(func(t: StringName) -> bool: return not owned_tips.has(t)), 2):
-		out.append(_offer(TIP, tip_id))
+	var tip_pool := Tips.MAKERS.keys().filter(func(t: StringName) -> bool: return not owned_tips.has(t))
+	for i in 2:
+		var tier := _roll_rarity(rng)
+		var pool := tip_pool.filter(func(t: StringName) -> bool: return Tips.rarity(t) == tier)
+		var picked := _pick(rng, pool if not pool.is_empty() else tip_pool, 1)
+		if picked.is_empty():
+			break
+		tip_pool.erase(picked[0])
+		var o := _offer(TIP, picked[0])
+		o.price = Tips.price(picked[0])
+		out.append(o)
 	for i in 2:
 		out.append(_offer(PARCEL, rng.randi_range(Combo.Kind.SINGLE, Combo.Kind.STRAIGHT_FLUSH)))
 	for i in 2:
@@ -42,6 +52,15 @@ static func open_pack(rng: RandomNumberGenerator) -> Array[Card]:
 			c.tag = PACK_TAGS[rng.randi_range(0, PACK_TAGS.size() - 1)]
 		out.append(c)
 	return out
+
+
+static func _roll_rarity(rng: RandomNumberGenerator) -> StringName:
+	var roll := rng.randi_range(1, 100)
+	for tier in Tips.RARITIES:
+		roll -= Tips.RARITY_WEIGHT[tier]
+		if roll <= 0:
+			return tier
+	return Tips.COMMON
 
 
 static func _offer(kind: StringName, offer_id: Variant) -> Dictionary:

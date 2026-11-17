@@ -6,6 +6,7 @@ const COACH_STEPS := [
 ]
 
 const OWNED_WIDTH := 168
+const RARITY_COLOR := {Tips.COMMON: Style.FLUORESCENT, Tips.UNCOMMON: Style.NEON, Tips.RARE: Color("#c08cff")}
 
 var run: Run
 var _coach: Coach
@@ -87,10 +88,12 @@ func _offer(row: HBoxContainer, i: int, o: Dictionary) -> void:
 	col.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	b.add_child(col)
 	var fade := 0.4 if b.disabled else 1.0
-	_text(col, Names.offer_name(o), Style.BODY, Color(Style.CORNER.get(&"goods") if o.kind == Shop.TIP else Style.FLUORESCENT, fade))
+	_text(col, Names.offer_name(o), Style.BODY, Color(RARITY_COLOR[Tips.rarity(o.id)] if o.kind == Shop.TIP else Style.FLUORESCENT, fade))
 	var desc := _text(col, Names.offer_desc(o), 28, Color(Style.FLUORESCENT, 0.75 * fade))
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	var price := tr("SHOP_SOLD") if o.sold else Names.money(run.price_of(i))
+	if o.kind == Shop.TIP and not o.sold:
+		price += " · " + Names.t("RARITY_%s" % String(Tips.rarity(o.id)).to_upper())
 	_text(col, price, Style.BODY, Color(Style.PRICE, fade))
 	for c in col.get_children():
 		c.mouse_filter = Control.MOUSE_FILTER_IGNORE
