@@ -40,8 +40,9 @@ func cleared() -> bool:
 	return score >= target
 
 
+## 계산을 다 쓰거나, 진열대가 비어 낼 카드가 없으면 실패.
 func failed() -> bool:
-	return not cleared() and checkouts_left <= 0
+	return not cleared() and (checkouts_left <= 0 or hand.is_empty())
 
 
 func is_over() -> bool:

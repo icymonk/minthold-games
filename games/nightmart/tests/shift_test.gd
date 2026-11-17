@@ -80,6 +80,9 @@ func test_small_deck_runs_out() -> void:
 	assert_int(s.hand.size()).is_equal(8)
 	s.play(s.hand.slice(0, 5))
 	assert_int(s.hand.size()).is_equal(4)
+	s.play(s.hand.slice(0, 4))
+	assert_bool(s.hand.is_empty()).is_true()
+	assert_bool(s.failed()).is_true()
 
 
 func test_boss_nephew_trades_swap_for_money() -> void:
