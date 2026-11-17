@@ -71,3 +71,10 @@ func test_log_replays_total() -> void:
 	assert_int(sales).is_equal(r.sales)
 	assert_float(sat).is_equal(r.satisfaction)
 	assert_array(sources).is_equal(["combo", "m5", "g5+chilled", "tag:chilled", "d8+discount", "tag:discount", "last_five"])
+
+
+func test_tips_fire_on_waste_only_checkout() -> void:
+	var r := _ring("m5x", [&"boss_nephew"])
+	assert_int(r.kind).is_equal(Combo.Kind.NONE)
+	assert_int(r.total()).is_equal(0)
+	assert_int(r.money).is_equal(Tips.NEPHEW_MONEY)

@@ -31,10 +31,9 @@ static func ring_up(played: Array[Card], levels: Dictionary = {}, hooks: Array[H
 	for h in hooks:
 		h.modify_rules(r.rules)
 	r.kind = Combo.detect(played, r.rules)
-	if r.kind == Combo.Kind.NONE:
-		return r
-	var b := Combo.base(r.kind, levels.get(r.kind, 1))
-	r.add("combo", b.x, b.y)
+	if r.kind != Combo.Kind.NONE:
+		var b := Combo.base(r.kind, levels.get(r.kind, 1))
+		r.add("combo", b.x, b.y)
 	for c in played:
 		if c.is_waste():
 			continue
