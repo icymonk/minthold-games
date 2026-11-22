@@ -55,6 +55,7 @@ jobs:
         with:
           name: ${{ inputs.game }}-web
           path: games/${{ inputs.game }}/build/web
+          retention-days: 1
 
   macos:
     if: inputs.macos && github.event_name != 'pull_request'
