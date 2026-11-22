@@ -3,7 +3,7 @@
 **작은 숲 (Little Grove)** — 나무를 심고 카드를 낼 때마다 그 나무에 새·곤충·짐승이 실제로 날아와 붙는 2.5D 숲 가꾸기 카드 로그라이트 (Godot 4 3D, Steam). 원작 보드게임: Forest Shuffle.
 
 - 웹 미리보기: https://minthold-grove.web.app (`develop` 머지 시 자동 배포)
-- 맥용 앱: `develop` 머지(또는 grove 워크플로 수동 실행) 때 맥북 셀프 호스티드 러너(라벨 `minthold-mac`)가 만들어 `~/MintholdBuilds/grove/작은 숲.app`에 둔다. GitHub에는 올리지 않는다. 러너가 꺼져 있으면 켜질 때까지 대기한다. 서명하지 않은 앱이라 처음 한 번은 우클릭 → 열기
+- 맥용 앱: `develop` 머지 때 [grove 워크플로](../../.github/workflows/grove.yml)가 `grove-macos` 아티팩트(.app zip)를 만든다. 서명하지 않은 앱이라 처음 한 번은 우클릭 → 열기
 - 그림·소리 출처: [CREDITS.md](CREDITS.md)
 - 기획서: [docs/design.md](docs/design.md)
 - 개발 단계: [docs/plan.md](docs/plan.md)
