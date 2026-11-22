@@ -1,0 +1,40 @@
+; Engine configuration file.
+
+config_version=5
+
+[application]
+
+config/name="작은 숲"
+config/description="Little Grove"
+run/main_scene="res://scenes/main.tscn"
+config/features=PackedStringArray("4.7", "Forward Plus")
+
+[autoload]
+
+Game="*res://scripts/autoload/game.gd"
+Sfx="*res://scripts/autoload/sfx.gd"
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/size/window_width_override=1280
+window/size/window_height_override=720
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
+[gui]
+
+theme/custom_font="res://assets/fonts/Pretendard-Regular.otf"
+
+[internationalization]
+
+locale/translations=PackedStringArray("res://i18n/strings.ko.translation", "res://i18n/strings.en.translation")
+locale/fallback="ko"
+
+[rendering]
+
+renderer/rendering_method="forward_plus"
+renderer/rendering_method.web="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true
+anti_aliasing/quality/msaa_3d=2
