@@ -1,0 +1,21 @@
+keys,ko,en
+GAME_TITLE,작은 숲,Little Grove
+TITLE_SUBTITLE,1년 안에 숲을 되살려요,Bring the forest back within a year
+TITLE_NEW_RUN,숲 가꾸기,Start Growing
+TITLE_LANGUAGE,English,한국어
+TITLE_SOUND_ON,소리 켬,Sound on
+TITLE_SOUND_OFF,소리 끔,Sound off
+BACK_TO_TITLE,제목,Title
+SEASON_SPRING,봄,Spring
+SEASON_SUMMER,여름,Summer
+SEASON_AUTUMN,가을,Autumn
+SEASON_WINTER,겨울,Winter
+SEASON_GOAL,목표 %d,Goal %d
+SEASON_WIND,계절 바람,Season wind
+SEASON_TURN_LEFT,왼쪽으로,Turn left
+SEASON_TURN_RIGHT,오른쪽으로,Turn right
+SEASON_DEMO_HINT,카드 놓기는 다음 단계에서 붙어요. 지금은 바람으로 계절을 넘겨 보세요,Card play arrives next. For now blow the wind to pass the season
+CABIN_TITLE,숲지기 오두막,Keeper's Cabin
+CABIN_NEXT,다음 계절: %s,Next: %s
+RUN_END_WIN,보호림 지정!,Protected Forest!
+RUN_END_RETRY,한 해 더,One More Year

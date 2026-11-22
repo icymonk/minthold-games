@@ -1,0 +1,32 @@
+name: grove
+
+on:
+  pull_request:
+    paths:
+      - games/grove/**
+      - .github/workflows/grove.yml
+      - .github/workflows/godot.yml
+  push:
+    branches: [develop]
+    paths:
+      - games/grove/**
+      - .github/workflows/grove.yml
+      - .github/workflows/godot.yml
+  workflow_dispatch:
+
+concurrency:
+  group: grove-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  game:
+    uses: ./.github/workflows/godot.yml
+    with:
+      game: grove
+      macos: true
+    secrets: inherit

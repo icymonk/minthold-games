@@ -12,6 +12,11 @@ on:
         required: false
         type: string
         default: 4.7.2
+      macos:
+        description: develop 머지 때 macOS .app(zip)도 만든다
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   test:
@@ -50,6 +55,34 @@ jobs:
         with:
           name: ${{ inputs.game }}-web
           path: games/${{ inputs.game }}/build/web
+          retention-days: 1
+
+  macos:
+    if: inputs.macos && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    container: barichello/godot-ci:${{ inputs.godot_version }}
+    defaults:
+      run:
+        working-directory: games/${{ inputs.game }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Export templates
+        run: |
+          mkdir -p ~/.local/share/godot/export_templates
+          ln -sfn /root/.local/share/godot/export_templates/${{ inputs.godot_version }}.stable ~/.local/share/godot/export_templates/${{ inputs.godot_version }}.stable
+      - name: Import
+        run: godot --headless --import
+      - name: Export macOS
+        run: |
+          mkdir -p build/macos
+          godot --headless --export-release "macOS" build/macos/${{ inputs.game }}-macos.zip
+          test -f build/macos/${{ inputs.game }}-macos.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.game }}-macos
+          path: games/${{ inputs.game }}/build/macos/${{ inputs.game }}-macos.zip
+          compression-level: 0
+          retention-days: 7
 
   deploy:
     needs: [test, web]
