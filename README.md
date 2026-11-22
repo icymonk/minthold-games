@@ -19,6 +19,7 @@ Minthold 인디 게임 모노레포 (Godot 4 + GDScript).
 | [nightmart](games/nightmart) | 심야 편의점 (Night Mart) | https://minthold-nightmart.web.app |
 | [hearth](games/hearth) | 장작이 꺼지기 전에 (Keep the Fire) | (준비 중) |
 | [jianghu](games/jianghu) | 강호 객잔 (Jianghu Inn) | (준비 중) |
+| [grove](games/grove) | 작은 숲 (Little Grove) | (준비 중) |
 
 ## 규칙
 
