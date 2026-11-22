@@ -35,11 +35,20 @@ func _ready() -> void:
 	_button(bottom, null, tr("SEASON_TURN_RIGHT"), Game.turn_requested.emit.bind(1), 360)
 
 
+## 화살표·십자키는 버튼 사이 이동에 쓰이니, 섬 돌리기는 Q/E·LB/RB로 한다.
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed(&"ui_left") or (event is InputEventKey and event.pressed and event.keycode == KEY_Q):
-		Game.turn_requested.emit(-1)
-	elif event.is_action_pressed(&"ui_right") or (event is InputEventKey and event.pressed and event.keycode == KEY_E):
-		Game.turn_requested.emit(1)
+	var dir := _turn_dir(event)
+	if dir != 0:
+		Game.turn_requested.emit(dir)
+		get_viewport().set_input_as_handled()
+
+
+static func _turn_dir(event: InputEvent) -> int:
+	if event is InputEventKey and event.pressed and not event.echo:
+		return {KEY_Q: -1, KEY_E: 1}.get(event.keycode, 0)
+	if event is InputEventJoypadButton and event.pressed:
+		return {JOY_BUTTON_LEFT_SHOULDER: -1, JOY_BUTTON_RIGHT_SHOULDER: 1}.get(event.button_index, 0)
+	return 0
 
 
 func _show_winds() -> void:

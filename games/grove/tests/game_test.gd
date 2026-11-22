@@ -50,3 +50,17 @@ func test_winter_ends_run() -> void:
 func test_every_season_has_goal_and_name() -> void:
 	assert_int(Game.GOALS.size()).is_equal(Game.SEASON_KEYS.size())
 	assert_int(ForestView.SEASONS.size()).is_equal(Game.SEASON_KEYS.size())
+
+
+func test_turn_keys_do_not_use_arrows() -> void:
+	var season: GDScript = load("res://scripts/screens/season.gd")
+	var key := InputEventKey.new()
+	key.pressed = true
+	key.keycode = KEY_E
+	assert_int(season._turn_dir(key)).is_equal(1)
+	key.keycode = KEY_LEFT
+	assert_int(season._turn_dir(key)).is_equal(0)
+	var pad := InputEventJoypadButton.new()
+	pad.pressed = true
+	pad.button_index = JOY_BUTTON_LEFT_SHOULDER
+	assert_int(season._turn_dir(pad)).is_equal(-1)
