@@ -77,8 +77,24 @@ const ICONS := {
 	&"side_left": '%TRUNK%<circle cx="10" cy="32" r="9" fill="#F28C38"%s/>',
 	&"side_right": '%TRUNK%<circle cx="54" cy="32" r="9" fill="#F28C38"%s/>',
 	&"side_side": '%TRUNK%<circle cx="10" cy="32" r="9" fill="#F28C38"%s/><circle cx="54" cy="32" r="9" fill="#F28C38"%s/>',
+	&"t_linden": '<circle cx="32" cy="32" r="29" fill="#A8C84A" stroke="#FFF6E0" stroke-width="3"/><path d="M32 52 V58" stroke="#FFF6E0" stroke-width="4" stroke-linecap="round"/><path d="M32 50 C12 38 10 20 21 16 C28 14 32 20 32 25 C32 20 36 14 43 16 C54 20 52 38 32 50 Z" fill="#FFF6E0" stroke="#2B3A2A" stroke-width="2.5" stroke-linejoin="round"/><path d="M32 26 V48" stroke="#2B3A2A" stroke-width="2"/>',
+	&"t_oak": '<circle cx="32" cy="32" r="29" fill="#8A6A2A" stroke="#FFF6E0" stroke-width="3"/><path d="M32 56 C29 51 22 51 23 46 C16 46 15 40 20 38 C13 36 14 29 20 28 C16 23 20 17 26 20 C25 13 30 8 32 8 C34 8 39 13 38 20 C44 17 48 23 44 28 C50 29 51 36 44 38 C49 40 48 46 41 46 C42 51 35 51 32 56 Z" fill="#FFF6E0" stroke="#2B3A2A" stroke-width="2.5" stroke-linejoin="round"/><path d="M32 16 V56" stroke="#2B3A2A" stroke-width="2"/>',
+	&"t_fir": '<circle cx="32" cy="32" r="29" fill="#2F6A50" stroke="#FFF6E0" stroke-width="3"/><rect x="29" y="48" width="6" height="9" fill="#7A5132"/><path d="M32 7 L45 24 H39 L49 37 H42 L52 50 H12 L22 37 H15 L25 24 H19 Z" fill="#FFF6E0" stroke="#2B3A2A" stroke-width="2.5" stroke-linejoin="round"/>',
+	&"t_birch": '<circle cx="32" cy="32" r="29" fill="#E8E2CC" stroke="#FFF6E0" stroke-width="3"/><rect x="24" y="7" width="16" height="50" rx="4" fill="#FFFFFF" stroke="#2B3A2A" stroke-width="2.5" stroke-linejoin="round"/><path d="M24 17 H31 M33 25 H40 M24 34 H30 M34 42 H40 M24 50 H32" stroke="#2B3A2A" stroke-width="3.5" stroke-linecap="round"/>',
+	&"t_beech": '<circle cx="32" cy="32" r="29" fill="#C9853E" stroke="#FFF6E0" stroke-width="3"/><path d="M32 7 C47 18 49 40 32 55 C15 40 17 18 32 7 Z" fill="#FFF6E0" stroke="#2B3A2A" stroke-width="2.5" stroke-linejoin="round"/><path d="M32 12 V56 M32 22 L22 18 M32 22 L42 18 M32 32 L20 27 M32 32 L44 27 M32 42 L22 38 M32 42 L42 38" stroke="#2B3A2A" stroke-width="2" stroke-linecap="round"/>',
+	&"t_maple": '<circle cx="32" cy="32" r="29" fill="#D85A3A" stroke="#FFF6E0" stroke-width="3"/><path d="M32 50 V58" stroke="#FFF6E0" stroke-width="4" stroke-linecap="round"/><path d="M32 6 L36 18 L46 12 L44 24 L56 24 L48 32 L54 40 L40 38 L36 50 H28 L24 38 L10 40 L16 32 L8 24 L20 24 L18 12 L28 18 Z" fill="#FFF6E0" stroke="#2B3A2A" stroke-width="2.5" stroke-linejoin="round"/>',
+	&"t_pine": '<circle cx="32" cy="32" r="29" fill="#4F7FB0" stroke="#FFF6E0" stroke-width="3"/><path d="M32 6 V12" stroke="#FFF6E0" stroke-width="4" stroke-linecap="round"/><ellipse cx="32" cy="34" rx="14" ry="21" fill="#FFF6E0" stroke="#2B3A2A" stroke-width="2.5" stroke-linejoin="round"/><path d="M20 24 Q32 31 44 24 M18 33 Q32 41 46 33 M19 42 Q32 50 45 42 M32 14 V54" fill="none" stroke="#2B3A2A" stroke-width="2"/>',
+	&"t_chestnut": '<circle cx="32" cy="32" r="29" fill="#7A3A2A" stroke="#FFF6E0" stroke-width="3"/><path d="M32 42 V58" stroke="#FFF6E0" stroke-width="4" stroke-linecap="round"/><ellipse cx="32" cy="25" rx="5.5" ry="12" transform="rotate(-80 32 42)" fill="#FFF6E0" stroke="#2B3A2A" stroke-width="2.5" stroke-linejoin="round"/><ellipse cx="32" cy="25" rx="5.5" ry="15" transform="rotate(-52 32 42)" fill="#FFF6E0" stroke="#2B3A2A" stroke-width="2.5" stroke-linejoin="round"/><ellipse cx="32" cy="25" rx="5.5" ry="15" transform="rotate(-26 32 42)" fill="#FFF6E0" stroke="#2B3A2A" stroke-width="2.5" stroke-linejoin="round"/><ellipse cx="32" cy="24" rx="5.5" ry="15" transform="rotate(0 32 42)" fill="#FFF6E0" stroke="#2B3A2A" stroke-width="2.5" stroke-linejoin="round"/><ellipse cx="32" cy="25" rx="5.5" ry="15" transform="rotate(26 32 42)" fill="#FFF6E0" stroke="#2B3A2A" stroke-width="2.5" stroke-linejoin="round"/><ellipse cx="32" cy="25" rx="5.5" ry="15" transform="rotate(52 32 42)" fill="#FFF6E0" stroke="#2B3A2A" stroke-width="2.5" stroke-linejoin="round"/><ellipse cx="32" cy="25" rx="5.5" ry="12" transform="rotate(80 32 42)" fill="#FFF6E0" stroke="#2B3A2A" stroke-width="2.5" stroke-linejoin="round"/>',
 }
 const _TRUNK := '<rect x="25" y="18" width="14" height="28" rx="4" fill="#7A5132"%s/><circle cx="32" cy="10" r="5" fill="#CFC4AE"/><circle cx="32" cy="54" r="5" fill="#CFC4AE"/><circle cx="10" cy="32" r="5" fill="#CFC4AE"/><circle cx="54" cy="32" r="5" fill="#CFC4AE"/>'
+
+
+## 잠긴 것 표시(자물쇠). 아이콘 범례에는 넣지 않는다.
+const LOCK := '<rect x="12" y="28" width="40" height="30" rx="6" fill="#CFC4AE"%s/><path d="M21 28 V20 A11 11 0 0 1 43 20 V28" fill="none" stroke="#CFC4AE" stroke-width="7"/><path d="M21 28 V20 A11 11 0 0 1 43 20 V28" fill="none" stroke="#2B3A2A" stroke-width="2"/><circle cx="32" cy="41" r="4" fill="#2B3A2A"/><rect x="30" y="42" width="4" height="9" fill="#2B3A2A"/>'
+
+
+static func lock() -> Texture2D:
+	return _svg(&"_lock", LOCK)
 
 
 static func icon(name: StringName) -> Texture2D:
@@ -86,7 +102,12 @@ static func icon(name: StringName) -> Texture2D:
 		return acorn()
 	if _icons.has(name):
 		return _icons[name]
-	var body: String = ICONS.get(name, "")
+	return _svg(name, ICONS.get(name, ""))
+
+
+static func _svg(name: StringName, body: String) -> Texture2D:
+	if _icons.has(name):
+		return _icons[name]
 	if body == "":
 		return null
 	body = body.replace("%TRUNK%", _TRUNK).replace("%s", _O)

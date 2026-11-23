@@ -147,7 +147,7 @@ CODEX_RECORDS,한 해 %d번 · 완주 %d번 · 최고 %d점,Years %d · Finished
 CODEX_UNKNOWN,???,???
 CODEX_NEW,도감에 새로 열림: %s,New in the field guide: %s
 TITLE_ALBUM,앨범,Album
-SETUP_TITLE,숲지기 고르기,Choose a Keeper
+SETUP_TITLE,누구와 함께 숲을 가꿀까요?,Who will tend the forest with you?
 SETUP_START,이 숲지기로 시작,Start with this keeper
 SETUP_GRADE,숲 등급 %d: %s,Forest grade %d: %s
 KEEPER_GRANDMA,할머니 수첩,Grandma's Notebook
@@ -158,13 +158,22 @@ KEEPER_BUTTERFLY_GIRL,나비 소녀,Butterfly Girl
 KEEPER_RANGER,산지기,Ranger
 KEEPER_POND_KEEPER,물가지기,Pond Keeper
 KEEPER_ACORN_MERCHANT,솔방울 상인,Pinecone Merchant
-KEEPER_PAIRS,이웃 카드 %d장 더,+%d neighbor cards
-KEEPER_ACORNS,솔방울 %d개로 시작,Start with %d pinecones
-KEEPER_SPIRIT,정령: %s,Spirit: %s
-KEEPER_PLAIN,처음 주머니 그대로,The original seed bag
-UNLOCK_RUNS,잠김 · 한 해를 %d번 해 보면,Locked · play %d year
-UNLOCK_FINISHED,잠김 · %d번 완주하면,Locked · finish %d years
-UNLOCK_FOUND,잠김 · 도감에서 %d종을 찾으면,Locked · find %d species
+KEEPER_GRANDMA_TAG,처음이라면 여기서! 기본 카드로 차근차근,New here? Start simple with the basic deck
+KEEPER_BIRD_DOCTOR_TAG,새 카드를 들고 시작해요. 새가 많을수록 점수가 커져요,Starts with bird cards. More birds, more points
+KEEPER_MUSHROOM_GRANDPA_TAG,버섯 카드로 카드를 더 많이 뽑아요,Mushroom cards help you draw more
+KEEPER_BAT_KEEPER_TAG,박쥐 카드로 밤의 숲을 꾸며요,Fill the night forest with bats
+KEEPER_BUTTERFLY_GIRL_TAG,나비 카드 4장으로 꽃 숲을 만들어요,Four butterfly cards for a flowery forest
+KEEPER_RANGER_TAG,사슴·멧돼지 같은 짐승과 함께 시작해요,Starts with deer and other big animals
+KEEPER_POND_KEEPER_TAG,개구리·도롱뇽 같은 물가 친구와 시작해요,Starts with frogs, toads and salamanders
+KEEPER_ACORN_MERCHANT_TAG,솔방울이 넉넉해 오두막에서 바로 장을 봐요,Plenty of pinecones to shop at the cabin right away
+SETUP_GRADE_STACK, (앞 등급 조건도 모두 적용), (plus all lower grades)
+KEEPER_PAIRS,시작 카드 +%d장,+%d starting cards
+KEEPER_ACORNS,솔방울 %d개 들고 시작,Start with %d pinecones
+KEEPER_SPIRIT,정령 %s,Spirit %s
+KEEPER_PLAIN,추가 카드 없이 기본 카드로만,Just the basic deck
+UNLOCK_RUNS,한 해를 %d번 플레이하면 열려요,Play %d year to unlock
+UNLOCK_FINISHED,겨울까지 %d번 완주하면 열려요,Finish %d full years to unlock
+UNLOCK_FOUND,도감에서 %d종을 만나면 열려요,Meet %d species in the codex to unlock
 GRADE_0,기본,Standard
 GRADE_1,목표 점수 ×1.1,Goals ×1.1
 GRADE_2,+ 공터 한 칸 적게,+ clearing holds 1 fewer
@@ -450,6 +459,14 @@ ICON_HAND,손패,Your hand
 ICON_CLEARING,공터: 공터에서 카드를 가져와요,Clearing: take cards from the clearing
 ICON_CAVE,굴: 카드를 굴에 넣어요. 굴의 카드 1장마다 도토리 1개,Cave: tuck cards into the cave. 1 acorn per card in the cave
 ICON_AGAIN,한 번 더: 차례를 한 번 더 해요,Again: take another turn
+ICON_T_LINDEN,피나무 색: 이 카드를 비용으로 낼 때 세는 나무 색이에요,Linden color: the tree color this card counts as when paying
+ICON_T_OAK,참나무 색: 이 카드를 비용으로 낼 때 세는 나무 색이에요,Oak color: the tree color this card counts as when paying
+ICON_T_FIR,전나무 색: 이 카드를 비용으로 낼 때 세는 나무 색이에요,Silver Fir color: the tree color this card counts as when paying
+ICON_T_BIRCH,자작나무 색: 이 카드를 비용으로 낼 때 세는 나무 색이에요,Birch color: the tree color this card counts as when paying
+ICON_T_BEECH,너도밤나무 색: 이 카드를 비용으로 낼 때 세는 나무 색이에요,Beech color: the tree color this card counts as when paying
+ICON_T_MAPLE,단풍나무 색: 이 카드를 비용으로 낼 때 세는 나무 색이에요,Sycamore color: the tree color this card counts as when paying
+ICON_T_PINE,미송 색: 이 카드를 비용으로 낼 때 세는 나무 색이에요,Douglas Fir color: the tree color this card counts as when paying
+ICON_T_CHESTNUT,칠엽수 색: 이 카드를 비용으로 낼 때 세는 나무 색이에요,Horse Chestnut color: the tree color this card counts as when paying
 ICON_FREE,공짜: 비용을 내지 않고 그 종류 카드를 내요,Free: play a card of that kind without paying
 ICON_MORE,더 내기: 비용을 내고 카드를 몇 장이든 더 내요,"More: play any number of extra cards, paying costs"
 ICON_SIDE_TOP,나무 위 자리,Top side of a tree

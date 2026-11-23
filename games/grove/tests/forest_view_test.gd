@@ -91,3 +91,14 @@ func test_season_ambience_crossfades() -> void:
 	assert_int(sfx.ambience_season).is_equal(2)
 	sfx.ambience(3)
 	assert_int(sfx.ambience_season).is_equal(3)
+
+
+func test_sapling_preview_of_non_tree_card_shows_sapling() -> void:
+	var view: ForestView = auto_free(ForestView.new())
+	add_child(view)
+	view.plant_layout(ForestView.EMPTY_FOREST)
+	view.preview({plot = 0, side = &""}, &"boar")
+	assert_object(view._ghost).is_instanceof(ForestTree)
+	assert_str(String(view._ghost.species)).is_equal(String(ForestView.SAPLING_LOOK))
+	var t := view.place({plot = 1, side = &""}, &"boar")
+	assert_str(String(t.species)).is_equal(String(ForestView.SAPLING_LOOK))

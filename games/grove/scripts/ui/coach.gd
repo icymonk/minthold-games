@@ -9,6 +9,8 @@ const SETTINGS := "user://settings.cfg"
 const HOLE_SHADER := preload("res://shaders/coach_hole.gdshader")
 
 var steps: Array[Dictionary] = []
+## 참이면 안내를 잠깐 숨긴다(비용 카드 고르기처럼 화면 전체를 써야 할 때)
+var pause := Callable()
 var index := -1
 var _dim: ColorRect
 var _bubble: PanelContainer
@@ -114,6 +116,11 @@ func finish() -> void:
 
 func _process(_delta: float) -> void:
 	if index < 0 or index >= steps.size():
+		return
+	var hidden: bool = pause.is_valid() and pause.call()
+	_dim.visible = not hidden
+	_bubble.visible = not hidden
+	if hidden:
 		return
 	var hole_fn: Callable = steps[index].get("hole", Callable())
 	var r: Rect2 = hole_fn.call() if hole_fn.is_valid() else Rect2()

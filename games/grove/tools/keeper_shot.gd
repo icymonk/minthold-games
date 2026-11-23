@@ -17,6 +17,7 @@ func _process(_delta: float) -> bool:
 	_f += 1
 	if _f == 2:
 		load("res://scripts/ui/coach.gd").mark_seen(true)
+		TranslationServer.set_locale("ko")
 		_game = root.get_node(^"/root/Game")
 		_game.save_path = "user://shot.save"
 		_game.records_path = "user://shot_records.cfg"

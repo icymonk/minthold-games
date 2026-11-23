@@ -86,7 +86,7 @@ func _ready() -> void:
 	# 화면이 좁거나 글이 길어도 윗줄이 화면 밖으로 밀리지 않게 줄어든다
 	_score.clip_text = true
 	_score.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_score.custom_minimum_size.x = 120
+	_score.custom_minimum_size.x = 120 if _net else 320
 	_score.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	for d in [-1, 1]:
 		var b := _button(top, null, "←" if d < 0 else "→", Game.turn_requested.emit.bind(d), 96)
@@ -187,6 +187,7 @@ func start_coach() -> void:
 		if c is Coach:
 			c.queue_free()
 	var coach := Coach.new()
+	coach.pause = func() -> bool: return hand.picking() or _pay_bar.visible or _more_bar.visible
 	add_child(coach)
 	coach.start([
 		{text = "COACH_PLANT", hole = hand.card_rect.bind(Cards.is_tree), wait = world.placed,

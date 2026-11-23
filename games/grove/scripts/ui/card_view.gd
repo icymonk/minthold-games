@@ -152,9 +152,12 @@ func _half_box(kind: StringName, r: Rect2, color: Color, portraits: Portrait, sy
 			band_box.add_child(grid)
 	box.add_child(_badge(str(CardText.def_of(kind).get("cost", 0)), Style.FOREST, Style.CREAM, Vector2(4, 4), 30))
 	if sym != &"":
-		var tone: Color = TREE_COLORS.get(sym, Style.MOSS)
-		var dot := _badge(CardText.name_of(sym).left(1), tone, Style.FOREST if tone.get_luminance() > 0.6 else Style.CREAM, Vector2.ZERO, 28)
-		dot.position = Vector2(r.size.x - dot.size.x - 4, 4)
+		var dot := TextureRect.new()
+		dot.texture = Art.icon(StringName("t_" + String(sym)))
+		dot.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		dot.size = Vector2(34, 34)
+		dot.position = Vector2(r.size.x - dot.size.x - 2, 2)
 		box.add_child(dot)
 	var y := 36.0
 	for c in CardText.chips(kind):
@@ -280,15 +283,13 @@ func set_half(i: int) -> void:
 	half = i
 	for k in _halves.size():
 		var on := k == i or _halves.size() == 1
-		_halves[k].modulate = Color.WHITE if on else Color(0.86, 0.86, 0.88)
 		var ring: Panel = _halves[k].get_node_or_null(^"Ring")
 		if ring == null and _halves.size() > 1:
 			ring = Panel.new()
 			ring.name = &"Ring"
 			ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			var st := Style.box(Color(Style.SUNSET, 0.0), 12, Style.SUNSET, 4)
-			st.shadow_color = Color(Style.SUNSET, 0.6)
-			st.shadow_size = 6
+			var st := Style.box(Color(Style.SUNSET, 0.05), 12, Style.SUNSET, 5)
+			st.draw_center = true
 			ring.add_theme_stylebox_override(&"panel", st)
 			ring.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 			_halves[k].add_child(ring)
