@@ -225,3 +225,134 @@ GRADE_8,+ 도토리 ×0.5,+ acorns ×0.5
 ALBUM_TITLE,내 숲 앨범,My Forest Album
 ALBUM_EMPTY,"한 해를 끝내면 숲 사진이 여기 남아요","Finish a year to keep a photo of your forest here"
 ALBUM_ENTRY,%d점 · %s · 등급 %d,%d pts · %s · grade %d
+KIND_MAGPIE,까치,Magpie
+KIND_CROW,까마귀,Crow
+KIND_GREAT_TIT,박새,Great Tit
+KIND_NUTHATCH,동고비,Nuthatch
+KIND_CUCKOO,뻐꾸기,Cuckoo
+KIND_SCOPS_OWL,소쩍새,Scops Owl
+KIND_GOSHAWK,참매,Goshawk
+KIND_NOCTULE,멧박쥐,Noctule
+KIND_PIPISTRELLE,집박쥐,Pipistrelle
+KIND_PURPLE_EMPEROR,왕오색나비,Purple Emperor
+KIND_SULPHUR,노랑나비,Sulphur
+KIND_BLUE_COPPER,부전나비,Blue Copper
+KIND_LUNA_MOTH,긴꼬리산누에나방,Luna Moth
+KIND_FLYING_SQUIRREL,하늘다람쥐,Flying Squirrel
+KIND_RED_SQUIRREL,청설모,Squirrel
+KIND_CICADA,매미,Cicada
+KIND_STAG_BEETLE,사슴벌레,Stag Beetle
+KIND_FIREFLY_BUG,반딧불이,Firefly
+KIND_ANT,개미,Ant
+KIND_LADYBUG,무당벌레,Ladybug
+KIND_BUMBLEBEE,호박벌,Bumblebee
+KIND_SHIITAKE,표고,Shiitake
+KIND_OYSTER_MUSHROOM,느타리,Oyster Mushroom
+KIND_PUFFBALL,말불버섯,Puffball
+KIND_LINGZHI,영지,Lingzhi
+KIND_AZALEA,진달래,Azalea
+KIND_LILY_OF_VALLEY,은방울꽃,Lily of the Valley
+KIND_BELLFLOWER,도라지,Bellflower
+KIND_CLOVER,토끼풀,Clover
+KIND_WILD_GINSENG,산삼,Wild Ginseng
+KIND_HEDGEHOG,고슴도치,Hedgehog
+KIND_SHREW,땃쥐,Shrew
+KIND_CHIPMUNK,다람쥐,Chipmunk
+KIND_TREE_FROG,청개구리,Tree Frog
+KIND_TOAD,두꺼비,Toad
+KIND_POND_FROG,참개구리,Pond Frog
+KIND_POND_TURTLE,남생이,Pond Turtle
+KIND_MANDARIN_DUCK,원앙,Mandarin Duck
+KIND_RACCOON_DOG,너구리,Raccoon Dog
+KIND_WEASEL,족제비,Weasel
+KIND_MARTEN,담비,Yellow-throated Marten
+KIND_LEOPARD_CAT,삵,Leopard Cat
+KIND_TIGER,호랑이,Tiger
+KIND_BROWN_BEAR,불곰,Brown Bear
+KIND_WATER_DEER,고라니,Water Deer
+KIND_MUSK_DEER,사향노루,Musk Deer
+KIND_GORAL,산양,Goral
+KIND_SIKA_DEER,꽃사슴,Sika Deer
+KIND_PHEASANT,꿩,Pheasant
+KIND_RED_CROWNED_CRANE,두루미,Red-crowned Crane
+SPIRIT_CICADA_SONG,매미 노래,Cicada Song
+SPIRIT_CICADA_SONG_DESC,"곤충 3마리 이상이면 배수 +0.3","+0.3 multiplier with 3+ insects"
+SPIRIT_SQUIRREL_HOARD,다람쥐 곳간,Squirrel Hoard
+SPIRIT_SQUIRREL_HOARD_DESC,"발바닥 짐승 8마리 이상이면 배수 +0.6","+0.6 multiplier with 8+ pawed animals"
+SPIRIT_CRANE_DANCE,두루미 춤,Crane Dance
+SPIRIT_CRANE_DANCE_DESC,"새 6마리 이상이면 배수 +0.5","+0.5 multiplier with 6+ birds"
+SPIRIT_DEER_PATH,사슴 길,Deer Path
+SPIRIT_DEER_PATH_DESC,"사슴 2마리 이상이면 배수 +0.3","+0.3 multiplier with 2+ deer"
+SPIRIT_SPORE_CLOUD,홀씨 구름,Spore Cloud
+SPIRIT_SPORE_CLOUD_DESC,"버섯 4개 이상이면 배수 +0.6","+0.6 multiplier with 4+ mushrooms"
+SPIRIT_LILY_POND,연못 요정,Lily Pond
+SPIRIT_LILY_POND_DESC,"양서류·꽃 합 5 이상이면 배수 +0.4","+0.4 multiplier with 5+ amphibians & flowers"
+SPIRIT_NIGHT_WINGS,밤 날개,Night Wings
+SPIRIT_NIGHT_WINGS_DESC,"박쥐·나비 합 5 이상이면 배수 +0.4","+0.4 multiplier with 5+ bats & butterflies"
+SPIRIT_CANOPY_SONG,우듬지 노래,Canopy Song
+SPIRIT_CANOPY_SONG_DESC,"위 자리 이웃 8 이상이면 배수 +0.5","+0.5 multiplier with 8+ top neighbors"
+SPIRIT_DEEP_ROOTS,깊은 뿌리,Deep Roots
+SPIRIT_DEEP_ROOTS_DESC,"아래 자리 이웃 8 이상이면 배수 +0.5","+0.5 multiplier with 8+ bottom neighbors"
+SPIRIT_WIDE_TRAILS,넓은 오솔길,Wide Trails
+SPIRIT_WIDE_TRAILS_DESC,"옆 자리 이웃 10 이상이면 배수 +0.5","+0.5 multiplier with 10+ side neighbors"
+SPIRIT_BUTTERFLY_SCHOLAR,나비 학자,Butterfly Scholar
+SPIRIT_BUTTERFLY_SCHOLAR_DESC,"나비 종마다 배수 +0.1","+0.1 multiplier per butterfly species"
+SPIRIT_BAT_SCHOLAR,박쥐 학자,Bat Scholar
+SPIRIT_BAT_SCHOLAR_DESC,"박쥐 종마다 배수 +0.15","+0.15 multiplier per bat species"
+SPIRIT_BEETLE_LORD,딱정벌레 군주,Beetle Lord
+SPIRIT_BEETLE_LORD_DESC,"곤충 종마다 배수 +0.1","+0.1 multiplier per insect species"
+SPIRIT_MUSHROOM_SCHOLAR,버섯 학자,Mushroom Scholar
+SPIRIT_MUSHROOM_SCHOLAR_DESC,"버섯 종마다 배수 +0.1","+0.1 multiplier per mushroom species"
+SPIRIT_FLOWER_SCHOLAR,꽃 학자,Flower Scholar
+SPIRIT_FLOWER_SCHOLAR_DESC,"꽃 종마다 배수 +0.08","+0.08 multiplier per flower species"
+SPIRIT_DEER_SCHOLAR,사슴 학자,Deer Scholar
+SPIRIT_DEER_SCHOLAR_DESC,"사슴 종마다 배수 +0.15","+0.15 multiplier per deer species"
+SPIRIT_ANCIENT_OAK,늙은 참나무,Ancient Oak
+SPIRIT_ANCIENT_OAK_DESC,"나무 8그루 이상이면 배수 +0.3","+0.3 multiplier with 8+ trees"
+SPIRIT_WILD_WOOD,원시림,Wild Wood
+SPIRIT_WILD_WOOD_DESC,"나무 16그루 이상이면 배수 +0.8","+0.8 multiplier with 16+ trees"
+SPIRIT_SEEDLING_SPRITE,새싹 요정,Seedling Sprite
+SPIRIT_SEEDLING_SPRITE_DESC,"묘목마다 배수 +0.15","+0.15 multiplier per sapling"
+SPIRIT_MAGPIE_HOARD,까치 보물,Magpie Hoard
+SPIRIT_MAGPIE_HOARD_DESC,"굴 3장마다 배수 +0.1","+0.1 multiplier per 3 cave cards"
+SPIRIT_SUMMER_SUN,여름 해,Summer Sun
+SPIRIT_SUMMER_SUN_DESC,"여름에 배수 +0.25","Summer: multiplier +0.25"
+SPIRIT_AUTUMN_MOON,가을 달,Autumn Moon
+SPIRIT_AUTUMN_MOON_DESC,"가을에 배수 +0.3","Autumn: multiplier +0.3"
+SPIRIT_MIST_SPIRIT,안개 정령,Mist Spirit
+SPIRIT_MIST_SPIRIT_DESC,"늘 배수 +0.15","Always: multiplier +0.15"
+SPIRIT_FULL_BLOOM,만개,Full Bloom
+SPIRIT_FULL_BLOOM_DESC,"꽉 찬 나무마다 배수 +0.15","+0.15 multiplier per full tree"
+SPIRIT_OLD_GROVE,오래된 숲,Old Grove
+SPIRIT_OLD_GROVE_DESC,"나무 종류마다 배수 +0.08","+0.08 multiplier per tree kind"
+SPIRIT_NIGHT_BREEZE,밤바람,Night Breeze
+SPIRIT_NIGHT_BREEZE_DESC,"첫 바람이 불면 1장 더 받기","Draw 1 more on the first wind"
+SPIRIT_BEAR_DEN,곰 굴,Bear Den
+SPIRIT_BEAR_DEN_DESC,"굴 카드 1장 = 3점","Each cave card scores 3"
+SPIRIT_LONG_ARMS,긴 팔,Long Arms
+SPIRIT_LONG_ARMS_DESC,"손패 한도 +1","Hand limit +1"
+SPIRIT_OPEN_GLADE,트인 빈터,Open Glade
+SPIRIT_OPEN_GLADE_DESC,"빈터 한도 +2","Clearing holds 2 more"
+SPIRIT_ACORN_RAIN,도토리 비,Acorn Rain
+SPIRIT_ACORN_RAIN_DESC,"계절을 넘길 때마다 도토리 +2","+2 acorns each passed season"
+EVENT_SPRING_RAIN,"봄비: 양서류 ×1.5","Spring rain: amphibians ×1.5"
+EVENT_CHERRY_BLOSSOM,"꽃 잔치: 꽃 ×2","Blossoms: flowers ×2"
+EVENT_SPRING_GALE,"봄바람: 계절 바람 4장","Spring gale: 4 season winds"
+EVENT_SPROUT_FEAST,"새순 잔치: 도토리 ×1.5","Sprout feast: acorns ×1.5"
+EVENT_HEAT_WAVE,"폭염: 위 자리 이웃 점수 절반","Heat wave: top neighbors score half"
+EVENT_THUNDERSTORM,"소나기: 계절 바람 4장","Thunderstorm: 4 season winds"
+EVENT_MOSQUITOES,"모기 떼: 박쥐 ×2","Mosquitoes: bats ×2"
+EVENT_BERRY_SEASON,"산딸기 철: 도토리 ×1.5","Berry season: acorns ×1.5"
+EVENT_HARVEST_MOON,"한가위: 발바닥 짐승 ×1.5","Harvest moon: pawed animals ×1.5"
+EVENT_MUSHROOM_RAIN,"버섯 비: 버섯 ×2","Mushroom rain: mushrooms ×2"
+EVENT_RUTTING,"짝짓기 철: 사슴·발굽 ×2","Rutting: deer & hoofed ×2"
+EVENT_LEAF_STORM,"낙엽 폭풍: 빈터 7장이면 쓸림","Leaf storm: clearing sweeps at 7"
+EVENT_THAW,"이른 해빙: 아래 자리 ×1.5","Early thaw: bottom neighbors ×1.5"
+EVENT_ICE_STORM,"얼음 폭풍: 계절 바람 2장","Ice storm: 2 season winds"
+EVENT_HUNGRY_WOLVES,"굶주린 늑대: 사슴·발굽 절반","Hungry wolves: deer & hoofed score half"
+EVENT_AURORA,"오로라: 도토리 ×2","Aurora: acorns ×2"
+TITLE_DAILY,오늘의 숲,Today's Forest
+TITLE_DAILY_BEST,오늘의 숲 · 최고 %d점,Today's Forest · best %d
+DAILY_TAG,오늘의 숲 %s,Today's Forest %s
+RUN_END_YEAR,%d년째 숲,Year %d
+RUN_END_NEXT_YEAR,%d년째로 계속,Go on to year %d

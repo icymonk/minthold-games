@@ -46,8 +46,12 @@ var grade := 0
 var photo_pending := false
 
 
-func start_run(seed_value := -1) -> void:
-	run = Run.new(seed_value if seed_value >= 0 else randi(), keeper, grade)
+func start_run(seed_value := -1, day := "") -> void:
+	if day != "":
+		run = Run.new(daily_seed(day), daily_keeper(day), 0)
+		run.daily = day
+	else:
+		run = Run.new(seed_value if seed_value >= 0 else randi(), keeper, grade)
 	Save.clear(save_path)
 	run.begin()
 	run_started.emit()
@@ -154,3 +158,28 @@ func save_photo(img: Image) -> void:
 		year += s.total
 	records.add_photo({file = file, year = year, keeper = run.keeper, grade = run.grade, finished = run.done and not run.lost, date = Time.get_date_string_from_system()})
 	records.save(records_path)
+
+
+## 오늘의 숲(4-2): 날짜로 정해지는 씨앗과 숲지기. 누구나 같은 숲을 받는다(잠긴 숲지기도).
+static func daily_seed(day: String) -> int:
+	return absi(hash("grove:" + day))
+
+
+static func daily_keeper(day: String) -> StringName:
+	var ids: Array = Keepers.ALL.keys()
+	return ids[daily_seed(day) % ids.size()]
+
+
+static func today() -> String:
+	return Time.get_date_string_from_system()
+
+
+func start_daily() -> void:
+	start_run(-1, today())
+
+
+## 끝없는 해: 겨울을 넘긴 숲으로 다음 해 오두막부터
+func next_year() -> void:
+	if run and run.next_year():
+		Save.write(run, save_path)
+		goto(&"cabin")

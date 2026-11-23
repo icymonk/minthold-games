@@ -13,6 +13,10 @@ var best_season: Array[int] = [0, 0, 0, 0]
 var seen := {}
 ## 완주한 가장 높은 숲 등급(-1: 아직 없음)
 var best_grade := -1
+## 끝없는 해에서 넘긴 가장 많은 해, 오늘의 숲 날짜별 최고 점수
+var best_endless := 0
+var daily := {}
+const DAILY_KEEP := 30
 ## 내 숲 앨범: [{file, year, keeper, grade, finished, date}]
 var album: Array[Dictionary] = []
 const ALBUM_MAX := 24
@@ -34,6 +38,8 @@ static func load_file(path := PATH) -> Records:
 		r.best_season.assign(cfg.get_value("runs", "best_season", [0, 0, 0, 0]))
 		r.seen = cfg.get_value("codex", "seen", {})
 		r.best_grade = cfg.get_value("runs", "best_grade", -1)
+		r.best_endless = cfg.get_value("runs", "best_endless", 0)
+		r.daily = cfg.get_value("daily", "best", {})
 		r.album.assign(cfg.get_value("album", "entries", []))
 	return r
 
@@ -46,6 +52,8 @@ func save(path := PATH) -> void:
 	cfg.set_value("runs", "best_season", best_season)
 	cfg.set_value("codex", "seen", seen)
 	cfg.set_value("runs", "best_grade", best_grade)
+	cfg.set_value("runs", "best_endless", best_endless)
+	cfg.set_value("daily", "best", daily)
 	cfg.set_value("album", "entries", album)
 	cfg.save(path)
 
@@ -70,14 +78,24 @@ func note_season(i: int, log: ScoreLog, forest: Forest) -> Array[StringName]:
 
 
 func note_run(run: Run) -> void:
-	runs += 1
-	if run.done and not run.lost:
-		finished += 1
-		best_grade = maxi(best_grade, run.grade)
+	var won := run.done and not run.lost
+	if not run.noted:
+		runs += 1
+		if won:
+			finished += 1
+			best_grade = maxi(best_grade, run.grade)
+		run.noted = true
 	var year := 0
-	for s in run.scores:
+	for s in run.year_scores():
 		year += s.total
 	best_year = maxi(best_year, year)
+	best_endless = maxi(best_endless, run.year + (1 if won else 0))
+	if run.daily != "":
+		daily[run.daily] = maxi(daily.get(run.daily, 0), run.total())
+		var days := daily.keys()
+		days.sort()
+		while days.size() > DAILY_KEEP:
+			daily.erase(days.pop_front())
 
 
 func found() -> int:

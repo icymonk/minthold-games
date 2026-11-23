@@ -8,6 +8,8 @@ const TARGETS := [40, 110, 220, 380]
 ## 도토리 = 목표 넘긴 점수 / OVER_PER_ACORN + 남은 덱 / DECK_PER_ACORN (4-3에서 조정)
 const OVER_PER_ACORN := 10
 const DECK_PER_ACORN := 4
+## 끝없는 해(4-2): 한 해 지날 때마다 목표 +75%
+const YEAR_STEP := 0.75
 
 var rng := RandomNumberGenerator.new()
 var bag: Array[Dictionary] = []
@@ -26,6 +28,10 @@ var _next_id := 0
 ## 숲지기와 숲 등급(4-1)
 var keeper: StringName = &"grandma"
 var grade := 0
+## 끝없는 해: 0 = 첫해. noted = 이 런을 기록에 한 번 셌음. daily = 오늘의 숲 날짜(아니면 "")
+var year := 0
+var noted := false
+var daily := ""
 
 
 func _init(seed_value: int, keeper_id: StringName = &"grandma", grade_value := 0) -> void:
@@ -38,6 +44,11 @@ func _init(seed_value: int, keeper_id: StringName = &"grandma", grade_value := 0
 		bag.append(Cards.pair(bag.size(), p[0], p[1], p[2], p[3]))
 	acorns = k.acorns
 	_next_id = bag.size()
+	_roll_events()
+
+
+func _roll_events() -> void:
+	events.clear()
 	for s in Events.BY_SEASON.size():
 		var ids: Array = Events.BY_SEASON[s].keys()
 		events.append(ids[rng.randi_range(0, ids.size() - 1)])
@@ -53,7 +64,33 @@ func target() -> int:
 
 
 func target_of(i: int) -> int:
-	return int(round(TARGETS[i] * Keepers.grade_mods(grade).target / 5.0)) * 5
+	return int(round(TARGETS[i] * Keepers.grade_mods(grade).target * (1.0 + YEAR_STEP * year) / 5.0)) * 5
+
+
+## 겨울을 넘긴 숲으로 다음 해 봄을 시작한다. 숲·주머니·정령·도토리는 그대로.
+func next_year() -> bool:
+	if not done or lost:
+		return false
+	year += 1
+	season_index = 0
+	done = false
+	_roll_events()
+	offers = Reward.roll(rng, self)
+	return true
+
+
+## 올해 계절 점수들
+func year_scores() -> Array[ScoreLog]:
+	var out: Array[ScoreLog] = []
+	out.assign(scores.slice(year * TARGETS.size()))
+	return out
+
+
+func total() -> int:
+	var n := 0
+	for s in scores:
+		n += s.total
+	return n
 
 
 ## 고른 정령 + 숲지기 정령
