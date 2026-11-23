@@ -11,6 +11,11 @@ var best_year := 0
 var best_season: Array[int] = [0, 0, 0, 0]
 ## 종 → 숲에 들인 횟수(계절 끝 숲 기준)
 var seen := {}
+## 완주한 가장 높은 숲 등급(-1: 아직 없음)
+var best_grade := -1
+## 내 숲 앨범: [{file, year, keeper, grade, finished, date}]
+var album: Array[Dictionary] = []
+const ALBUM_MAX := 24
 
 
 static func all_kinds() -> Array[StringName]:
@@ -28,6 +33,8 @@ static func load_file(path := PATH) -> Records:
 		r.best_year = cfg.get_value("runs", "best_year", 0)
 		r.best_season.assign(cfg.get_value("runs", "best_season", [0, 0, 0, 0]))
 		r.seen = cfg.get_value("codex", "seen", {})
+		r.best_grade = cfg.get_value("runs", "best_grade", -1)
+		r.album.assign(cfg.get_value("album", "entries", []))
 	return r
 
 
@@ -38,6 +45,8 @@ func save(path := PATH) -> void:
 	cfg.set_value("runs", "best_year", best_year)
 	cfg.set_value("runs", "best_season", best_season)
 	cfg.set_value("codex", "seen", seen)
+	cfg.set_value("runs", "best_grade", best_grade)
+	cfg.set_value("album", "entries", album)
 	cfg.save(path)
 
 
@@ -64,6 +73,7 @@ func note_run(run: Run) -> void:
 	runs += 1
 	if run.done and not run.lost:
 		finished += 1
+		best_grade = maxi(best_grade, run.grade)
 	var year := 0
 	for s in run.scores:
 		year += s.total
@@ -72,3 +82,17 @@ func note_run(run: Run) -> void:
 
 func found() -> int:
 	return all_kinds().filter(func(k: StringName) -> bool: return seen.has(k)).size()
+
+
+## 고를 수 있는 가장 높은 숲 등급
+func open_grade() -> int:
+	return mini(best_grade + 1, Keepers.MAX_GRADE)
+
+
+## 앨범에 한 장 더한다. 가득 차면 가장 오래된 사진을 지운다.
+func add_photo(entry: Dictionary) -> void:
+	album.append(entry)
+	while album.size() > ALBUM_MAX:
+		var old: Dictionary = album.pop_front()
+		if FileAccess.file_exists(old.file):
+			DirAccess.remove_absolute(old.file)

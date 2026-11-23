@@ -21,7 +21,7 @@ static func new_pair(rng: RandomNumberGenerator, id: int) -> Dictionary:
 ## 보상 3장: [{t = pair, cards} | {t = spirit, id} | {t = remove}]
 static func roll(rng: RandomNumberGenerator, run: Run) -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
-	var free := Spirits.ALL.keys().filter(func(k: StringName) -> bool: return not run.spirits.has(k))
+	var free := Spirits.ALL.keys().filter(func(k: StringName) -> bool: return not run.owned().has(k))
 	for kind: StringName in [&"pair", &"spirit", &"remove"]:
 		if kind == &"spirit" and (free.is_empty() or run.spirits.size() >= Spirits.SLOTS):
 			kind = &"pair"

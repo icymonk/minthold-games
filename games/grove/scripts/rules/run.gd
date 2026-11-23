@@ -23,11 +23,20 @@ var offers: Array[Dictionary] = []
 var lost := false
 var done := false
 var _next_id := 0
+## 숲지기와 숲 등급(4-1)
+var keeper: StringName = &"grandma"
+var grade := 0
 
 
-func _init(seed_value: int) -> void:
+func _init(seed_value: int, keeper_id: StringName = &"grandma", grade_value := 0) -> void:
 	rng.seed = seed_value
+	keeper = keeper_id
+	grade = grade_value
 	bag = Cards.start_bag()
+	var k := Keepers.def_of(keeper)
+	for p in k.pairs:
+		bag.append(Cards.pair(bag.size(), p[0], p[1], p[2], p[3]))
+	acorns = k.acorns
 	_next_id = bag.size()
 	for s in Events.BY_SEASON.size():
 		var ids: Array = Events.BY_SEASON[s].keys()
@@ -40,27 +49,42 @@ func new_id() -> int:
 
 
 func target() -> int:
-	return TARGETS[season_index]
+	return target_of(season_index)
+
+
+func target_of(i: int) -> int:
+	return int(round(TARGETS[i] * Keepers.grade_mods(grade).target / 5.0)) * 5
+
+
+## 고른 정령 + 숲지기 정령
+func owned() -> Array[StringName]:
+	var out := spirits.duplicate()
+	var s: StringName = Keepers.def_of(keeper).spirit
+	if s != &"" and not out.has(s):
+		out.append(s)
+	return out
 
 
 ## 이번 계절 사건의 규칙(겨울잠 곰이 있으면 겨울 사건은 없음)
 func event() -> Dictionary:
-	if season_index == 3 and Spirits.value(spirits, "ignore_winter", false):
+	if season_index == 3 and Spirits.value(owned(), "ignore_winter", false):
 		return {}
 	return Events.def_of(season_index, events[season_index])
 
 
 func score_mods() -> Dictionary:
-	return {score = event().get("score", []), cave = Spirits.value(spirits, "cave", 1)}
+	return {score = event().get("score", []), cave = Spirits.value(owned(), "cave", 1)}
 
 
 func begin() -> Season:
 	var e := event()
-	season = Season.new(bag, rng.randi(), forest, e.get("winds", Season.WINDS))
-	season.hand_limit = e.get("hand", Season.HAND_LIMIT) + Spirits.value(spirits, "hand", 0)
-	season.clearing_limit = e.get("clearing", Season.CLEARING_LIMIT) + Spirits.value(spirits, "clearing", 0)
-	season.wind_bonus = Spirits.value(spirits, "wind_draw", 0)
-	season.deal(Spirits.value(spirits, "start_draw", 0))
+	var g := Keepers.grade_mods(grade)
+	var winds: int = e.get("winds", Season.WINDS) + (g.winter_winds if season_index == 3 else 0)
+	season = Season.new(bag, rng.randi(), forest, winds)
+	season.hand_limit = e.get("hand", Season.HAND_LIMIT) + Spirits.value(owned(), "hand", 0) + g.hand
+	season.clearing_limit = e.get("clearing", Season.CLEARING_LIMIT) + Spirits.value(owned(), "clearing", 0) + g.clearing
+	season.wind_bonus = Spirits.value(owned(), "wind_draw", 0)
+	season.deal(Spirits.value(owned(), "start_draw", 0))
 	offers.clear()
 	return season
 
@@ -71,14 +95,14 @@ func finish() -> ScoreLog:
 	if e.get("cut_bare", false):
 		forest.cut_bare()
 	var log := Score.count(forest, season_index, score_mods())
-	log.apply(Spirits.mult(forest, spirits, season_index))
+	log.apply(Spirits.mult(forest, owned(), season_index))
 	scores.append(log)
 	if log.total < target():
 		lost = true
 		return log
 	var left := season.deck.filter(func(c: Dictionary) -> bool: return not c.get("wind", false)).size()
-	acorns += int(((log.total - target()) / OVER_PER_ACORN + left / DECK_PER_ACORN) * e.get("acorns", 1.0))
-	acorns += Spirits.value(spirits, "acorns", 0)
+	acorns += int(((log.total - target()) / OVER_PER_ACORN + left / DECK_PER_ACORN) * e.get("acorns", 1.0) * Keepers.grade_mods(grade).acorns)
+	acorns += Spirits.value(owned(), "acorns", 0)
 	season_index += 1
 	if season_index >= TARGETS.size():
 		done = true
@@ -118,7 +142,7 @@ func _grant(o: Dictionary, ids: Array[int]) -> bool:
 			for c in o.cards:
 				bag.append(c)
 		&"spirit":
-			if spirits.size() >= Spirits.SLOTS or spirits.has(o.id):
+			if spirits.size() >= Spirits.SLOTS or owned().has(o.id):
 				return false
 			spirits.append(o.id)
 		&"remove":

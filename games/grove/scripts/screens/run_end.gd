@@ -17,9 +17,9 @@ func _ready() -> void:
 			cell.custom_minimum_size.x = 220
 			row.add_child(cell)
 			_label(cell, Game.season_name(i), Style.BODY)
-			var passed: bool = run.scores[i].total >= Run.TARGETS[i]
+			var passed: bool = run.scores[i].total >= run.target_of(i)
 			_label(cell, str(run.scores[i].total), Style.HEADLINE, Style.SPROUT if passed else Style.BERRY)
-			_label(cell, tr("SEASON_GOAL") % Run.TARGETS[i], 28, Color(Style.CREAM, 0.8))
+			_label(cell, tr("SEASON_GOAL") % run.target_of(i), 28, Color(Style.CREAM, 0.8))
 		var trees := run.forest.trees.size()
 		_label(col, tr("RUN_END_FOREST") % [trees, run.forest.neighbors().size()], 32)
 	_spacer(col)
@@ -28,3 +28,18 @@ func _ready() -> void:
 	var again := _button(buttons, Art.ICON_RETRY, tr("RUN_END_RETRY"), Game.start_run.bind(-1), 480)
 	again.theme_type_variation = &"AccentButton"
 	again.grab_focus()
+
+	if Game.photo_pending:
+		_snap.call_deferred()
+
+
+## 화면 글자를 잠깐 숨기고 숲만 찍어 앨범에 남긴다
+func _snap() -> void:
+	modulate.a = 0.0
+	await get_tree().create_timer(0.6).timeout
+	await RenderingServer.frame_post_draw
+	var img := get_viewport().get_texture().get_image()
+	modulate.a = 1.0
+	if img and not img.is_empty():
+		img.resize(480, 270, Image.INTERPOLATE_LANCZOS)
+	Game.save_photo(img)

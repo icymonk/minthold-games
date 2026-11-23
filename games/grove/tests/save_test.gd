@@ -67,3 +67,54 @@ func test_records_track_seasons_runs_and_codex() -> void:
 	assert_int(back.best_year).is_equal(run.scores[0].total)
 	assert_int(back.seen[&"eagle"]).is_equal(2)
 	assert_int(Records.all_kinds().size()).is_equal(Cards.TREES.size() + 40)
+
+
+func test_keepers_change_bag_spirit_and_unlock() -> void:
+	assert_int(Keepers.ALL.size()).is_equal(8)
+	var base := Run.new(3)
+	var bird := Run.new(3, &"bird_doctor")
+	assert_int(bird.bag.size()).is_equal(base.bag.size() + 3)
+	assert_array(bird.owned()).contains([&"old_owl"])
+	assert_array(bird.spirits).is_empty()
+	assert_int(Run.new(3, &"acorn_merchant").acorns).is_equal(8)
+	for id: StringName in Keepers.ALL:
+		for p in Keepers.ALL[id].pairs:
+			assert_bool(Cards.SPECIES.has(p[0]) and Cards.SPECIES.has(p[1])).is_true()
+			var card := Cards.pair(0, p[0], p[1], p[2], p[3])
+			assert_bool(Cards.fits(p[0], Cards.side_of(card, 0)) and Cards.fits(p[1], Cards.side_of(card, 1))).override_failure_message(String(p[0])).is_true()
+		var s: StringName = Keepers.ALL[id].spirit
+		assert_bool(s == &"" or Spirits.ALL.has(s)).is_true()
+	var r := Records.new()
+	assert_bool(Keepers.unlocked(&"grandma", r)).is_true()
+	assert_bool(Keepers.unlocked(&"bird_doctor", r)).is_false()
+	r.runs = 1
+	assert_bool(Keepers.unlocked(&"bird_doctor", r)).is_true()
+
+
+func test_grades_stack_and_round_trip() -> void:
+	assert_int(Run.new(1).target_of(0)).is_equal(40)
+	var hard := Run.new(1, &"grandma", 8)
+	assert_int(hard.target_of(3)).is_equal(515)
+	var s := hard.begin()
+	assert_int(s.clearing_limit).is_less(Run.new(1).begin().clearing_limit + 1)
+	var m := Keepers.grade_mods(6)
+	assert_float(m.target).is_equal(1.2)
+	assert_int(m.winter_winds).is_equal(-1)
+	assert_float(m.acorns).is_equal(0.75)
+	var r := Records.new()
+	assert_int(r.open_grade()).is_equal(0)
+	hard.done = true
+	r.note_run(hard)
+	assert_int(r.open_grade()).is_equal(8)
+	Save.write(Run.new(4, &"ranger", 3), SAVE)
+	var back := Save.read(SAVE)
+	assert_str(String(back.keeper)).is_equal("ranger")
+	assert_int(back.grade).is_equal(3)
+
+
+func test_album_keeps_latest_photos() -> void:
+	var r := Records.new()
+	for i in Records.ALBUM_MAX + 3:
+		r.add_photo({file = "user://none_%d.png" % i, year = i, keeper = &"grandma", grade = 0})
+	assert_int(r.album.size()).is_equal(Records.ALBUM_MAX)
+	assert_int(r.album[0].year).is_equal(3)

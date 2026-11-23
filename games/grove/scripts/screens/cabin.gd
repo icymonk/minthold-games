@@ -53,7 +53,7 @@ func _ready() -> void:
 		{t = &"land"},
 		{t = &"deco", deco = Cards.DECOS[Game.run.rng.randi_range(0, Cards.DECOS.size() - 1)]},
 	]
-	var free := Spirits.ALL.keys().filter(func(k: StringName) -> bool: return not Game.run.spirits.has(k))
+	var free := Spirits.ALL.keys().filter(func(k: StringName) -> bool: return not Game.run.owned().has(k))
 	if not free.is_empty():
 		_stock.insert(1, {t = &"spirit", id = free[Game.run.rng.randi_range(0, free.size() - 1)]})
 	_refresh()
