@@ -8,6 +8,7 @@ var _grade: Label
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_dim()
 	var col := _frame()
 	_label(col, tr("SETUP_TITLE"), Style.HEADLINE)
 	var ids: Array = Keepers.ALL.keys()
@@ -25,6 +26,7 @@ func _ready() -> void:
 			var open := Keepers.unlocked(id, Game.records)
 			b.text = "%s\n%s" % [tr("KEEPER_%s" % String(id).to_upper()), _desc(id) if open else _lock(id)]
 			b.disabled = not open
+			b.add_theme_color_override(&"font_disabled_color", Color(Style.CREAM, 0.7))
 			b.set_meta(&"id", id)
 			_keepers.append(b)
 	var g := _row(col)

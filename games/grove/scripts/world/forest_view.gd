@@ -440,7 +440,7 @@ func _build_environment() -> void:
 	sun.light_energy = 1.7
 	sun.shadow_enabled = true
 	sun.shadow_blur = 1.5
-	sun.directional_shadow_max_distance = 70.0
+	sun.directional_shadow_max_distance = 40.0 if OS.has_feature("web") else 70.0
 	sun.rotation_degrees = Vector3(-34.0, -40.0, 0.0)
 	add_child(sun)
 	# 그늘 쪽을 살짝 푸르게 채우는 빛
@@ -542,7 +542,7 @@ func _build_backdrop() -> void:
 			node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	# 해 질 녘 떠다니는 빛 알갱이
 	var motes := CPUParticles3D.new()
-	motes.amount = 60
+	motes.amount = 30 if OS.has_feature("web") else 60
 	motes.lifetime = 6.0
 	motes.preprocess = 6.0
 	motes.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX

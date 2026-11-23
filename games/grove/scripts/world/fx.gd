@@ -75,7 +75,7 @@ static func season_props(season: int, radius: float) -> CPUParticles3D:
 	var d: Array = SEASON_PROPS[season]
 	var p := CPUParticles3D.new()
 	p.name = "SeasonProps"
-	p.amount = 160 if season != 1 else 80
+	p.amount = (160 if season != 1 else 80) / (2 if OS.has_feature("web") else 1)
 	p.lifetime = 7.0
 	p.preprocess = 7.0
 	p.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX

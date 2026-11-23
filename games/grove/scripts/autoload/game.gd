@@ -23,7 +23,7 @@ const SCREENS := {
 }
 const SEASON_KEYS: Array[String] = ["SEASON_SPRING", "SEASON_SUMMER", "SEASON_AUTUMN", "SEASON_WINTER"]
 ## 계절 목표 점수(기획서 2.2 초기값)
-const GOALS: Array[int] = [40, 110, 220, 380]
+const GOALS: Array[int] = [35, 150, 400, 800]
 const WINDS_PER_SEASON := Season.WINDS
 
 var season := 0
