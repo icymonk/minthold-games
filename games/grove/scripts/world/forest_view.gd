@@ -39,6 +39,10 @@ const DEMO_FOREST: Array[StringName] = [
 	&"fir", &"birch", &"oak", &"maple", &"", &"pine", &"linden", &"chestnut", &"beech",
 ]
 ## 한 해를 시작할 때의 숲: 나무 4그루, 빈 땅 5칸
+const EMPTY_FOREST: Array[StringName] = [&"", &"", &"", &"", &"", &"", &"", &"", &""]
+## 묘목은 작은 자작나무로 보인다
+const SAPLING_LOOK := &"birch"
+const SAPLING_SCALE := 0.55
 const START_FOREST: Array[StringName] = [
 	&"", &"birch", &"", &"oak", &"", &"maple", &"", &"pine", &"",
 ]
@@ -196,6 +200,8 @@ func _light(on: bool) -> void:
 
 ## 놓기 전 반투명 미리 보기. 빈 target이면 지운다.
 func preview(target: Dictionary, kind: StringName) -> void:
+	if kind == Forest.SAPLING:
+		kind = SAPLING_LOOK
 	if target == _ghost_target and (_ghost != null) == not target.is_empty():
 		return
 	if _ghost:
@@ -223,7 +229,9 @@ func place(target: Dictionary, kind: StringName) -> Node3D:
 	clear_targets()
 	var node: Node3D
 	if target.side == &"":
-		var t := plant(target.plot, kind)
+		var t := plant(target.plot, SAPLING_LOOK if kind == Forest.SAPLING else kind)
+		if kind == Forest.SAPLING:
+			t.scale = Vector3.ONE * SAPLING_SCALE
 		t.grow()
 		node = t
 	else:
