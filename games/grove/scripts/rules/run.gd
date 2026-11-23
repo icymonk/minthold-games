@@ -57,9 +57,10 @@ func score_mods() -> Dictionary:
 func begin() -> Season:
 	var e := event()
 	season = Season.new(bag, rng.randi(), forest, e.get("winds", Season.WINDS))
-	season.hand_limit = e.get("hand", Season.HAND_LIMIT)
-	season.clearing_limit = e.get("clearing", Season.CLEARING_LIMIT)
+	season.hand_limit = e.get("hand", Season.HAND_LIMIT) + Spirits.value(spirits, "hand", 0)
+	season.clearing_limit = e.get("clearing", Season.CLEARING_LIMIT) + Spirits.value(spirits, "clearing", 0)
 	season.wind_bonus = Spirits.value(spirits, "wind_draw", 0)
+	season.deal(Spirits.value(spirits, "start_draw", 0))
 	offers.clear()
 	return season
 
@@ -70,13 +71,14 @@ func finish() -> ScoreLog:
 	if e.get("cut_bare", false):
 		forest.cut_bare()
 	var log := Score.count(forest, season_index, score_mods())
-	log.apply(Spirits.mult(forest, spirits))
+	log.apply(Spirits.mult(forest, spirits, season_index))
 	scores.append(log)
 	if log.total < target():
 		lost = true
 		return log
 	var left := season.deck.filter(func(c: Dictionary) -> bool: return not c.get("wind", false)).size()
 	acorns += int(((log.total - target()) / OVER_PER_ACORN + left / DECK_PER_ACORN) * e.get("acorns", 1.0))
+	acorns += Spirits.value(spirits, "acorns", 0)
 	season_index += 1
 	if season_index >= TARGETS.size():
 		done = true
@@ -96,7 +98,7 @@ func take(i: int, ids: Array[int] = []) -> bool:
 	return true
 
 
-## 도토리 가게: {t = pair|spirit|remove|land, ...}
+## 도토리 가게: {t = pair|spirit|remove|land|deco, ...}. deco는 꾸밀 카드 id 하나를 ids로.
 func buy(item: Dictionary, ids: Array[int] = []) -> bool:
 	var price: int = Reward.PRICES[item.t]
 	if acorns < price:
@@ -126,4 +128,12 @@ func _grant(o: Dictionary, ids: Array[int]) -> bool:
 				if not bag.any(func(c: Dictionary) -> bool: return c.id == id):
 					return false
 			bag = bag.filter(func(c: Dictionary) -> bool: return not ids.has(c.id))
+		&"deco":
+			if ids.size() != 1:
+				return false
+			for c in bag:
+				if c.id == ids[0] and not c.has("deco"):
+					c.deco = o.deco
+					return true
+			return false
 	return true

@@ -46,6 +46,7 @@ func _ready() -> void:
 		{t = &"pair", cards = [Reward.new_pair(Game.run.rng, Game.run.new_id()), Reward.new_pair(Game.run.rng, Game.run.new_id())]},
 		{t = &"remove"},
 		{t = &"land"},
+		{t = &"deco", deco = Cards.DECOS[Game.run.rng.randi_range(0, Cards.DECOS.size() - 1)]},
 	]
 	var free := Spirits.ALL.keys().filter(func(k: StringName) -> bool: return not Game.run.spirits.has(k))
 	if not free.is_empty():
@@ -110,6 +111,9 @@ func _item(parent: Control, o: Dictionary, price: String) -> Button:
 		&"remove":
 			_small(col, tr("CABIN_REMOVE"), Style.SUNSET, 34)
 			_small(col, tr("CABIN_REMOVE_DESC"), Style.CREAM)
+		&"deco":
+			_small(col, tr("CABIN_DECO_DEW") if o.deco == &"dew" else tr("CABIN_DECO_GOLD"), Style.SUNSET, 34)
+			_small(col, tr("CABIN_DECO_DEW_DESC") % Cards.DEW_POINTS if o.deco == &"dew" else tr("CABIN_DECO_GOLD_DESC"), Style.CREAM)
 		&"land":
 			_small(col, tr("CABIN_LAND"), Style.SUNSET, 34)
 			_small(col, tr("CABIN_LAND_DESC") % [Game.run.forest.plots, Forest.MAX_PLOTS], Style.CREAM)
@@ -153,10 +157,11 @@ func _take(i: int) -> void:
 
 
 func _buy(item: Dictionary) -> void:
-	if item.t == &"remove":
+	if item.t in [&"remove", &"deco"]:
 		_pick_cards(func(ids: Array[int]) -> void:
 			if Game.buy(item, ids):
-				_refresh())
+				_stock.erase(item)
+				_refresh(), 1 if item.t == &"deco" else Reward.REMOVE)
 		return
 	if Game.buy(item):
 		Sfx.play(&"chime")
@@ -165,8 +170,8 @@ func _buy(item: Dictionary) -> void:
 		_refresh()
 
 
-## 씨앗 주머니에서 카드 2장 고르기
-func _pick_cards(done: Callable) -> void:
+## 씨앗 주머니에서 카드 n장 고르기(빼기 2장, 꾸미기 1장)
+func _pick_cards(done: Callable, n := Reward.REMOVE) -> void:
 	if _picker:
 		_picker.queue_free()
 	_picker = PanelContainer.new()
@@ -176,14 +181,14 @@ func _pick_cards(done: Callable) -> void:
 	var col := VBoxContainer.new()
 	col.add_theme_constant_override(&"separation", 16)
 	_picker.add_child(col)
-	_label(col, tr("CABIN_REMOVE_PICK") % Reward.REMOVE, 34, Style.SUNSET)
+	_label(col, tr("CABIN_REMOVE_PICK") % n if n == Reward.REMOVE else tr("CABIN_DECO_PICK"), 34, Style.SUNSET)
 	var grid := GridContainer.new()
 	grid.columns = 13
 	grid.add_theme_constant_override(&"h_separation", 6)
 	grid.add_theme_constant_override(&"v_separation", 6)
 	col.add_child(grid)
 	var chosen: Array[int] = []
-	var ok := _button(_row(col), Art.ICON_NEXT, tr("CABIN_REMOVE_OK"), func() -> void:
+	var ok := _button(_row(col), Art.ICON_NEXT, tr("CABIN_REMOVE_OK") if n == Reward.REMOVE else tr("SEASON_PAY_OK"), func() -> void:
 		_picker.queue_free()
 		_picker = null
 		done.call(chosen), 360)
@@ -203,7 +208,7 @@ func _pick_cards(done: Callable) -> void:
 		b.add_child(v)
 		grid.add_child(b)
 		b.toggled.connect(func(on: bool) -> void:
-			if on and chosen.size() >= Reward.REMOVE:
+			if on and chosen.size() >= n:
 				b.set_pressed_no_signal(false)
 				return
 			if on:
@@ -211,4 +216,4 @@ func _pick_cards(done: Callable) -> void:
 			else:
 				chosen.erase(c.id)
 			v.modulate = Style.BERRY.lightened(0.4) if on else Color.WHITE
-			ok.disabled = chosen.size() != Reward.REMOVE)
+			ok.disabled = chosen.size() != n)

@@ -1,9 +1,9 @@
 class_name Reward
 extends RefCounted
 ## 오두막 보상(규칙 1-3): 3장 중 1장 — 새 이웃 카드 2장 묶음, 숲 정령 1개, 주머니에서 카드 2장 빼기.
-## 도토리 가게: 같은 것들을 값을 내고 사고, 땅 2칸 넓히기도 판다.
+## 도토리 가게: 같은 것들을 값을 내고 사고, 땅 2칸 넓히기와 카드 꾸미기(이슬·금빛 잎)도 판다.
 
-const PRICES := {pair = 3, spirit = 6, remove = 2, land = 4}
+const PRICES := {pair = 3, spirit = 6, remove = 2, land = 4, deco = 3}
 const REMOVE := 2
 
 

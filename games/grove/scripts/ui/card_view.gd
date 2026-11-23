@@ -3,6 +3,9 @@ extends Control
 ## 손패의 카드 한 장. 나무 카드는 그림 하나, 이웃 카드는 반쪽 둘(위/아래 또는 왼/오른).
 
 const CARD := Vector2(210, 300)
+## 카드 꾸미기: 이슬 방울, 금빛 테두리
+const DEW := Color("#5AA8E0")
+const GOLD := Color("#E8C14A")
 
 var card: Dictionary
 var half := 0
@@ -38,6 +41,22 @@ func _build(portraits: Portrait) -> void:
 		var w := inner.size.x / 2.0
 		_halves.append(_half_box(card.halves[0], Rect2(inner.position, Vector2(w - 4, inner.size.y)), Dweller.KINDS[card.halves[0]].color, portraits))
 		_halves.append(_half_box(card.halves[1], Rect2(inner.position + Vector2(w + 4, 0), Vector2(w - 4, inner.size.y)), Dweller.KINDS[card.halves[1]].color, portraits))
+	if card.get("deco", &"") == &"dew":
+		var dew := Panel.new()
+		dew.add_theme_stylebox_override(&"panel", Style.box(DEW, 22, Style.CREAM, 3))
+		dew.size = Vector2(44, 44)
+		dew.position = Vector2(CARD.x - 50, 6)
+		dew.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(dew)
+		var plus := Label.new()
+		plus.text = "+%d" % Cards.DEW_POINTS
+		plus.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		plus.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		plus.add_theme_font_override(&"font", Style.bold())
+		plus.add_theme_font_size_override(&"font_size", 20)
+		plus.add_theme_color_override(&"font_color", Style.CREAM)
+		plus.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		dew.add_child(plus)
 	set_half(0)
 
 
@@ -80,6 +99,8 @@ func set_half(i: int) -> void:
 	for k in _halves.size():
 		_halves[k].modulate = Color.WHITE if k == i or _halves.size() == 1 else Color(0.45, 0.45, 0.5)
 	var border := Style.SUNSET if _halves.size() > 1 else Style.MOSS
+	if card.get("deco", &"") == &"gold":
+		border = GOLD
 	_frame.add_theme_stylebox_override(&"panel", Style.box(Style.CREAM, 18, border, 5, 10))
 
 

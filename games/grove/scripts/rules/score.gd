@@ -18,6 +18,13 @@ extends RefCounted
 ##   at_least = k, each, other    같은 종이 k 이상이면 장마다 each, 아니면 other
 ##   same_tree = 종류, pts, other 같은 나무에 그 종류 이웃이 있으면 pts
 ##   on = [나무 종], pts, other   붙은 나무가 그중 하나면 pts
+##   kind_set = [..]              같은 종류(예: 나비)의 서로 다른 종 n가지 → 표[n]을 종류마다 한 번
+##   distinct_at_least = k, each, other  같은 종류의 서로 다른 종이 k가지 이상이면 마리마다 each
+##   per_tree = n                 나무(묘목 빼고) 1그루마다 n
+##   per_tree_kind = 나무, pts    그 나무 1그루마다 pts
+##   kinds_of_trees = n           나무 종류 가짓수마다 n
+##   per_cave = n                 굴 카드 1장마다 n
+## 카드 꾸미기 이슬(deco = dew)은 그 줄에 +2.
 
 const LATE_FROM := 2
 
@@ -31,7 +38,7 @@ static func count(forest: Forest, season := 0, mods := {}) -> ScoreLog:
 		if t.kind == Forest.SAPLING:
 			continue
 		var rule: Dictionary = Cards.TREES[t.kind].score
-		var pts := _eval(rule, t.kind, c.trees, p, forest, c, season, once)
+		var pts := _eval(rule, t.kind, c.trees, p, forest, c, season, once) + _deco(t.card)
 		log.add({card = t.card.id, plot = p, side = &"", what = t.kind, pts = pts, rule = rule.keys()[0]})
 	for n in forest.neighbors():
 		var rule: Dictionary = Cards.SPECIES[n.species].score
@@ -39,9 +46,14 @@ static func count(forest: Forest, season := 0, mods := {}) -> ScoreLog:
 		for m: Dictionary in mods.get("score", []):
 			if m.get("side", n.side) == n.side and m.get("kind", Cards.SPECIES[n.species].kind) == Cards.SPECIES[n.species].kind:
 				pts = int(pts * m.x)
+		pts += _deco(n.card)
 		log.add({card = n.card.id, plot = n.plot, side = n.side, what = n.species, pts = pts, rule = rule.keys()[0]})
 	log.add_cave(forest.cave.size(), mods.get("cave", 1))
 	return log
+
+
+static func _deco(card: Dictionary) -> int:
+	return Cards.DEW_POINTS if card.get("deco", &"") == &"dew" else 0
 
 
 ## 숲 세기: 나무 종별 그루, 이웃 종별·종류별·자리별 마리
@@ -61,9 +73,37 @@ static func _census(forest: Forest) -> Dictionary:
 	return c
 
 
+## 그 종류 이웃의 서로 다른 종 가짓수
+static func _distinct(c: Dictionary, kind: StringName) -> int:
+	var n := 0
+	for s in c.species:
+		if Cards.SPECIES[s].kind == kind:
+			n += 1
+	return n
+
+
 static func _eval(r: Dictionary, what: StringName, same: Dictionary, plot: int, forest: Forest, c: Dictionary, season: int, once: Dictionary) -> int:
 	if r.has("flat"):
 		return r.flat
+	if r.has("kind_set"):
+		var kind: StringName = Cards.SPECIES[what].kind
+		if once.has(kind):
+			return 0
+		once[kind] = true
+		return r.kind_set[mini(_distinct(c, kind), r.kind_set.size() - 1)]
+	if r.has("distinct_at_least"):
+		return r.each if _distinct(c, Cards.SPECIES[what].kind) >= r.distinct_at_least else r.other
+	if r.has("per_tree"):
+		var n := 0
+		for k in c.trees:
+			n += c.trees[k]
+		return n * r.per_tree
+	if r.has("per_tree_kind"):
+		return c.trees.get(r.per_tree_kind, 0) * r.pts
+	if r.has("kinds_of_trees"):
+		return c.trees.size() * r.kinds_of_trees
+	if r.has("per_cave"):
+		return forest.cave.size() * r.per_cave
 	if r.has("per_here"):
 		var n := 0
 		for s in Forest.SIDES:

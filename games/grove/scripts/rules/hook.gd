@@ -1,7 +1,7 @@
 class_name Hook
 extends RefCounted
 ## 지속 효과(규칙 1-2): 숲에 있는 버섯 등이 발동 지점에 건 효과. 정령·사건도 1-3부터 같은 지점에 붙는다.
-## hook = {on = 발동 지점, side?, kind?, give = 효과}. 지점: place(이웃을 붙일 때).
+## hook = {on = 발동 지점, side?, kind?, give = 효과}. 지점: place(이웃을 붙일 때), plant(나무를 심을 때).
 
 
 ## 숲에 걸린 hook들

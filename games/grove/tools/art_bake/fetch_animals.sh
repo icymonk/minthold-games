@@ -12,8 +12,8 @@ for p in $PACKS; do
 done
 DST=../../assets/models/animals
 mkdir -p "$DST"
-for m in Owl GouldianFinch Bat Bee Mole Axolotl Dingo Goat Boar Bunnykit Marmot; do
-	cp "$(find gobkit -name "$m.glb" | head -1)" "$DST/"
+for m in Owl GouldianFinch Bat Bee Mole Axolotl Dingo Goat Boar Bunnykit Marmot "Steller'sSeaEagle" Red BlackWolf SunBear TasmanianDevil Rat Duck Quail SacredIbis SeaOtter; do
+	cp "$(find gobkit -name "$m.glb" | head -1)" "$DST/$(echo "$m" | tr -d "'").glb"
 done
 cp gobkit/gobkit-free-animal-pack/x/LICENSE.txt "$DST/LICENSE-Gobkit.txt"
 echo "$(ls "$DST"/*.glb | wc -l) animals -> $DST"
