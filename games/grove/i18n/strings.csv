@@ -12,9 +12,38 @@ SEASON_AUTUMN,가을,Autumn
 SEASON_WINTER,겨울,Winter
 SEASON_GOAL,목표 %d,Goal %d
 SEASON_WIND,계절 바람,Season wind
-SEASON_TURN_LEFT,왼쪽으로,Turn left
-SEASON_TURN_RIGHT,오른쪽으로,Turn right
-SEASON_DEMO_HINT,카드 놓기는 다음 단계에서 붙어요. 지금은 바람으로 계절을 넘겨 보세요,Card play arrives next. For now blow the wind to pass the season
+SEASON_TURN_LEFT,← 돌리기,← Turn
+SEASON_TURN_RIGHT,돌리기 →,Turn →
+SEASON_HAND_HINT,카드를 끌어 숲에 붙여요 · 들고 오른쪽 클릭·휠·Tab: 반쪽 바꾸기,Drag a card onto the forest · Right-click / wheel / Tab while holding: switch half
+COACH_PLANT,나무 카드를 끌어 빛나는 빈 땅에 심어 보세요,Drag a tree card onto a glowing empty plot
+COACH_HALF,"이웃 카드는 반쪽이 둘이에요. 잡은 쪽(또는 오른쪽 클릭으로 바꾼 쪽)이 나무의 빛나는 자리에 붙어요","Neighbor cards have two halves. The half you grab (right-click to switch) joins a glowing spot on a tree"
+COACH_TURN,섬을 돌려 나무의 다른 쪽도 보세요 (Q/E),Turn the island to see the other side of the trees (Q/E)
+COACH_WIND,계절 바람이 세 번 불면 계절이 끝나요. 이제 마음껏 숲을 가꿔 보세요,Three season winds end the season. Now grow your forest
+COACH_NEXT,알겠어요,Got it
+COACH_SKIP,건너뛰기,Skip
+COACH_HELP,처음 안내 다시 보기,Show the guide again
+KIND_OWL,올빼미,Owl
+KIND_FINCH,되새,Finch
+KIND_BAT,박쥐,Bat
+KIND_BUTTERFLY,나비,Butterfly
+KIND_BEE,꿀벌,Bee
+KIND_MUSHROOM,덕다리버섯,Bracket Fungus
+KIND_FLOWER,풀꽃,Wildflower
+KIND_MOLE,두더지,Mole
+KIND_AXOLOTL,도롱뇽,Salamander
+KIND_FOX,여우,Fox
+KIND_GOAT,산양,Goat
+KIND_BOAR,멧돼지,Boar
+KIND_HARE,산토끼,Hare
+KIND_MARMOT,마멋,Marmot
+KIND_OAK,참나무,Oak
+KIND_BIRCH,자작나무,Birch
+KIND_PINE,소나무,Pine
+KIND_FIR,전나무,Fir
+KIND_MAPLE,단풍나무,Maple
+KIND_CHESTNUT,밤나무,Chestnut
+KIND_LINDEN,피나무,Linden
+KIND_BEECH,너도밤나무,Beech
 CABIN_TITLE,숲지기 오두막,Keeper's Cabin
 CABIN_NEXT,다음 계절: %s,Next: %s
 RUN_END_WIN,보호림 지정!,Protected Forest!

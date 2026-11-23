@@ -3,11 +3,14 @@ extends Node3D
 ## 떠 있는 숲 섬(3D). 하늘·빛·섬·나무·풀·카메라를 만든다.
 ## 나무·풀·바위는 Quaternius Stylized Nature MegaKit(CC0) 모델에 공통 재질(nature.gdshader)을 씌운다.
 
+## 카드가 숲에 붙었다(target: {plot, side}, side가 비면 나무 심기)
+signal placed(target: Dictionary, kind: StringName)
+
 enum Mode { ORBIT, FIXED }
 
 const ISLAND_RADIUS := 6.4
 const PLOT_SPACING := 3.0
-const PITCH_DEG := 40.0
+const PITCH_DEG := 48.0
 const DISTANCE := 34.0
 const TURN_TIME := 0.5
 ## 계절별 [풀, 하늘 위, 지평선]: 봄 연두 → 여름 초록 → 가을 단풍 → 겨울 눈
@@ -35,6 +38,10 @@ const PLANT_TINT := {
 const DEMO_FOREST: Array[StringName] = [
 	&"fir", &"birch", &"oak", &"maple", &"", &"pine", &"linden", &"chestnut", &"beech",
 ]
+## 한 해를 시작할 때의 숲: 나무 4그루, 빈 땅 5칸
+const START_FOREST: Array[StringName] = [
+	&"", &"birch", &"", &"oak", &"", &"maple", &"", &"pine", &"",
+]
 
 var mode := Mode.ORBIT
 ## 90°씩 돌린 횟수(0~3)
@@ -47,7 +54,11 @@ var _grass_mat: StandardMaterial3D
 var _blades: ShaderMaterial
 var _far: ShaderMaterial
 var _trees: Array[ForestTree] = []
-var _plot_glow: MeshInstance3D
+## 빈 땅 칸마다 [흙 원판, 빛 고리]
+var _plot_marks: Array = []
+var _lit: Array[Dictionary] = []
+var _ghost: Node3D
+var _ghost_target := {}
 var _season := 0
 var _sky_mat: ProceduralSkyMaterial
 var _env: Environment
@@ -59,6 +70,7 @@ var _season_tween: Tween
 
 
 func _ready() -> void:
+	add_to_group(&"forest_view")
 	_rng.seed = 20261123
 	_build_environment()
 	_build_island()
@@ -74,8 +86,8 @@ func _process(delta: float) -> void:
 	if mode == Mode.ORBIT:
 		_yaw = wrapf(_yaw + delta * 6.0, 0.0, 360.0)
 	_rig.rotation_degrees.y = _yaw
-	if _plot_glow:
-		_plot_glow.scale = Vector3.ONE * (1.0 + sin(_time * 2.4) * 0.06)
+	for mark in _plot_marks:
+		mark[1].scale = Vector3.ONE * (1.0 + sin(_time * 2.4) * 0.06)
 
 
 ## 땅 자리 9칸(3×3)의 섬 기준 위치. 0-2부터 나무를 여기에 심는다.
@@ -111,12 +123,132 @@ func plant(i: int, kind: StringName) -> ForestTree:
 	t.rotation.y = _rng.randf_range(-0.6, 0.6)
 	_island.add_child(t)
 	_trees[i] = t
+	_mark_plot(i)
 	return t
 
 
 func plant_demo() -> void:
-	for i in DEMO_FOREST.size():
-		plant(i, DEMO_FOREST[i])
+	plant_layout(DEMO_FOREST)
+
+
+func plant_layout(layout: Array[StringName]) -> void:
+	clear_targets()
+	for i in layout.size():
+		plant(i, layout[i])
+		_mark_plot(i)
+
+
+## 카드 하나(kind)를 놓을 수 있는 곳. 나무 카드는 빈 땅, 이웃 카드는 나무의 side 자리.
+func targets_for(kind: StringName, side: StringName = &"") -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	for i in _trees.size():
+		if ForestTree.SPECIES.has(kind):
+			if not _trees[i]:
+				out.append({plot = i, side = &""})
+		elif _trees[i] and _trees[i].can_attach(side, kind):
+			out.append({plot = i, side = side})
+	return out
+
+
+func target_position(target: Dictionary) -> Vector3:
+	var t := _trees[target.plot]
+	if target.side == &"" or not t:
+		return _island.to_global(plot_positions()[target.plot])
+	return t.socket(target.side).global_position
+
+
+## 화면 위치 at에서 radius 픽셀 안의 가장 가까운 자리(없으면 빈 사전)
+func nearest(targets: Array[Dictionary], at: Vector2, radius := 170.0) -> Dictionary:
+	var best := {}
+	var best_d := radius
+	for t in targets:
+		var d := _camera.unproject_position(target_position(t)).distance_to(at)
+		if d < best_d:
+			best_d = d
+			best = t
+	return best
+
+
+func screen_position(target: Dictionary) -> Vector2:
+	return _camera.unproject_position(target_position(target))
+
+
+func show_targets(targets: Array[Dictionary]) -> void:
+	clear_targets()
+	_lit = targets
+	_light(true)
+
+
+func clear_targets() -> void:
+	_light(false)
+	_lit = []
+	preview({}, &"")
+
+
+func _light(on: bool) -> void:
+	for t in _lit:
+		if t.side == &"":
+			if _plot_marks.size() > t.plot and _plot_marks[t.plot]:
+				_plot_marks[t.plot][1].material_override.emission_energy_multiplier = 6.0 if on else 2.5
+		elif _trees[t.plot]:
+			_trees[t.plot].glow(t.side, on)
+
+
+## 놓기 전 반투명 미리 보기. 빈 target이면 지운다.
+func preview(target: Dictionary, kind: StringName) -> void:
+	if target == _ghost_target and (_ghost != null) == not target.is_empty():
+		return
+	if _ghost:
+		_ghost.queue_free()
+		_ghost = null
+	_ghost_target = target
+	if target.is_empty():
+		return
+	if target.side == &"":
+		_ghost = ForestTree.make(kind, _season)
+		_ghost.position = plot_positions()[target.plot]
+		_island.add_child(_ghost)
+	else:
+		_ghost = Dweller.make(kind)
+		var t := _trees[target.plot]
+		var at: Node3D = t.socket(target.side)
+		at.add_child(_ghost)
+		_ghost.position = ForestTree.STACK_OFFSETS[t.occupants(target.side).size()]
+		_ghost.rotation.y = 0.0
+	Fx.ghostify(_ghost)
+
+
+## 카드를 놓는다: 나무는 심어 자라게, 이웃은 자리에 붙여 종류별 등장 연출.
+func place(target: Dictionary, kind: StringName) -> Node3D:
+	clear_targets()
+	var node: Node3D
+	if target.side == &"":
+		var t := plant(target.plot, kind)
+		t.grow()
+		node = t
+	else:
+		var tree := _trees[target.plot]
+		var d := Dweller.make(kind)
+		tree.attach(target.side, d)
+		var away := tree.global_position - _island.global_position
+		away.y = 0.0
+		away = away.normalized() if away.length() > 0.1 else Vector3.FORWARD.rotated(Vector3.UP, deg_to_rad(_yaw))
+		if target.side in [&"Left", &"Right"]:
+			away = (away + (tree.socket(target.side).global_position - tree.global_position).normalized() * Vector3(1, 0, 1)).normalized()
+		var to_cam := _camera.global_position - d.global_position
+		d.enter(away, to_cam)
+		node = d
+	Sfx.play(&"place")
+	placed.emit(target, kind)
+	return node
+
+
+func _mark_plot(i: int) -> void:
+	if _plot_marks.is_empty():
+		return
+	var empty := _trees[i] == null
+	_plot_marks[i][0].visible = empty
+	_plot_marks[i][1].visible = empty
 
 
 func tree_at(i: int) -> ForestTree:
@@ -246,9 +378,13 @@ func _build_island() -> void:
 		rock.scale = Vector3.ONE * _rng.randf_range(0.45, 0.8)
 		_island.add_child(rock)
 	_trees.resize(plot_positions().size())
-	_plot_glow = _add_mesh(_island, _ring_mesh(1.05, 1.25), _glow_mat(), plot_positions()[4] + Vector3(0, 0.03, 0))
-	_plot_glow.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	_add_mesh(_island, _cylinder(0.95, 1.05, 0.08, 14, 0.03), _mat(Color("#6B4A2E")), plot_positions()[4] + Vector3(0, 0.02, 0))
+	# 빈 땅 자리: 흙 원판과 빛 고리(나무를 심으면 숨긴다)
+	var dirt_mesh := _cylinder(0.95, 1.05, 0.08, 14, 0.03)
+	var dirt_mat := _mat(Color("#6B4A2E"))
+	for p in plot_positions():
+		var glow := _add_mesh(_island, _ring_mesh(1.05, 1.25), _glow_mat(), p + Vector3(0, 0.03, 0))
+		glow.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		_plot_marks.append([_add_mesh(_island, dirt_mesh, dirt_mat, p + Vector3(0, 0.02, 0)), glow])
 	_blades = Nature.make(Nature.mesh_of("Grass_Common_Short").surface_get_material(0), SEASONS[0][0].lightened(0.1), 0.8)
 	_scatter("Grass_Common_Short", 110, 0.35, 0.6, _blades)
 	_scatter("Grass_Wispy_Short", 60, 0.3, 0.5, _blades)
@@ -406,9 +542,11 @@ func _build_camera() -> void:
 	_camera.fov = 25.0
 	_camera.far = 200.0
 	var pitch := deg_to_rad(PITCH_DEG)
-	_camera.position = Vector3(0, sin(pitch) * DISTANCE, cos(pitch) * DISTANCE)
+	# 아래쪽 손패에 섬이 가리지 않게 섬을 화면 위쪽으로 조금 올려 본다
+	var lift := Vector3(0, 0, 1.6)
+	_camera.position = Vector3(0, sin(pitch) * DISTANCE, cos(pitch) * DISTANCE) + lift
 	_rig.add_child(_camera)
-	_camera.look_at_from_position(_camera.position, Vector3(0, 0.6, 0))
+	_camera.look_at_from_position(_camera.position, Vector3(0, 0.6, 0) + lift)
 	_camera.current = true
 	# 데스크톱(Forward+)에서만 먼 곳을 흐려 미니어처처럼 보이게 한다
 	var attrs := CameraAttributesPractical.new()
