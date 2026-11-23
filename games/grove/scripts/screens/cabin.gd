@@ -31,6 +31,11 @@ func _ready() -> void:
 	if Game.last_score:
 		_label(top, tr("CABIN_SCORE") % Game.last_score.total, 32)
 	_spirits = _label(_col, "", 28, Color(Style.CREAM, 0.9))
+	if not Game.fresh.is_empty():
+		var names := Game.fresh.map(func(k: StringName) -> String: return tr("KIND_%s" % String(k).to_upper()))
+		var fresh := _label(_col, tr("CODEX_NEW") % ", ".join(names), 28, Style.SUNSET)
+		fresh.clip_text = true
+		fresh.tooltip_text = fresh.text
 	_label(_col, tr("CABIN_PICK"), 30, Color(Style.CREAM, 0.85))
 	_offers = _row(_col, 20)
 	_spacer(_col)

@@ -708,3 +708,18 @@ func _faceted(source: PrimitiveMesh, jitter: float) -> Mesh:
 ## 이웃 반응: 그 자리 위에서 반짝
 func cheer(target: Dictionary, color: Color) -> void:
 	Fx.cheer(self, target_position(target), color)
+
+
+## 이어 하기(3-3): 남긴 숲을 그대로 다시 세운다. 이웃은 등장 연출과 함께 돌아온다.
+func rebuild(forest: Forest) -> void:
+	reset_plots()
+	open_plots(forest.plots, false)
+	plant_layout(EMPTY_FOREST)
+	for plot: int in forest.trees:
+		var t: Dictionary = forest.trees[plot]
+		var tree := plant(plot, SAPLING_LOOK if t.kind == Forest.SAPLING else t.kind)
+		if t.kind == Forest.SAPLING:
+			tree.scale = Vector3.ONE * SAPLING_SCALE
+		for side: StringName in t.sides:
+			for o: Dictionary in t.sides[side]:
+				tree.attach(side, Dweller.make(o.species))
