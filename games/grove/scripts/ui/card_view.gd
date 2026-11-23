@@ -81,8 +81,14 @@ func _half_box(kind: StringName, r: Rect2, color: Color, portraits: Portrait, sy
 	var face := CardText.face(kind)
 	var name_h := font.get_multiline_string_size(name_text, HORIZONTAL_ALIGNMENT_CENTER, w, name_size).y
 	var rule_h := 0.0
+	var cell := Vector2(32 if narrow else 38, rule_size * 2 + 14)
+	var per_row := maxi(1, int((w + 3) / (cell.x + 3)))
+	var table_h := 0.0
+	if face.has("table"):
+		table_h = ceilf(face.table.size() / float(per_row)) * (cell.y + 3) + 2
 	if not face.is_empty():
-		rule_h = font.get_multiline_string_size("%s ●  %s" % [face.pts, face.text], HORIZONTAL_ALIGNMENT_CENTER, w, rule_size).y + 4.0
+		var line: String = face.text if face.has("table") else "%s ●  %s" % [face.pts, face.text]
+		rule_h = font.get_multiline_string_size(Glyph.measure(line), HORIZONTAL_ALIGNMENT_CENTER, w, rule_size).y + 4.0 + table_h
 	var band := name_h + rule_h + 8.0
 	var band_box := Panel.new()
 	band_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -126,17 +132,24 @@ func _half_box(kind: StringName, r: Rect2, color: Color, portraits: Portrait, sy
 		rt.add_theme_font_override(&"bold_font", font)
 		rt.add_theme_color_override(&"default_color", Style.FOREST.lightened(0.1))
 		rt.push_paragraph(HORIZONTAL_ALIGNMENT_CENTER)
-		if face.pts != "":
+		if face.has("table"):
+			Glyph.fill(rt, face.text, rule_size + 4)
+		elif face.pts != "":
 			rt.push_bold()
 			rt.add_text(face.pts)
 			rt.pop()
-		rt.add_image(Art.acorn(), rule_size + 5, rule_size + 5)
-		if face.text != "":
-			rt.add_text(" " + face.text)
+		if not face.has("table"):
+			rt.add_image(Art.acorn(), rule_size + 5, rule_size + 5)
+			if face.text != "":
+				Glyph.fill(rt, " " + face.text, rule_size + 4)
 		rt.pop()
 		rt.position = Vector2(2, name_h + 4)
-		rt.size = Vector2(w, rule_h)
+		rt.size = Vector2(w, rule_h - table_h)
 		band_box.add_child(rt)
+		if face.has("table"):
+			var grid := _score_table(face.table, cell, rule_size, font, per_row)
+			grid.position = Vector2(2 + (w - grid.size.x) / 2.0, name_h + 4 + rule_h - table_h)
+			band_box.add_child(grid)
 	box.add_child(_badge(str(CardText.def_of(kind).get("cost", 0)), Style.FOREST, Style.CREAM, Vector2(4, 4), 30))
 	if sym != &"":
 		var tone: Color = TREE_COLORS.get(sym, Style.MOSS)
@@ -146,11 +159,92 @@ func _half_box(kind: StringName, r: Rect2, color: Color, portraits: Portrait, sy
 	var y := 36.0
 	for c in CardText.chips(kind):
 		var bg: Color = {effect = Style.SUNSET, bonus = GOLD, hook = Style.MOSS}[c.tone]
-		var chip := _badge(c.text, bg, Style.FOREST if c.tone == &"bonus" else Style.CREAM, Vector2.ZERO, 22 if narrow else 26, w - (0.0 if narrow else 36.0))
+		var chip := _chip(c.text, bg, Style.FOREST if c.tone == &"bonus" else Style.CREAM, Vector2.ZERO, 22 if narrow else 26, w - (0.0 if narrow else 36.0))
 		chip.position = Vector2(4 if narrow else r.size.x - chip.size.x - 4, y)
 		box.add_child(chip)
 		y += chip.size.y + 4.0
 	return box
+
+
+## 장수별 점수표: 칸마다 위에 장수, 아래에 도토리 점수
+func _score_table(cells: Array, cell: Vector2, size: int, font: Font, per_row: int) -> Control:
+	var grid := GridContainer.new()
+	grid.columns = mini(per_row, cells.size())
+	grid.add_theme_constant_override(&"h_separation", 3)
+	grid.add_theme_constant_override(&"v_separation", 3)
+	grid.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for c: Array in cells:
+		var box := PanelContainer.new()
+		box.custom_minimum_size = cell
+		box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		box.add_theme_stylebox_override(&"panel", Style.box(Color(Style.FOREST, 0.12), 6))
+		var col := VBoxContainer.new()
+		col.add_theme_constant_override(&"separation", 0)
+		col.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		box.add_child(col)
+		col.add_child(_cell_label("×%d" % c[0], font, size, Style.FOREST))
+		var row := HBoxContainer.new()
+		row.alignment = BoxContainer.ALIGNMENT_CENTER
+		row.add_theme_constant_override(&"separation", 1)
+		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		col.add_child(row)
+		row.add_child(_cell_label(str(c[1]), font, size + 1, Style.SUNSET.darkened(0.35)))
+		var icon := TextureRect.new()
+		icon.texture = Art.acorn()
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.custom_minimum_size = Vector2(size, size)
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.add_child(icon)
+		grid.add_child(box)
+	grid.size = grid.get_combined_minimum_size()
+	return grid
+
+
+func _cell_label(text: String, font: Font, size: int, color: Color) -> Label:
+	var l := Label.new()
+	l.text = text
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	l.add_theme_font_override(&"font", font)
+	l.add_theme_font_size_override(&"font_size", size)
+	l.add_theme_color_override(&"font_color", color)
+	l.add_theme_color_override(&"font_shadow_color", Color.TRANSPARENT)
+	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return l
+
+
+## 효과 칩: 글 속 {아이콘}을 그림으로
+func _chip(text: String, bg: Color, fg: Color, at: Vector2, h: float, max_w := 0.0) -> Panel:
+	if not "{" in text:
+		return _badge(text, bg, fg, at, h, max_w)
+	var p := Panel.new()
+	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	p.add_theme_stylebox_override(&"panel", Style.box(bg, h / 2.0, Color(Style.CREAM, 0.9), 2))
+	var fs := int(h * 0.6)
+	var icon := int(h * 0.82)
+	var probe := Glyph.measure(text)
+	var w := maxf(h, Style.bold().get_string_size(probe, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x + 14.0)
+	if max_w > 0.0 and w > max_w:
+		w = max_w
+		h = Style.bold().get_multiline_string_size(probe, HORIZONTAL_ALIGNMENT_CENTER, w - 10.0, fs).y + 8.0
+	var rt := RichTextLabel.new()
+	rt.bbcode_enabled = false
+	rt.fit_content = true
+	rt.scroll_active = false
+	rt.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	rt.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	rt.add_theme_font_override(&"normal_font", Style.bold())
+	rt.add_theme_font_size_override(&"normal_font_size", fs)
+	rt.add_theme_color_override(&"default_color", fg)
+	rt.push_paragraph(HORIZONTAL_ALIGNMENT_CENTER)
+	Glyph.fill(rt, text, icon)
+	rt.pop()
+	p.size = Vector2(w, h)
+	p.position = at
+	rt.position = Vector2(4, maxf(0.0, (h - icon) / 2.0 - 1.0))
+	rt.size = Vector2(w - 8, h)
+	p.add_child(rt)
+	return p
 
 
 ## 둥근 표시(비용 숫자·효과 칩). 크기는 글 길이에 맞춘다.
@@ -185,7 +279,21 @@ func _badge(text: String, bg: Color, fg: Color, at: Vector2, h: float, max_w := 
 func set_half(i: int) -> void:
 	half = i
 	for k in _halves.size():
-		_halves[k].modulate = Color.WHITE if k == i or _halves.size() == 1 else Color(0.45, 0.45, 0.5)
+		var on := k == i or _halves.size() == 1
+		_halves[k].modulate = Color.WHITE if on else Color(0.86, 0.86, 0.88)
+		var ring: Panel = _halves[k].get_node_or_null(^"Ring")
+		if ring == null and _halves.size() > 1:
+			ring = Panel.new()
+			ring.name = &"Ring"
+			ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			var st := Style.box(Color(Style.SUNSET, 0.0), 12, Style.SUNSET, 4)
+			st.shadow_color = Color(Style.SUNSET, 0.6)
+			st.shadow_size = 6
+			ring.add_theme_stylebox_override(&"panel", st)
+			ring.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+			_halves[k].add_child(ring)
+		if ring:
+			ring.visible = on
 	var border := Style.SUNSET if _halves.size() > 1 else Style.MOSS
 	if card.get("deco", &"") == &"gold":
 		border = GOLD

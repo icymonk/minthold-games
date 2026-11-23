@@ -234,6 +234,17 @@ static func start_bag() -> Array[Dictionary]:
 	return bag
 
 
+## 원작 기본판 덱 전부(나무 66 + 반쪽 92 = 158장). 여러 명 한 판에 쓴다.
+static func full_bag() -> Array[Dictionary]:
+	var bag: Array[Dictionary] = []
+	for k in FULL_TREES:
+		for i in FULL_TREES[k]:
+			bag.append(tree(bag.size(), k))
+	for i in FULL_PAIRS.size():
+		bag.append(full_pair(bag.size(), i))
+	return bag
+
+
 static func is_tree(card: Dictionary) -> bool:
 	return card.has("tree")
 

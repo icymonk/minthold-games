@@ -16,7 +16,7 @@ SEASON_TURN_LEFT,← 돌리기,← Turn
 SEASON_TURN_RIGHT,돌리기 →,Turn →
 SEASON_HAND_HINT,카드를 끌어 숲에 붙여요 · 들고 오른쪽 클릭·휠·Tab: 반쪽 바꾸기,Drag a card onto the forest · Right-click / wheel / Tab while holding: switch half
 COACH_PLANT,나무 카드를 끌어 빛나는 빈 땅에 심어 보세요,Drag a tree card onto a glowing empty plot
-COACH_HALF,"이웃 카드는 반쪽이 둘이에요. 잡은 쪽(또는 오른쪽 클릭으로 바꾼 쪽)이 나무의 빛나는 자리에 붙어요","Neighbor cards have two halves. The half you grab (right-click to switch) joins a glowing spot on a tree"
+COACH_HALF,이웃 카드는 반쪽이 둘이에요. 잡은 쪽(또는 오른쪽 클릭으로 바꾼 쪽)이 나무의 빛나는 자리에 붙어요,Neighbor cards have two halves. The half you grab (right-click to switch) joins a glowing spot on a tree
 COACH_TURN,섬을 돌려 나무의 다른 쪽도 보세요 (Q/E),Turn the island to see the other side of the trees (Q/E)
 COACH_WIND,덱 아래쪽에 계절 바람 3장이 섞여 있어요. 세 번째 바람이 뜨면 계절이 끝나고 숲 전체 점수가 목표를 넘어야 해요,Three season winds hide in the bottom of the deck. When the third one shows, the season ends and your whole forest must beat the goal
 COACH_NEXT,알겠어요,Got it
@@ -26,7 +26,7 @@ CABIN_TITLE,숲지기 오두막,Keeper's Cabin
 CABIN_NEXT,다음 계절: %s,Next: %s
 RUN_END_WIN,보호림 지정!,Protected Forest!
 RUN_END_RETRY,한 해 더,One More Year
-SEASON_SCORE,점수 %d / %d,Score %d / %d
+SEASON_SCORE,%d / 목표 %d,%d / goal %d
 SEASON_CLEARING,공터,Clearing
 SEASON_DECK,덱에서 가져오기 (%d),Draw from deck (%d)
 SEASON_TAKE,공터에서 가져오기,Take from the clearing
@@ -149,7 +149,7 @@ CODEX_NEW,도감에 새로 열림: %s,New in the field guide: %s
 TITLE_ALBUM,앨범,Album
 SETUP_TITLE,숲지기 고르기,Choose a Keeper
 SETUP_START,이 숲지기로 시작,Start with this keeper
-SETUP_GRADE,"숲 등급 %d: %s","Forest grade %d: %s"
+SETUP_GRADE,숲 등급 %d: %s,Forest grade %d: %s
 KEEPER_GRANDMA,할머니 수첩,Grandma's Notebook
 KEEPER_BIRD_DOCTOR,새 박사,Bird Doctor
 KEEPER_MUSHROOM_GRANDPA,버섯 할아버지,Mushroom Grandpa
@@ -175,84 +175,84 @@ GRADE_6,+ 겨울 바람 1장 적게,+ 1 fewer winter wind
 GRADE_7,+ 목표 점수 ×1.35,+ goals ×1.35
 GRADE_8,+ 솔방울 ×0.5,+ pinecones ×0.5
 ALBUM_TITLE,내 숲 앨범,My Forest Album
-ALBUM_EMPTY,"한 해를 끝내면 숲 사진이 여기 남아요","Finish a year to keep a photo of your forest here"
+ALBUM_EMPTY,한 해를 끝내면 숲 사진이 여기 남아요,Finish a year to keep a photo of your forest here
 ALBUM_ENTRY,%d점 · %s · 등급 %d,%d pts · %s · grade %d
 SPIRIT_CICADA_SONG,매미 노래,Cicada Song
-SPIRIT_CICADA_SONG_DESC,"곤충 3마리 이상이면 배수 +0.3","+0.3 multiplier with 3+ insects"
+SPIRIT_CICADA_SONG_DESC,곤충 3마리 이상이면 배수 +0.3,+0.3 multiplier with 3+ insects
 SPIRIT_SQUIRREL_HOARD,다람쥐 곳간,Squirrel Hoard
-SPIRIT_SQUIRREL_HOARD_DESC,"발바닥 짐승 8마리 이상이면 배수 +0.6","+0.6 multiplier with 8+ pawed animals"
+SPIRIT_SQUIRREL_HOARD_DESC,발바닥 짐승 8마리 이상이면 배수 +0.6,+0.6 multiplier with 8+ pawed animals
 SPIRIT_CRANE_DANCE,두루미 춤,Crane Dance
-SPIRIT_CRANE_DANCE_DESC,"새 6마리 이상이면 배수 +0.5","+0.5 multiplier with 6+ birds"
+SPIRIT_CRANE_DANCE_DESC,새 6마리 이상이면 배수 +0.5,+0.5 multiplier with 6+ birds
 SPIRIT_DEER_PATH,사슴 길,Deer Path
-SPIRIT_DEER_PATH_DESC,"사슴 2마리 이상이면 배수 +0.3","+0.3 multiplier with 2+ deer"
+SPIRIT_DEER_PATH_DESC,사슴 2마리 이상이면 배수 +0.3,+0.3 multiplier with 2+ deer
 SPIRIT_SPORE_CLOUD,홀씨 구름,Spore Cloud
-SPIRIT_SPORE_CLOUD_DESC,"버섯 4개 이상이면 배수 +0.6","+0.6 multiplier with 4+ mushrooms"
+SPIRIT_SPORE_CLOUD_DESC,버섯 4개 이상이면 배수 +0.6,+0.6 multiplier with 4+ mushrooms
 SPIRIT_LILY_POND,연못 요정,Lily Pond
-SPIRIT_LILY_POND_DESC,"양서류·꽃 합 5 이상이면 배수 +0.4","+0.4 multiplier with 5+ amphibians & flowers"
+SPIRIT_LILY_POND_DESC,양서류·꽃 합 5 이상이면 배수 +0.4,+0.4 multiplier with 5+ amphibians & flowers
 SPIRIT_NIGHT_WINGS,밤 날개,Night Wings
-SPIRIT_NIGHT_WINGS_DESC,"박쥐·나비 합 5 이상이면 배수 +0.4","+0.4 multiplier with 5+ bats & butterflies"
+SPIRIT_NIGHT_WINGS_DESC,박쥐·나비 합 5 이상이면 배수 +0.4,+0.4 multiplier with 5+ bats & butterflies
 SPIRIT_CANOPY_SONG,우듬지 노래,Canopy Song
-SPIRIT_CANOPY_SONG_DESC,"위 자리 이웃 8 이상이면 배수 +0.5","+0.5 multiplier with 8+ top neighbors"
+SPIRIT_CANOPY_SONG_DESC,위 자리 이웃 8 이상이면 배수 +0.5,+0.5 multiplier with 8+ top neighbors
 SPIRIT_DEEP_ROOTS,깊은 뿌리,Deep Roots
-SPIRIT_DEEP_ROOTS_DESC,"아래 자리 이웃 8 이상이면 배수 +0.5","+0.5 multiplier with 8+ bottom neighbors"
+SPIRIT_DEEP_ROOTS_DESC,아래 자리 이웃 8 이상이면 배수 +0.5,+0.5 multiplier with 8+ bottom neighbors
 SPIRIT_WIDE_TRAILS,넓은 오솔길,Wide Trails
-SPIRIT_WIDE_TRAILS_DESC,"옆 자리 이웃 10 이상이면 배수 +0.5","+0.5 multiplier with 10+ side neighbors"
+SPIRIT_WIDE_TRAILS_DESC,옆 자리 이웃 10 이상이면 배수 +0.5,+0.5 multiplier with 10+ side neighbors
 SPIRIT_BUTTERFLY_SCHOLAR,나비 학자,Butterfly Scholar
-SPIRIT_BUTTERFLY_SCHOLAR_DESC,"나비 종마다 배수 +0.1","+0.1 multiplier per butterfly species"
+SPIRIT_BUTTERFLY_SCHOLAR_DESC,나비 종마다 배수 +0.1,+0.1 multiplier per butterfly species
 SPIRIT_BAT_SCHOLAR,박쥐 학자,Bat Scholar
-SPIRIT_BAT_SCHOLAR_DESC,"박쥐 종마다 배수 +0.15","+0.15 multiplier per bat species"
+SPIRIT_BAT_SCHOLAR_DESC,박쥐 종마다 배수 +0.15,+0.15 multiplier per bat species
 SPIRIT_BEETLE_LORD,딱정벌레 군주,Beetle Lord
-SPIRIT_BEETLE_LORD_DESC,"곤충 종마다 배수 +0.1","+0.1 multiplier per insect species"
+SPIRIT_BEETLE_LORD_DESC,곤충 종마다 배수 +0.1,+0.1 multiplier per insect species
 SPIRIT_MUSHROOM_SCHOLAR,버섯 학자,Mushroom Scholar
-SPIRIT_MUSHROOM_SCHOLAR_DESC,"버섯 종마다 배수 +0.1","+0.1 multiplier per mushroom species"
+SPIRIT_MUSHROOM_SCHOLAR_DESC,버섯 종마다 배수 +0.1,+0.1 multiplier per mushroom species
 SPIRIT_FLOWER_SCHOLAR,꽃 학자,Flower Scholar
-SPIRIT_FLOWER_SCHOLAR_DESC,"꽃 종마다 배수 +0.08","+0.08 multiplier per flower species"
+SPIRIT_FLOWER_SCHOLAR_DESC,꽃 종마다 배수 +0.08,+0.08 multiplier per flower species
 SPIRIT_DEER_SCHOLAR,사슴 학자,Deer Scholar
-SPIRIT_DEER_SCHOLAR_DESC,"사슴 종마다 배수 +0.15","+0.15 multiplier per deer species"
+SPIRIT_DEER_SCHOLAR_DESC,사슴 종마다 배수 +0.15,+0.15 multiplier per deer species
 SPIRIT_ANCIENT_OAK,늙은 참나무,Ancient Oak
-SPIRIT_ANCIENT_OAK_DESC,"나무 8그루 이상이면 배수 +0.3","+0.3 multiplier with 8+ trees"
+SPIRIT_ANCIENT_OAK_DESC,나무 8그루 이상이면 배수 +0.3,+0.3 multiplier with 8+ trees
 SPIRIT_WILD_WOOD,원시림,Wild Wood
-SPIRIT_WILD_WOOD_DESC,"나무 16그루 이상이면 배수 +0.8","+0.8 multiplier with 16+ trees"
+SPIRIT_WILD_WOOD_DESC,나무 16그루 이상이면 배수 +0.8,+0.8 multiplier with 16+ trees
 SPIRIT_SEEDLING_SPRITE,새싹 요정,Seedling Sprite
-SPIRIT_SEEDLING_SPRITE_DESC,"묘목마다 배수 +0.15","+0.15 multiplier per sapling"
+SPIRIT_SEEDLING_SPRITE_DESC,묘목마다 배수 +0.15,+0.15 multiplier per sapling
 SPIRIT_MAGPIE_HOARD,까치 보물,Magpie Hoard
-SPIRIT_MAGPIE_HOARD_DESC,"굴 3장마다 배수 +0.1","+0.1 multiplier per 3 cave cards"
+SPIRIT_MAGPIE_HOARD_DESC,굴 3장마다 배수 +0.1,+0.1 multiplier per 3 cave cards
 SPIRIT_SUMMER_SUN,여름 해,Summer Sun
-SPIRIT_SUMMER_SUN_DESC,"여름에 배수 +0.25","Summer: multiplier +0.25"
+SPIRIT_SUMMER_SUN_DESC,여름에 배수 +0.25,Summer: multiplier +0.25
 SPIRIT_AUTUMN_MOON,가을 달,Autumn Moon
-SPIRIT_AUTUMN_MOON_DESC,"가을에 배수 +0.3","Autumn: multiplier +0.3"
+SPIRIT_AUTUMN_MOON_DESC,가을에 배수 +0.3,Autumn: multiplier +0.3
 SPIRIT_MIST_SPIRIT,안개 정령,Mist Spirit
-SPIRIT_MIST_SPIRIT_DESC,"늘 배수 +0.15","Always: multiplier +0.15"
+SPIRIT_MIST_SPIRIT_DESC,늘 배수 +0.15,Always: multiplier +0.15
 SPIRIT_FULL_BLOOM,만개,Full Bloom
-SPIRIT_FULL_BLOOM_DESC,"꽉 찬 나무마다 배수 +0.15","+0.15 multiplier per full tree"
+SPIRIT_FULL_BLOOM_DESC,꽉 찬 나무마다 배수 +0.15,+0.15 multiplier per full tree
 SPIRIT_OLD_GROVE,오래된 숲,Old Grove
-SPIRIT_OLD_GROVE_DESC,"나무 종류마다 배수 +0.08","+0.08 multiplier per tree kind"
+SPIRIT_OLD_GROVE_DESC,나무 종류마다 배수 +0.08,+0.08 multiplier per tree kind
 SPIRIT_NIGHT_BREEZE,밤바람,Night Breeze
-SPIRIT_NIGHT_BREEZE_DESC,"첫 바람이 불면 1장 더 받기","Draw 1 more on the first wind"
+SPIRIT_NIGHT_BREEZE_DESC,첫 바람이 불면 1장 더 받기,Draw 1 more on the first wind
 SPIRIT_BEAR_DEN,곰 굴,Bear Den
-SPIRIT_BEAR_DEN_DESC,"굴 카드 1장 = 3점","Each cave card scores 3"
+SPIRIT_BEAR_DEN_DESC,굴 카드 1장 = 3점,Each cave card scores 3
 SPIRIT_LONG_ARMS,긴 팔,Long Arms
-SPIRIT_LONG_ARMS_DESC,"손패 한도 +1","Hand limit +1"
+SPIRIT_LONG_ARMS_DESC,손패 한도 +1,Hand limit +1
 SPIRIT_OPEN_GLADE,트인 공터,Open Glade
-SPIRIT_OPEN_GLADE_DESC,"공터 한도 +2","Clearing holds 2 more"
+SPIRIT_OPEN_GLADE_DESC,공터 한도 +2,Clearing holds 2 more
 SPIRIT_ACORN_RAIN,솔방울 비,Pinecone Rain
-SPIRIT_ACORN_RAIN_DESC,"계절을 넘길 때마다 솔방울 +2","+2 pinecones each passed season"
-EVENT_SPRING_RAIN,"봄비: 양서류 ×1.5","Spring rain: amphibians ×1.5"
-EVENT_CHERRY_BLOSSOM,"꽃 잔치: 꽃 ×2","Blossoms: flowers ×2"
-EVENT_SPRING_GALE,"봄바람: 계절 바람 4장","Spring gale: 4 season winds"
-EVENT_SPROUT_FEAST,"새순 잔치: 솔방울 ×1.5","Sprout feast: pinecones ×1.5"
-EVENT_HEAT_WAVE,"폭염: 위 자리 이웃 점수 절반","Heat wave: top neighbors score half"
-EVENT_THUNDERSTORM,"소나기: 계절 바람 4장","Thunderstorm: 4 season winds"
-EVENT_MOSQUITOES,"모기 떼: 박쥐 ×2","Mosquitoes: bats ×2"
-EVENT_BERRY_SEASON,"산딸기 철: 솔방울 ×1.5","Berry season: pinecones ×1.5"
-EVENT_HARVEST_MOON,"한가위: 발바닥 짐승 ×1.5","Harvest moon: pawed animals ×1.5"
-EVENT_MUSHROOM_RAIN,"버섯 비: 버섯 ×2","Mushroom rain: mushrooms ×2"
-EVENT_RUTTING,"짝짓기 철: 사슴·발굽 ×2","Rutting: deer & hoofed ×2"
-EVENT_LEAF_STORM,"낙엽 폭풍: 공터 7장이면 쓸림","Leaf storm: clearing sweeps at 7"
-EVENT_THAW,"이른 해빙: 아래 자리 ×1.5","Early thaw: bottom neighbors ×1.5"
-EVENT_ICE_STORM,"얼음 폭풍: 계절 바람 2장","Ice storm: 2 season winds"
-EVENT_HUNGRY_WOLVES,"굶주린 늑대: 사슴·발굽 절반","Hungry wolves: deer & hoofed score half"
-EVENT_AURORA,"오로라: 솔방울 ×2","Aurora: pinecones ×2"
+SPIRIT_ACORN_RAIN_DESC,계절을 넘길 때마다 솔방울 +2,+2 pinecones each passed season
+EVENT_SPRING_RAIN,봄비: 양서류 ×1.5,Spring rain: amphibians ×1.5
+EVENT_CHERRY_BLOSSOM,꽃 잔치: 꽃 ×2,Blossoms: flowers ×2
+EVENT_SPRING_GALE,봄바람: 계절 바람 4장,Spring gale: 4 season winds
+EVENT_SPROUT_FEAST,새순 잔치: 솔방울 ×1.5,Sprout feast: pinecones ×1.5
+EVENT_HEAT_WAVE,폭염: 위 자리 이웃 점수 절반,Heat wave: top neighbors score half
+EVENT_THUNDERSTORM,소나기: 계절 바람 4장,Thunderstorm: 4 season winds
+EVENT_MOSQUITOES,모기 떼: 박쥐 ×2,Mosquitoes: bats ×2
+EVENT_BERRY_SEASON,산딸기 철: 솔방울 ×1.5,Berry season: pinecones ×1.5
+EVENT_HARVEST_MOON,한가위: 발바닥 짐승 ×1.5,Harvest moon: pawed animals ×1.5
+EVENT_MUSHROOM_RAIN,버섯 비: 버섯 ×2,Mushroom rain: mushrooms ×2
+EVENT_RUTTING,짝짓기 철: 사슴·발굽 ×2,Rutting: deer & hoofed ×2
+EVENT_LEAF_STORM,낙엽 폭풍: 공터 7장이면 쓸림,Leaf storm: clearing sweeps at 7
+EVENT_THAW,이른 해빙: 아래 자리 ×1.5,Early thaw: bottom neighbors ×1.5
+EVENT_ICE_STORM,얼음 폭풍: 계절 바람 2장,Ice storm: 2 season winds
+EVENT_HUNGRY_WOLVES,굶주린 늑대: 사슴·발굽 절반,Hungry wolves: deer & hoofed score half
+EVENT_AURORA,오로라: 솔방울 ×2,Aurora: pinecones ×2
 TITLE_DAILY,오늘의 숲,Today's Forest
 TITLE_DAILY_BEST,오늘의 숲 · 최고 %d점,Today's Forest · best %d
 DAILY_TAG,오늘의 숲 %s,Today's Forest %s
@@ -294,88 +294,88 @@ KIND_BEECH,너도밤나무,Beech
 KIND_MAPLE,단풍나무,Sycamore
 KIND_PINE,미송,Douglas Fir
 KIND_CHESTNUT,칠엽수,Horse Chestnut
-KIND_TAWNY_OWL,올빼미,"Tawny Owl"
-KIND_GOSHAWK,참매,"Goshawk"
-KIND_WOODPECKER,오색딱따구리,"Great Spotted Woodpecker"
-KIND_CHAFFINCH,푸른머리되새,"Chaffinch"
-KIND_BULLFINCH,멋쟁이새,"Bullfinch"
-KIND_JAY,어치,"Eurasian Jay"
-KIND_RED_SQUIRREL,붉은다람쥐,"Red Squirrel"
-KIND_CAMBERWELL_BEAUTY,신부나비,"Camberwell Beauty"
-KIND_LARGE_TORTOISESHELL,들신선나비,"Large Tortoiseshell"
-KIND_PEACOCK_BUTTERFLY,공작나비,"Peacock Butterfly"
-KIND_PURPLE_EMPEROR,번개오색나비,"Purple Emperor"
-KIND_FRITILLARY,은줄표범나비,"Silver-washed Fritillary"
-KIND_MOSS,이끼,"Moss"
-KIND_WOOD_ANT,불개미,"Wood Ant"
-KIND_STAG_BEETLE,사슴벌레,"Stag Beetle"
-KIND_FIRE_SALAMANDER,불도롱뇽,"Fire Salamander"
-KIND_POND_TURTLE,늪거북,"Pond Turtle"
-KIND_TREE_FROG,청개구리,"Tree Frog"
-KIND_HEDGEHOG,고슴도치,"Hedgehog"
-KIND_TOAD,두꺼비,"Common Toad"
-KIND_FERN,고사리,"Tree Ferns"
-KIND_WILD_STRAWBERRY,산딸기,"Wild Strawberries"
-KIND_BLACKBERRY,블랙베리,"Blackberries"
-KIND_FIREFLY,반딧불이,"Fireflies"
-KIND_CHANTERELLE,꾀꼬리버섯,"Chanterelle"
-KIND_FLY_AGARIC,광대버섯,"Fly Agaric"
-KIND_PENNY_BUN,그물버섯,"Penny Bun"
-KIND_PARASOL,큰갓버섯,"Parasol Mushroom"
-KIND_MOLE,두더지,"Mole"
-KIND_HARE,멧토끼,"European Hare"
-KIND_BADGER,오소리,"European Badger"
-KIND_FOX,붉은여우,"Red Fox"
-KIND_RACCOON,라쿤,"Raccoon"
-KIND_BOAR,멧돼지,"Wild Boar"
-KIND_SQUEAKER,새끼멧돼지,"Squeaker"
-KIND_ROE_DEER,노루,"Roe Deer"
-KIND_RED_DEER,붉은사슴,"Red Deer"
-KIND_FALLOW_DEER,다마사슴,"Fallow Deer"
-KIND_WOLF,늑대,"Wolf"
-KIND_LYNX,스라소니,"Lynx"
-KIND_BROWN_BEAR,불곰,"Brown Bear"
-KIND_MARTEN,담비,"Beech Marten"
-KIND_DORMOUSE,겨울잠쥐,"Fat Dormouse"
-KIND_GNAT,각다귀,"Gnat"
-KIND_CARPENTER_BEE,어리호박벌,"Violet Carpenter Bee"
-KIND_BARBASTELLE_BAT,바바스텔박쥐,"Barbastelle Bat"
-KIND_BECHSTEIN_BAT,벡슈타인박쥐,"Bechstein's Bat"
-KIND_LONG_EARED_BAT,갈색긴귀박쥐,"Brown Long-eared Bat"
-KIND_HORSESHOE_BAT,관박쥐,"Greater Horseshoe Bat"
+KIND_TAWNY_OWL,올빼미,Tawny Owl
+KIND_GOSHAWK,참매,Goshawk
+KIND_WOODPECKER,오색딱따구리,Great Spotted Woodpecker
+KIND_CHAFFINCH,푸른머리되새,Chaffinch
+KIND_BULLFINCH,멋쟁이새,Bullfinch
+KIND_JAY,어치,Eurasian Jay
+KIND_RED_SQUIRREL,붉은다람쥐,Red Squirrel
+KIND_CAMBERWELL_BEAUTY,신부나비,Camberwell Beauty
+KIND_LARGE_TORTOISESHELL,들신선나비,Large Tortoiseshell
+KIND_PEACOCK_BUTTERFLY,공작나비,Peacock Butterfly
+KIND_PURPLE_EMPEROR,번개오색나비,Purple Emperor
+KIND_FRITILLARY,은줄표범나비,Silver-washed Fritillary
+KIND_MOSS,이끼,Moss
+KIND_WOOD_ANT,불개미,Wood Ant
+KIND_STAG_BEETLE,사슴벌레,Stag Beetle
+KIND_FIRE_SALAMANDER,불도롱뇽,Fire Salamander
+KIND_POND_TURTLE,늪거북,Pond Turtle
+KIND_TREE_FROG,청개구리,Tree Frog
+KIND_HEDGEHOG,고슴도치,Hedgehog
+KIND_TOAD,두꺼비,Common Toad
+KIND_FERN,고사리,Tree Ferns
+KIND_WILD_STRAWBERRY,산딸기,Wild Strawberries
+KIND_BLACKBERRY,블랙베리,Blackberries
+KIND_FIREFLY,반딧불이,Fireflies
+KIND_CHANTERELLE,꾀꼬리버섯,Chanterelle
+KIND_FLY_AGARIC,광대버섯,Fly Agaric
+KIND_PENNY_BUN,그물버섯,Penny Bun
+KIND_PARASOL,큰갓버섯,Parasol Mushroom
+KIND_MOLE,두더지,Mole
+KIND_HARE,멧토끼,European Hare
+KIND_BADGER,오소리,European Badger
+KIND_FOX,붉은여우,Red Fox
+KIND_RACCOON,라쿤,Raccoon
+KIND_BOAR,멧돼지,Wild Boar
+KIND_SQUEAKER,새끼멧돼지,Squeaker
+KIND_ROE_DEER,노루,Roe Deer
+KIND_RED_DEER,붉은사슴,Red Deer
+KIND_FALLOW_DEER,다마사슴,Fallow Deer
+KIND_WOLF,늑대,Wolf
+KIND_LYNX,스라소니,Lynx
+KIND_BROWN_BEAR,불곰,Brown Bear
+KIND_MARTEN,담비,Beech Marten
+KIND_DORMOUSE,겨울잠쥐,Fat Dormouse
+KIND_GNAT,각다귀,Gnat
+KIND_CARPENTER_BEE,어리호박벌,Violet Carpenter Bee
+KIND_BARBASTELLE_BAT,바바스텔박쥐,Barbastelle Bat
+KIND_BECHSTEIN_BAT,벡슈타인박쥐,Bechstein's Bat
+KIND_LONG_EARED_BAT,갈색긴귀박쥐,Brown Long-eared Bat
+KIND_HORSESHOE_BAT,관박쥐,Greater Horseshoe Bat
 SEASON_MORE_DONE,그만 내고 차례 끝,End turn
 SEASON_FREE,%s 카드 1장을 공짜로 낼 수 있어요 (효과·보너스 없음),You may play a %s card for free (no effect or bonus)
 SEASON_MORE,카드를 비용을 내고 더 낼 수 있어요,You may play more cards by paying their cost
 SEASON_STASH,굴에 넣을 손패를 고르세요. 넣은 만큼 덱에서 뽑아요 (안 넣어도 돼요),"Pick hand cards to tuck into the cave, then draw that many (or none)"
 GROUP_FLOWER,식물,plants
 GIVE_DRAW,덱에서 %d장,draw %d
-GIVE_DRAW_S,덱+%d,Draw %d
+GIVE_DRAW_S,{deck}+%d,{deck}+%d
 GIVE_PICK,공터에서 %d장,take %d from the clearing
-GIVE_PICK_S,공터+%d,Pick %d
+GIVE_PICK_S,{clearing}+%d,{clearing}+%d
 GIVE_CAVE,덱 맨 위 %d장을 굴에,tuck %d from the deck into the cave
-GIVE_CAVE_S,굴+%d,Cave %d
+GIVE_CAVE_S,{deck}→{cave} %d,{deck}→{cave} %d
 GIVE_AGAIN,한 번 더 하기,take another turn
-GIVE_AGAIN_S,한 번 더,Again
+GIVE_AGAIN_S,{again},{again}
 GIVE_FREE,%s 카드 1장 공짜로 내기,play a %s card for free
-GIVE_FREE_S,%s 공짜,Free %s
+GIVE_FREE_S,{free}%s,{free}%s
 GIVE_FREE_ALL,%s 카드를 몇 장이든 공짜로 내기,play any number of %s cards for free
-GIVE_FREE_ALL_S,%s 모두 공짜,All %s free
+GIVE_FREE_ALL_S,{free}%s ∞,{free}%s ∞
 GIVE_MORE,카드를 몇 장이든 비용을 내고 더 내기,play any number of cards paying their cost
-GIVE_MORE_S,더 내기,Play more
+GIVE_MORE_S,{more}∞,{more}∞
 GIVE_DRAW_PER,숲의 %s 1마리마다 덱에서 1장,draw 1 per %s in the forest
-GIVE_DRAW_PER_S,%s마다 덱+1,Draw per %s
+GIVE_DRAW_PER_S,{deck}+1 × %s,{deck}+1 × %s
 GIVE_CLEAR_TO_CAVE,공터 카드를 모두 굴에 넣기,put the whole clearing into the cave
-GIVE_CLEAR_TO_CAVE_S,공터→굴,Clearing→cave
+GIVE_CLEAR_TO_CAVE_S,{clearing}→{cave},{clearing}→{cave}
 GIVE_STASH,손패를 몇 장이든 굴에 넣고 그만큼 덱에서 뽑기,"tuck any hand cards into the cave, draw as many"
-GIVE_STASH_S,손패→굴,Hand→cave
+GIVE_STASH_S,{hand}→{cave}→{deck},{hand}→{cave}→{deck}
 GIVE_BOOST,붙은 나무가 그 종 한 그루 더로 세어짐,its tree counts as one more of its kind
-GIVE_BOOST_S,나무+1,Tree+1
+GIVE_BOOST_S,{g_tree}+1,{g_tree}+1
 HOOK_PLANT,숲에 있는 동안: 나무를 낼 때마다 %s,While in the forest: each tree you play gives %s
 HOOK_PLACE,숲에 있는 동안: 나무 %s 자리에 카드를 낼 때마다 %s,While in the forest: each card played on a %s side gives %s
 HOOK_TAG,숲에 있는 동안: %s 카드를 낼 때마다 %s,While in the forest: each %s card you play gives %s
-HOOK_PLANT_S,나무 낼 때 %s,Tree played: %s
-HOOK_PLACE_S,%s 자리 낼 때 %s,%s side: %s
-HOOK_TAG_S,%s 낼 때 %s,%s played: %s
+HOOK_PLANT_S,{g_tree} → %s,{g_tree} → %s
+HOOK_PLACE_S,%s → %s,%s → %s
+HOOK_TAG_S,%s → %s,%s → %s
 RULE_FLAT,도토리 %d개,%d acorns
 RULE_PER,숲의 %s 카드 1장마다 도토리 %d개,each %s card in the forest: %d acorns
 RULE_PER_HERE,이 나무에 붙은 카드 1장마다 도토리 %d개,%d acorns per card on this tree
@@ -395,16 +395,16 @@ RULE_PER_SYM,숲에서 이 카드와 나무 색이 같은 카드 1장마다 도�
 RULE_DISTINCT_AT_LEAST,서로 다른 %s가 %d종 이상이면 도토리 %d개,%s of %d+ different kinds: %d acorns
 RULE_BUTTERFLY,"서로 다른 나비끼리 묶어, 묶음마다 종 수에 따라: %s","each set of different butterflies, by its size: %s"
 FACE_PER,× %s,× %s
-FACE_PER_HERE,× 이 나무 카드,× card on this tree
-FACE_PER_SIDE,× %s 자리 카드,× %s-side card
-FACE_FULL,× 다 찬 나무,× full tree
-FACE_PER_TREE,× 나무,× tree
+FACE_PER_HERE,× 이 {g_tree}의 카드,× card on this {g_tree}
+FACE_PER_SIDE,× %s 자리 카드,× %s card
+FACE_FULL,× 4자리 다 찬 {g_tree},× full {g_tree}
+FACE_PER_TREE,× {g_tree},× {g_tree}
 FACE_PER_SYM,× 같은 색 카드,× same-color card
-FACE_TREE_KINDS,나무 %d종 모두,all %d tree kinds
-FACE_TREES_AT_LEAST,나무 %d그루 이상,%d+ trees
-FACE_MOST,"가장 많으면 (아니면 %d)","if most common (else %d)"
+FACE_TREE_KINDS,{g_tree} %d종 모두,all %d {g_tree} kinds
+FACE_TREES_AT_LEAST,{g_tree} %d그루 이상,%d+ {g_tree}
+FACE_MOST,가장 많으면 (아니면 %d),if most common (else %d)
 FACE_AT_LEAST,× 이 종 (%d장 이상),× this (%d+)
-FACE_SAME_TREE,같은 나무에 %s,%s on same tree
+FACE_SAME_TREE,같은 {g_tree}에 %s,%s on same {g_tree}
 FACE_ON,%s 위,on %s
 FACE_WITH,숲에 %s,with a %s
 FACE_PAIR,둘이 겹치면 1마리마다,each when two share
@@ -413,23 +413,105 @@ FACE_SET,수에 따라 한 번,"once, by count"
 FACE_BUTTERFLY,다른 나비 묶음마다,per set of different butterflies
 CARD_TERMS,용어,Terms
 TERM_ACORN,도토리: 계절 끝에 받는 점수예요. 카드에 적힌 수만큼 받아요.,Acorns: the points a card scores at season end.
-TERM_COST,"비용: 이 카드를 내려면 손패에서 이만큼 다른 카드를 공터로 내야 해요.",Cost: discard this many other hand cards to the clearing to play it.
+TERM_COST,비용: 이 카드를 내려면 손패에서 이만큼 다른 카드를 공터로 내야 해요.,Cost: discard this many other hand cards to the clearing to play it.
 TERM_EFFECT,효과: 카드를 내면 바로 받아요.,Effect: you get it right away when you play the card.
-TERM_BONUS,"보너스(★): 비용으로 낸 카드가 모두 이 카드와 같은 나무 색이면 효과에 더해 받아요. 비용이 0이면 받지 못해요.","Bonus (★): also gained when every card paid has this card's tree color. Not gained at cost 0."
-TERM_COLOR,"나무 색: 카드 귀퉁이 동그라미예요. 반쪽 카드는 반쪽마다 색이 있고, 비용으로 낼 때는 두 색 중 하나만 맞아도 돼요.","Tree color: the corner circle. Split cards have one per half; a paid split card matches if either color does."
-TERM_DECK,"덱+N: 덱 맨 위에서 N장을 손패로 가져와요. 손패는 10장까지예요.","Draw N: take N cards from the deck top. Hand holds up to 10."
-TERM_CLEARING,"공터: 비용으로 낸 카드와, 나무를 심을 때 덱에서 날아온 카드가 쌓이는 곳이에요. 10장이 되면 바람이 쓸어 가요.","Clearing: paid cards and the deck card that flies off when a tree is planted pile up here. At 10 the wind sweeps them away."
+TERM_BONUS,보너스(★): 비용으로 낸 카드가 모두 이 카드와 같은 나무 색이면 효과에 더해 받아요. 비용이 0이면 받지 못해요.,Bonus (★): also gained when every card paid has this card's tree color. Not gained at cost 0.
+TERM_COLOR,"나무 색: 카드 귀퉁이 동그라미예요. 반쪽 카드는 반쪽마다 색이 있고, 비용으로 낼 때는 두 색 중 하나만 맞아도 돼요.",Tree color: the corner circle. Split cards have one per half; a paid split card matches if either color does.
+TERM_DECK,덱+N: 덱 맨 위에서 N장을 손패로 가져와요. 손패는 10장까지예요.,Draw N: take N cards from the deck top. Hand holds up to 10.
+TERM_CLEARING,"공터: 비용으로 낸 카드와, 나무를 심을 때 덱에서 날아온 카드가 쌓이는 곳이에요. 10장이 되면 바람이 쓸어 가요.",Clearing: paid cards and the deck card that flies off when a tree is planted pile up here. At 10 the wind sweeps them away.
 TERM_CAVE,굴: 카드를 넣어 두는 곳이에요. 굴에 든 카드는 계절 끝에 1장마다 도토리 1개예요.,Cave: cards tucked here score 1 acorn each at season end.
-TERM_HOOK,"지속 효과(∞): 이 카드가 숲에 있는 동안, 조건이 맞을 때마다 받아요.","Lasting effect (∞): triggers every time while this card is in the forest."
-TERM_SIDE,"자리: 이웃은 나무의 위·아래·왼쪽·오른쪽 중 카드에 그려진 자리에만 붙어요. 한 자리에 하나씩이에요.","Side: a neighbor attaches only to its side of a tree, one per side."
+TERM_HOOK,"지속 효과(∞): 이 카드가 숲에 있는 동안, 조건이 맞을 때마다 받아요.",Lasting effect (∞): triggers every time while this card is in the forest.
+TERM_SIDE,자리: 이웃은 나무의 위·아래·왼쪽·오른쪽 중 카드에 그려진 자리에만 붙어요. 한 자리에 하나씩이에요.,"Side: a neighbor attaches only to its side of a tree, one per side."
 TERM_HALF,반쪽 카드: 두 이웃 중 하나만 골라 내요. 고른 쪽만 숲에 붙어요.,Split card: play only one of the two neighbors.
-TERM_SET,"1→1 2→4…: 숲에 있는 수(왼쪽)에 따라 받는 도토리(오른쪽)예요. 한 번만 세요.","1→1 2→4…: acorns (right) by how many you have (left). Scored once."
-TERM_BUTTERFLY,"나비 묶음: 서로 다른 나비를 한 마리씩 모아 한 묶음이에요. 같은 나비가 둘이면 묶음이 둘로 나뉘어요.","Butterfly sets: one of each different butterfly makes a set; duplicates start another set."
+TERM_SET,1→1 2→4…: 숲에 있는 수(왼쪽)에 따라 받는 도토리(오른쪽)예요. 한 번만 세요.,1→1 2→4…: acorns (right) by how many you have (left). Scored once.
+TERM_BUTTERFLY,나비 묶음: 서로 다른 나비를 한 마리씩 모아 한 묶음이에요. 같은 나비가 둘이면 묶음이 둘로 나뉘어요.,Butterfly sets: one of each different butterfly makes a set; duplicates start another set.
 TERM_MOST,가장 많은 나무: 숲에서 이 나무 종이 가장 많거나 같이 가장 많으면 돼요.,Most common: this tree kind is (tied for) the most common in your forest.
 TERM_FULL,다 찬 나무: 위·아래·왼쪽·오른쪽 4자리에 모두 이웃이 붙은 나무예요.,Full tree: neighbors on all four sides.
-TERM_AGAIN,"한 번 더: 원작에서는 상대보다 차례를 한 번 더 두는 효과예요. 혼자 하는 숲은 차례 수에 제한이 없어서 따로 일어나는 일은 없어요.","Again: in the original you take an extra turn. Solo turns are unlimited, so it has no extra effect here."
+TERM_AGAIN,한 번 더: 원작에서는 상대보다 차례를 한 번 더 두는 효과예요. 혼자 하는 숲은 차례 수에 제한이 없어서 따로 일어나는 일은 없어요.,"Again: in the original you take an extra turn. Solo turns are unlimited, so it has no extra effect here."
 TERM_FREE,"공짜로 내기: 이 카드를 낸 뒤, 그 상징 카드를 비용 없이 바로 더 낼 수 있어요. 공짜로 낸 카드의 효과·보너스는 받지 않아요.","Free play: right after this card, play a card with that symbol at no cost. The free card gives no effect or bonus."
 TERM_MORE,더 내기: 이 카드를 낸 뒤 카드를 몇 장이든 비용을 내고 이어서 낼 수 있어요.,"Play more: after this card, play any number of cards, paying their costs."
-TERM_BOOST,"한 그루 더: 이 이웃이 붙은 나무는 그 나무 종을 셀 때 한 그루 더로 세어져요.",Counts double: the tree it is on counts as one more of its kind.
+TERM_BOOST,한 그루 더: 이 이웃이 붙은 나무는 그 나무 종을 셀 때 한 그루 더로 세어져요.,Counts double: the tree it is on counts as one more of its kind.
 TERM_GROUP,%s: %s,%s: %s
 TERM_MORE_KINDS,외 %d종,+%d more
+ICON_ACORN,도토리: 계절 끝에 받는 점수,Acorn: points scored at season end
+ICON_G_TREE,나무,Tree
+ICON_G_BIRD,새,Bird
+ICON_G_BAT,박쥐,Bat
+ICON_G_BUTTERFLY,나비,Butterfly
+ICON_G_INSECT,곤충,Insect
+ICON_G_MUSHROOM,버섯,Mushroom
+ICON_G_PAW,발 달린 짐승(발자국),Paw animal
+ICON_G_AMPHIBIAN,양서류,Amphibian
+ICON_G_DEER,사슴,Deer
+ICON_G_HOOF,발굽 동물,Hoofed animal
+ICON_G_FLOWER,꽃,Plant
+ICON_DECK,덱: 덱 맨 위에서 카드를 손패로 가져와요 (+N = N장),Deck: draw cards from the top of the deck (+N = N cards)
+ICON_HAND,손패,Your hand
+ICON_CLEARING,공터: 공터에서 카드를 가져와요,Clearing: take cards from the clearing
+ICON_CAVE,굴: 카드를 굴에 넣어요. 굴의 카드 1장마다 도토리 1개,Cave: tuck cards into the cave. 1 acorn per card in the cave
+ICON_AGAIN,한 번 더: 차례를 한 번 더 해요,Again: take another turn
+ICON_FREE,공짜: 비용을 내지 않고 그 종류 카드를 내요,Free: play a card of that kind without paying
+ICON_MORE,더 내기: 비용을 내고 카드를 몇 장이든 더 내요,"More: play any number of extra cards, paying costs"
+ICON_SIDE_TOP,나무 위 자리,Top side of a tree
+ICON_SIDE_BOTTOM,나무 아래 자리,Bottom side of a tree
+ICON_SIDE_LEFT,나무 왼쪽 자리,Left side of a tree
+ICON_SIDE_RIGHT,나무 오른쪽 자리,Right side of a tree
+ICON_SIDE_SIDE,나무 왼쪽·오른쪽 자리,Left or right side of a tree
+ICON_STAR,★ 보너스: 비용을 모두 같은 나무 색 카드로 내면 받아요,★ Bonus: earned when the whole cost is paid with one tree color
+ICON_HOOK,∞ 지속 효과: 숲에 있는 동안 계속 받아요,∞ Lasting: works for as long as it stays in your forest
+ICON_ARROW,→ 앞의 일이 생기면 뒤의 것을 받아요,"→ when the left happens, get the right"
+LEGEND_TITLE,아이콘 설명,Icon guide
+LEGEND_CARD,이 카드의 아이콘,Icons on this card
+CARD_TERMS_HINT,밑줄 친 말과 아이콘에 마우스를 올리면 풀이가 나와요,Hover underlined words and icons for details
+TERMW_COST,비용,cost
+TERMW_EFFECT,효과,Effect
+TERMW_BONUS,보너스,Bonus
+TERMW_ACORN,도토리,acorn
+TERMW_COLOR,나무 색,tree color
+TERMW_DECK,덱,deck
+TERMW_CLEARING,공터,clearing
+TERMW_CAVE,굴,cave
+TERMW_HOOK,숲에 있는 동안,While in the forest
+TERMW_SIDE,자리,side
+TERMW_HALF,반쪽,half
+TERMW_SET,한 번만,once
+TERMW_BUTTERFLY,묶어,set
+TERMW_MOST,가장 많으면,most
+TERMW_FULL,4자리,all 4 sides
+TERMW_AGAIN,한 번 더,another turn
+TERMW_FREE,공짜,free
+TERMW_MORE,더 내기,play any number
+TERMW_BOOST,한 그루 더,one more
+TITLE_ONLINE,함께 하기 (온라인),Play together (online)
+LOBBY_TITLE,함께 하기,Play together
+LOBBY_SUB,방을 만들고 코드를 친구에게 알려 주세요. 2~5명이 같은 덱으로 숲을 가꿔요,Make a room and share the code. 2–5 players grow forests from one deck
+LOBBY_NAME,이름,Name
+LOBBY_DEFAULT_NAME,숲지기%d,Ranger%d
+LOBBY_CREATE,방 만들기,Create room
+LOBBY_CODE_HINT,방 코드,Room code
+LOBBY_JOIN,들어가기,Join
+LOBBY_CODE,방 코드 %s,Room code %s
+LOBBY_COPY,코드 복사,Copy code
+LOBBY_COPIED,코드를 복사했어요,Code copied
+LOBBY_HOST,방장,host
+LOBBY_ME,나,me
+LOBBY_COUNT,%d / %d명,%d / %d players
+LOBBY_START,시작,Start
+LOBBY_WAIT,방장이 시작하기를 기다려요,Waiting for the host to start
+LOBBY_WORKING,연결하는 중…,Connecting…
+NET_ERR_SIGNIN,로그인하지 못했어요. 인터넷 연결을 확인해 주세요,Could not sign in. Check your connection
+NET_ERR_OFFLINE,서버에 닿지 않아요. 인터넷 연결을 확인해 주세요,Can't reach the server. Check your connection
+NET_ERR_CREATE,방을 만들지 못했어요. 다시 해 주세요,Could not create a room. Try again
+NET_ERR_NO_ROOM,그런 방이 없어요. 코드를 확인해 주세요,No such room. Check the code
+NET_ERR_STARTED,이미 시작한 방이에요,That room has already started
+NET_ERR_FULL,방이 가득 찼어요(5명),The room is full (5 players)
+ONLINE_ROOM,방 %s,Room %s
+ONLINE_SCORE,%d,%d
+ONLINE_WAIT,%s의 차례예요. 이름을 누르면 그 숲을 볼 수 있어요,%s's turn. Click a name to see their forest
+ONLINE_YOUR_TURN,내 차례예요,Your turn
+ONLINE_TURN_OF,%s의 차례,%s's turn
+ONLINE_VIEW,눌러서 이 사람의 숲 보기,Click to view this forest
+ONLINE_RANKING,최종 순위,Final ranking
+ONLINE_CAVE,굴 %d장,cave %d
+ONLINE_DONE,제목으로,Back to title
+SEASON_OVERVIEW,숲 전체 보기,Forest overview

@@ -76,7 +76,6 @@ func _hover(v: CardView, on: bool) -> void:
 	v.z_index = 1 if on else 0
 	v.create_tween().tween_property(v, ^"scale", Vector2.ONE * (1.08 if on else 1.0), 0.12)
 	if not on:
-		hide_detail(v)
 		return
 	get_tree().create_timer(DETAIL_DELAY).timeout.connect(func() -> void:
 		if is_instance_valid(v) and v in cards and not _drag and v.get_global_rect().has_point(get_global_mouse_position()):
@@ -92,6 +91,7 @@ func show_detail(v: CardView) -> void:
 	_detail = CardDetail.for_card(v.card, portraits, v.half)
 	add_child(_detail)
 	_detail.place_near(v.get_global_rect(), get_viewport_rect().size)
+	_detail.auto_close(v.get_global_rect())
 
 
 func hide_detail(only: CardView = null) -> void:

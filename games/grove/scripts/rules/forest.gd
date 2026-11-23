@@ -9,6 +9,9 @@ const STACK := 5
 const MAX_PLOTS := 25
 
 var plots := 9
+## 온라인 대전(원작 규칙): 땅 칸 제한 없이, 빈 땅이 늘 GROW_SPARE칸 남도록 넓어진다
+var grows := false
+const GROW_SPARE := 2
 ## 땅 자리 → {card, kind(나무 종 또는 sapling), sides = {side: [{card, species}]}}
 var trees := {}
 var cave: Array[Dictionary] = []
@@ -33,6 +36,9 @@ func plant(plot: int, card: Dictionary, kind: StringName) -> bool:
 	for s in SIDES:
 		sides[s] = []
 	trees[plot] = {card = card, kind = kind, sides = sides}
+	if grows:
+		while plots - trees.size() < GROW_SPARE:
+			plots += 1
 	return true
 
 
@@ -109,6 +115,7 @@ func expand(n := 2) -> bool:
 func clone() -> Forest:
 	var f := Forest.new()
 	f.plots = plots
+	f.grows = grows
 	f.trees = trees.duplicate(true)
 	f.cave = cave.duplicate()
 	return f

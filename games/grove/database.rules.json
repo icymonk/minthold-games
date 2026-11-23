@@ -1,0 +1,37 @@
+{
+  "rules": {
+    "rooms": {
+      "$code": {
+        ".read": "auth != null",
+        ".write": "auth != null && !data.exists() && newData.child('host').val() === auth.uid && newData.child('status').val() === 'lobby'",
+        ".validate": "$code.matches(/^[A-Z2-9]{5}$/) && newData.hasChildren(['host', 'status', 'seed', 'created'])",
+        "host": { ".validate": "newData.isString() && (!data.exists() || newData.val() === data.val())" },
+        "created": { ".validate": "newData.isNumber() && (!data.exists() || newData.val() === data.val())" },
+        "seed": { ".validate": "newData.isNumber() && (!data.exists() || newData.val() === data.val())" },
+        "status": {
+          ".write": "auth != null && data.parent().child('host').val() === auth.uid",
+          ".validate": "newData.val() === 'lobby' || newData.val() === 'play' || newData.val() === 'done'"
+        },
+        "order": {
+          ".write": "auth != null && data.parent().child('host').val() === auth.uid && data.parent().child('status').val() === 'lobby'",
+          "$i": { ".validate": "$i.matches(/^[0-4]$/) && newData.isString() && data.parent().parent().child('players').child(newData.val()).exists()" }
+        },
+        "players": {
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && (data.exists() || (root.child('rooms').child($code).child('status').val() === 'lobby') || !root.child('rooms').child($code).exists())",
+            ".validate": "newData.hasChildren(['name', 'at']) && newData.child('name').isString() && newData.child('name').val().length >= 1 && newData.child('name').val().length <= 16 && newData.child('at').isNumber()",
+            "$other": { ".validate": "$other === 'name' || $other === 'at'" }
+          }
+        },
+        "actions": {
+          "$i": {
+            ".write": "auth != null && !data.exists() && root.child('rooms').child($code).child('status').val() === 'play' && root.child('rooms').child($code).child('players').child(auth.uid).exists()",
+            ".validate": "$i.matches(/^a[0-9]{5}$/) && newData.hasChildren(['by', 'a']) && newData.child('by').val() === auth.uid"
+          }
+        },
+        "$other": { ".validate": false }
+      }
+    },
+    "$other": { ".read": false, ".write": false }
+  }
+}
