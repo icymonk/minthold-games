@@ -26,6 +26,7 @@ Minthold 인디 게임 모노레포 (Godot 4 + GDScript).
 - 게임 만들기 기준(로그라이트 구조, 크고 그림 위주인 콘솔식 화면, 처음 할 때 단계별 안내): [`docs/game-guide.md`](docs/game-guide.md).
 - 게임마다 `games/<코드명>/`에 독립된 Godot 프로젝트를 둔다(`project.godot`가 그 폴더에 있다).
 - 브랜치: `main` ← `develop` ← 작업 브랜치. PR은 `develop`으로 보낸다.
+- CI: PR에서는 돌지 않는다. `develop`에 머지(push)될 때만 테스트·빌드하고 운영 사이트에 바로 배포한다(PR 미리보기 배포 없음).
 - 웹 미리보기: Firebase 프로젝트 `minthold-preview`. Hosting 사이트는 게임마다 따로 둔다 — `minthold-<코드명>` → `https://minthold-<코드명>.web.app`. 사이트가 없으면 CI가 첫 배포 때 만든다.
 - 새 게임 추가: `games/<코드명>/`(`.firebaserc`의 사이트를 `minthold-<코드명>`으로), `.github/workflows/rooster.yml`을 복사해 코드명만 바꾼다.
 - 미리보기 모음: 게임마다 `games/<코드명>/game.json`(제목·장르·소개·하는 방법·`preview`)을 둔다. 없으면 `hub` CI가 실패한다. 웹 미리보기가 생기면 `preview: true`로 바꾸고 제목 화면을 `hub/shots/<코드명>.png`(640×360)로 넣는다. 버전은 `docs/plan.md`에서 마지막으로 끝낸 단계(3-5 → v0.3.5), 수정일은 게임 폴더의 마지막 커밋 날짜로 자동으로 정해진다.

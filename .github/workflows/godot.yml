@@ -58,7 +58,7 @@ jobs:
           retention-days: 1
 
   macos:
-    if: inputs.macos && github.event_name != 'pull_request'
+    if: inputs.macos
     runs-on: ubuntu-latest
     container: barichello/godot-ci:${{ inputs.godot_version }}
     defaults:
@@ -86,7 +86,6 @@ jobs:
 
   deploy:
     needs: [test, web]
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     env:
       HAS_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT != '' }}
@@ -111,18 +110,8 @@ jobs:
             || npx -y firebase-tools@15 hosting:sites:create "$SITE" --project minthold-preview \
             || npx -y firebase-tools@15 hosting:sites:get "$SITE" --project minthold-preview
           rm -f "$GOOGLE_APPLICATION_CREDENTIALS"
-      - name: Deploy PR preview
-        if: env.HAS_SA == 'true' && github.event_name == 'pull_request'
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          projectId: minthold-preview
-          entryPoint: games/${{ inputs.game }}
-          target: web
-          expires: 3d
       - name: Deploy live (develop)
-        if: env.HAS_SA == 'true' && github.event_name == 'push'
+        if: env.HAS_SA == 'true'
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
