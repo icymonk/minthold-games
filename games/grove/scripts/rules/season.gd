@@ -67,6 +67,11 @@ func draws() -> int:
 	return _draws
 
 
+## 이번 차례에 카드를 냈는지(묘목 포함)
+func played() -> bool:
+	return _played
+
+
 func can_draw() -> bool:
 	return not over and not _played and _draws < DRAWS_PER_TURN and hand.size() < hand_limit
 

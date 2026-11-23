@@ -37,6 +37,7 @@ const LATE_FROM := 2
 static func count(forest: Forest, season := 0, mods := {}) -> ScoreLog:
 	var log := ScoreLog.new()
 	var c := _census(forest)
+	c.rivals = mods.get("rivals", {})
 	var once := {}
 	for p in forest.trees:
 		var t: Dictionary = forest.trees[p]
@@ -55,6 +56,18 @@ static func count(forest: Forest, season := 0, mods := {}) -> ScoreLog:
 		log.add({card = n.card.id, plot = n.plot, side = n.side, what = n.species, pts = pts, rule = rule.keys()[0]})
 	log.add_cave(forest.cave.size(), mods.get("cave", 1))
 	return log
+
+
+## 여러 명 한 판: 다른 숲들 중 가장 많은 나무 그루(종별·전체). mods.rivals로 넘기면
+## 피나무(most)는 다른 숲과, 오색딱따구리(trees_at_least)는 다른 숲의 나무 수와 비교한다(동률이면 받는다).
+static func rivals(others: Array) -> Dictionary:
+	var out := {trees = {}, count = 0}
+	for f: Forest in others:
+		var c := _census(f)
+		out.count = maxi(out.count, c.count)
+		for k in c.trees:
+			out.trees[k] = maxi(out.trees.get(k, 0), c.trees[k])
+	return out
 
 
 static func _deco(card: Dictionary) -> int:
@@ -129,6 +142,8 @@ static func _eval(r: Dictionary, what: StringName, same: Dictionary, plot: int, 
 			n += c.kinds.get(t, 0)
 		return n * r.pts
 	if r.has("trees_at_least"):
+		if not c.rivals.is_empty():
+			return r.pts if c.count >= c.rivals.count else 0
 		return r.pts if c.count >= r.trees_at_least else 0
 	if r.has("with"):
 		return r.pts if c.species.get(r.with, 0) > 0 else r.get("other", 0)
@@ -187,6 +202,8 @@ static func _eval(r: Dictionary, what: StringName, same: Dictionary, plot: int, 
 			if n.species == what:
 				kinds[forest.kind_at(n.plot)] = true
 		return r.spread[mini(kinds.size(), r.spread.size() - 1)]
+	if r.has("most") and not c.rivals.is_empty():
+		return r.most if same.get(what, 0) >= c.rivals.trees.get(what, 0) else r.other
 	if r.has("most"):
 		var top := 0
 		for k in c.trees:

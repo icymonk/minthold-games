@@ -19,6 +19,7 @@ var _sapling: Button
 var _clearing: HBoxContainer
 var _more_bar: HBoxContainer
 var _clearing_detail: CardDetail
+var _legend: CardDetail
 var _stashing := false
 var _pay_bar: HBoxContainer
 var _pay_ok: Button
@@ -30,46 +31,83 @@ var _seen_log := 0
 var _busy := false
 var _inspected := {}
 var _inspect_card: CardDetail
+## 온라인 대전: 방(Online)과 그 판(Match). 혼자 할 때는 null.
+var _net: Online
+var _match: Match
+var _players: VBoxContainer
+var _turn_label: Label
+var _viewing := -1
+var _overview: Button
+var _ranked := false
 
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	world = get_tree().get_first_node_in_group(&"forest_view") as ForestView
-	if Game.run == null:
+	if Game.in_match():
+		_net = Game.online
+		_match = _net.game
+		season = _match.season
+		_viewing = _net.seat
+		_net.applied.connect(_on_net_applied)
+		_net.resynced.connect(_on_net_resynced)
+	elif Game.run == null:
 		Game.start_run.call_deferred()
 		return
-	season = Game.run.season
+	else:
+		season = Game.run.season
 	_seen_log = season.log.size()
 	var col := _frame()
 	var top := _row(col)
 	top.alignment = BoxContainer.ALIGNMENT_BEGIN
-	_button(top, Art.ICON_HOME, tr("BACK_TO_TITLE"), Game.goto.bind(&"title"), 220).custom_minimum_size.y = 112
+	_button(top, Art.ICON_HOME, tr("BACK_TO_TITLE"), Game.leave_match if _net else Game.goto.bind(&"title"), 220).custom_minimum_size.y = 112
 	var info := _glass(top)
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_label(info, Game.season_name(), Style.HEADLINE)
+	_label(info, tr("ONLINE_ROOM") % _net.code if _net else Game.season_name(), Style.HEADLINE)
 	_dot_row = _row(info, 16)
 	_dot_row.tooltip_text = tr("SEASON_WIND")
-	_label(_dot_row, tr("SEASON_WIND"), 26, Color(Style.CREAM, 0.8))
+	var wind_label := _label(_dot_row, tr("SEASON_WIND"), 26, Color(Style.CREAM, 0.8))
+	wind_label.visible = _net == null
 	for i in season.winds:
 		var dot := Panel.new()
 		dot.custom_minimum_size = Vector2(40, 40)
 		dot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		_dot_row.add_child(dot)
 		_dots.append(dot)
+	var acorn := TextureRect.new()
+	acorn.texture = Art.acorn()
+	acorn.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	acorn.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	acorn.custom_minimum_size = Vector2(52, 52)
+	acorn.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	info.add_child(acorn)
 	_score = _label(info, "", 48, Style.SPROUT)
 	# 화면이 좁거나 글이 길어도 윗줄이 화면 밖으로 밀리지 않게 줄어든다
 	_score.clip_text = true
 	_score.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_score.custom_minimum_size.x = 300
+	_score.custom_minimum_size.x = 120
 	_score.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	for d in [-1, 1]:
-		var b := _button(top, null, tr("SEASON_TURN_LEFT" if d < 0 else "SEASON_TURN_RIGHT"), Game.turn_requested.emit.bind(d), 190)
+		var b := _button(top, null, "←" if d < 0 else "→", Game.turn_requested.emit.bind(d), 96)
+		b.tooltip_text = tr("SEASON_TURN_LEFT" if d < 0 else "SEASON_TURN_RIGHT")
 		b.custom_minimum_size.y = 112
 		_turns.append(b)
-	var help := _button(top, Art.ICON_HELP, "", start_coach, 112)
+	var help := _button(top, Art.ICON_HELP, "", start_coach, 96)
 	help.custom_minimum_size.y = 112
 	help.tooltip_text = tr("COACH_HELP")
+	var legend := _button(top, null, "{ }", _toggle_legend, 96)
+	legend.text = ""
+	legend.icon = Art.icon(&"g_tree")
+	legend.expand_icon = true
+	legend.custom_minimum_size.y = 112
+	legend.tooltip_text = tr("LEGEND_TITLE")
+	_overview = _button(top, null, "", _toggle_overview, 96)
+	_overview.icon = Art.icon(&"more")
+	_overview.expand_icon = true
+	_overview.toggle_mode = true
+	_overview.custom_minimum_size.y = 112
+	_overview.tooltip_text = tr("SEASON_OVERVIEW")
 	var clear_row := _row(col, 12)
 	clear_row.alignment = BoxContainer.ALIGNMENT_BEGIN
 	_label(clear_row, tr("SEASON_CLEARING"), Style.BODY, Color(Style.CREAM, 0.85))
@@ -78,7 +116,9 @@ func _ready() -> void:
 	gap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	gap.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	clear_row.add_child(gap)
-	if not Game.run.event().is_empty():
+	if _net:
+		_build_players(clear_row)
+	elif not Game.run.event().is_empty():
 		var ev := _glass(clear_row)
 		ev.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 		var ev_text := _label(ev, tr("EVENT_%s" % String(Game.run.events[Game.run.season_index]).to_upper()), 26, Style.SUNSET)
@@ -133,10 +173,10 @@ func _ready() -> void:
 		hand.queue_free()
 		hand = null
 		return
-	hand.sync.call_deferred(season.hand)
+	hand.sync.call_deferred(_mine())
 	_refresh()
 	_deck.grab_focus()
-	if Game.run.season_index == 0 and not Coach.seen():
+	if not _net and Game.run.season_index == 0 and not Coach.seen():
 		start_coach.call_deferred()
 
 
@@ -186,15 +226,14 @@ static func _turn_dir(event: InputEvent) -> int:
 
 ## 지금 카드를 낼 수 있는 자리: 규칙(Forest)에 묻는다
 func _targets(card: Dictionary, half: int) -> Array[Dictionary]:
-	if _busy or season.over or season.draws() > 0 or hand.picking() or not season.allows(card, half):
+	if _busy or not _my_turn() or (_net and _viewing != _net.seat) or season.over or season.draws() > 0 or hand.picking() or not season.allows(card, half):
 		return []
 	var out: Array[Dictionary] = []
 	if _sapling_mode or Cards.is_tree(card):
 		if not _sapling_mode and season.cost_now(card, half) > season.hand.size() - 1:
 			return out
 		for p in season.forest.free_plots():
-			if p < ForestView.MAX_PLOTS:
-				out.append({plot = p, side = &""})
+			out.append({plot = p, side = &""})
 		return out
 	if season.cost_now(card, half) > season.hand.size() - 1:
 		return out
@@ -204,7 +243,7 @@ func _targets(card: Dictionary, half: int) -> Array[Dictionary]:
 func _on_drop(v: CardView, half: int, target: Dictionary) -> void:
 	var card := v.card
 	if _sapling_mode:
-		if season.sapling(card.id, target.plot):
+		if _do({k = "sapling", id = card.id, plot = target.plot}):
 			world.place(target, Forest.SAPLING)
 			_set_sapling(false)
 			_after_action()
@@ -227,7 +266,7 @@ func _confirm_pay() -> void:
 		var picked := hand.picked().duplicate()
 		_stashing = false
 		_close_pay()
-		season.stash(picked)
+		_do({k = "stash", ids = picked})
 		_continue_turn()
 		return
 	if _pending.is_empty() or hand.picked().size() != _pending.cost:
@@ -242,7 +281,7 @@ func _cancel_pay() -> void:
 	if _stashing:
 		_stashing = false
 		_close_pay()
-		season.stash([])
+		_do({k = "stash", ids = []})
 		_continue_turn()
 		return
 	if _pending.is_empty():
@@ -250,7 +289,7 @@ func _cancel_pay() -> void:
 	world.clear_targets()
 	world.preview({}, &"")
 	_close_pay()
-	hand.sync(season.hand)
+	hand.sync(_mine())
 	_refresh()
 
 
@@ -262,8 +301,8 @@ func _close_pay() -> void:
 
 func _commit(card: Dictionary, half: int, target: Dictionary, pay: Array[int]) -> void:
 	var before := _points_by_spot()
-	if not season.play(card.id, half, target.plot, pay):
-		hand.sync(season.hand)
+	if not _do({k = "play", id = card.id, half = half, plot = target.plot, pay = pay}):
+		hand.sync(_mine())
 		_refresh()
 		return
 	world.place(target, Cards.kind_of(card, half))
@@ -274,8 +313,10 @@ func _commit(card: Dictionary, half: int, target: Dictionary, pay: Array[int]) -
 ## 낸 뒤: 라쿤이면 굴에 넣을 손패를 고르고, 공짜·두더지 기회가 남았으면 더 내게 하고, 아니면 차례 끝
 func _continue_turn() -> void:
 	_play_log()
-	hand.sync(season.hand)
-	if season.wants_stash():
+	hand.sync(_mine())
+	if not _my_turn():
+		_after_action()
+	elif season.wants_stash():
 		_stashing = true
 		_pay_bar.visible = true
 		_pay_ok.disabled = false
@@ -290,7 +331,7 @@ func _continue_turn() -> void:
 
 
 func _done_more() -> void:
-	season.skip()
+	_do({k = "skip"})
 	_more_bar.visible = false
 	_after_action()
 
@@ -298,7 +339,7 @@ func _done_more() -> void:
 ## 숲의 자리별 점수: "plot/side" → pts
 func _points_by_spot() -> Dictionary:
 	var out := {}
-	for l in Score.count(season.forest, Game.run.season_index, Game.run.score_mods()).lines:
+	for l in _log_of(_shown()).lines:
 		var key := "%d/%s" % [l.plot, l.side]
 		out[key] = out.get(key, 0) + l.pts
 	return out
@@ -326,25 +367,26 @@ func _draw_deck() -> void:
 
 
 func _take_card(from: int) -> void:
-	if _busy or not season.draw(from):
+	if _busy or not _do({k = "draw", from = from}):
 		return
 	Sfx.play(&"click")
-	if not season.can_draw() or season.over:
+	if not _my_turn() or not season.can_draw() or season.over:
 		_after_action()
 	else:
 		_play_log()
-		hand.sync(season.hand)
+		hand.sync(_mine())
 		_refresh()
 
 
 ## 차례 끝: 공터 쓸림, 바람, 계절 끝
 func _after_action() -> void:
-	season.end_turn()
+	if not _net:
+		season.end_turn()
 	_play_log()
-	hand.sync(season.hand)
+	hand.sync(_mine())
 	_refresh()
 	if season.over:
-		_end_season()
+		_end_match() if _net else _end_season()
 
 
 ## 새 SeasonLog 사건들 중 화면에 보일 것(바람·쓸림·굴)
@@ -365,12 +407,12 @@ func _on_hover(card: Dictionary, half: int, target: Dictionary) -> void:
 	if target.is_empty() or _sapling_mode:
 		_gain.visible = false
 		return
-	var f := season.forest.clone()
+	var f := _my_forest().clone()
 	if Cards.is_tree(card):
 		f.plant(target.plot, card, card.tree)
 	else:
 		f.attach(target.plot, target.side, card, card.halves[half])
-	var gain := _total(f) - _total(season.forest)
+	var gain := _total(f) - _total(_my_forest())
 	_gain.text = "%+d" % gain
 	_gain.add_theme_color_override(&"font_color", Style.SPROUT if gain > 0 else Color(Style.CREAM, 0.8))
 	_gain.reset_size()
@@ -379,9 +421,16 @@ func _on_hover(card: Dictionary, half: int, target: Dictionary) -> void:
 
 
 func _total(f: Forest) -> int:
+	return _log_of(f).total
+
+
+func _log_of(f: Forest) -> ScoreLog:
+	if _net:
+		var who := _match.forests.find(f)
+		return Score.count(f, 0, _match.mods_for(who if who >= 0 else _net.seat))
 	var log := Score.count(f, Game.run.season_index, Game.run.score_mods())
 	log.apply(Spirits.mult(f, Game.run.owned(), Game.run.season_index))
-	return log.total
+	return log
 
 
 func _toggle_sapling() -> void:
@@ -397,14 +446,18 @@ func _set_sapling(on: bool) -> void:
 # --- 화면 갱신 ---
 
 func _refresh() -> void:
-	_score.text = tr("SEASON_SCORE") % [_total(season.forest), Game.run.target()]
+	_score.text = tr("ONLINE_SCORE") % _total(_my_forest()) if _net else tr("SEASON_SCORE") % [_total(season.forest), Game.run.target()]
+	if _viewing == (_net.seat if _net else -1) and world.open_count() < _my_forest().plots:
+		world.open_plots(_my_forest().plots)
+	if _net:
+		_show_players()
 	for i in _dots.size():
 		var on := i < season.winds_seen
 		_dots[i].add_theme_stylebox_override(&"panel", Style.box(Style.SUNSET if on else Color(Style.CREAM, 0.15), 20, Style.CREAM if on else Color(Style.CREAM, 0.4), 3))
 	var undeck := season.deck.size() - (season.winds - season.winds_seen)
 	_deck.text = tr("SEASON_DECK") % maxi(undeck, 0)
-	_deck.disabled = _busy or not season.can_draw() or hand.picking()
-	_sapling.disabled = _busy or season.can_play_more() or season.draws() > 0 or season.forest.free_plots().is_empty() or hand.picking()
+	_deck.disabled = _busy or not _my_turn() or not season.can_draw() or hand.picking()
+	_sapling.disabled = _busy or not _my_turn() or season.can_play_more() or season.draws() > 0 or _my_forest().free_plots().is_empty() or hand.picking()
 	for c in _clearing.get_children():
 		c.queue_free()
 	if is_instance_valid(_clearing_detail):
@@ -413,6 +466,8 @@ func _refresh() -> void:
 		_clearing.add_child(_mini_card(c))
 	if season.over:
 		_hint.text = ""
+	elif _net and not _net.my_turn():
+		_hint.text = tr("ONLINE_WAIT") % _net.name_of(_match.turn)
 	elif _stashing:
 		_hint.text = tr("SEASON_STASH")
 	elif hand.picking():
@@ -446,10 +501,18 @@ func _mini_card(c: Dictionary) -> Control:
 		get_tree().create_timer(Hand.DETAIL_DELAY).timeout.connect(func() -> void:
 			if is_instance_valid(box) and box.get_global_rect().has_point(get_global_mouse_position()):
 				_show_clearing_detail(box, c)))
-	box.mouse_exited.connect(func() -> void:
-		if is_instance_valid(_clearing_detail):
-			_clearing_detail.queue_free())
 	return box
+
+
+## 아이콘 설명 창(나무 아이콘 버튼): 다시 누르거나 창 밖을 누르면 닫힌다
+func _toggle_legend() -> void:
+	if is_instance_valid(_legend):
+		_legend.queue_free()
+		return
+	_legend = CardDetail.legend()
+	add_child(_legend)
+	_legend.reset_size()
+	_legend.global_position = (get_viewport_rect().size - _legend.get_combined_minimum_size()) / 2.0
 
 
 ## 공터 카드 상세: 마우스를 잠깐 올리면 아래로 크게 펼친다
@@ -459,6 +522,7 @@ func _show_clearing_detail(box: Control, c: Dictionary) -> void:
 	_clearing_detail = CardDetail.for_card(c, hand.portraits)
 	add_child(_clearing_detail)
 	_clearing_detail.place_near(box.get_global_rect(), get_viewport_rect().size)
+	_clearing_detail.auto_close(box.get_global_rect())
 
 
 func _pulse(c: Control) -> void:
@@ -563,14 +627,15 @@ func _inspect(at: Vector2) -> void:
 	if is_instance_valid(_inspect_card):
 		_inspect_card.queue_free()
 	_inspect_card = null
-	if hit.is_empty() or not season.forest.trees.has(hit.plot):
+	var shown := _shown()
+	if hit.is_empty() or not shown.trees.has(hit.plot):
 		return
-	var tree_kind := season.forest.kind_at(hit.plot)
+	var tree_kind := shown.kind_at(hit.plot)
 	var kind := tree_kind
-	var card: Dictionary = season.forest.trees[hit.plot].get("card", {})
+	var card: Dictionary = shown.trees[hit.plot].get("card", {})
 	var where := ""
 	if hit.side != &"":
-		var here := season.forest.occupants(hit.plot, hit.side)
+		var here := shown.occupants(hit.plot, hit.side)
 		if here.is_empty():
 			return
 		kind = here[0].species
@@ -582,3 +647,163 @@ func _inspect(at: Vector2) -> void:
 	_inspect_card = CardDetail.for_kind(kind, pts, where, card)
 	add_child(_inspect_card)
 	_inspect_card.place_near(Rect2(at - Vector2(40, 40), Vector2(80, 80)), get_viewport_rect().size)
+
+
+# --- 온라인 대전 ---
+
+## 내 손패·내 숲(온라인이면 내 자리, 혼자면 계절 그대로)
+func _mine() -> Array[Dictionary]:
+	return _match.hand_of(_net.seat) if _net else season.hand
+
+
+func _my_forest() -> Forest:
+	return _match.forests[_net.seat] if _net else season.forest
+
+
+## 지금 화면에 보이는 숲(온라인에서 다른 사람 숲을 보는 중일 수 있다)
+func _shown() -> Forest:
+	return _match.forests[_viewing] if _net and _viewing >= 0 else season.forest
+
+
+func _my_turn() -> bool:
+	return _net == null or _net.my_turn()
+
+
+## 행동 하나: 온라인이면 방에 쓰고(판에 바로 반영), 혼자면 계절에 바로 한다.
+func _do(a: Dictionary) -> bool:
+	if _net:
+		return _net.act(a)
+	match String(a.k):
+		"draw":
+			return season.draw(int(a.get("from", -1)))
+		"play":
+			return season.play(int(a.id), int(a.half), int(a.plot), a.pay)
+		"sapling":
+			return season.sapling(int(a.id), int(a.plot))
+		"stash":
+			var ids: Array[int] = []
+			ids.assign(a.ids)
+			return season.stash(ids)
+		"skip":
+			season.skip()
+			return true
+	return false
+
+
+## 다른 사람이 행동했다: 그 사람 숲을 보고 있으면 다시 세우고, 판이 끝났으면 순위
+func _on_net_applied(who: int) -> void:
+	if who == _net.seat or not is_inside_tree():
+		return
+	if _viewing == who:
+		world.rebuild(_shown())
+	_play_log()
+	hand.sync(_mine())
+	_refresh()
+	if season.over:
+		_end_match()
+	elif _net.my_turn():
+		Sfx.play(&"chime")
+		_toast(tr("ONLINE_YOUR_TURN"))
+
+
+## 쓰기가 겹쳐 판을 처음부터 다시 만들었다
+func _on_net_resynced() -> void:
+	if not is_inside_tree():
+		return
+	_match = _net.game
+	season = _match.season
+	_seen_log = season.log.size()
+	_close_pay()
+	_stashing = false
+	_more_bar.visible = false
+	world.rebuild(_shown())
+	hand.sync(_mine())
+	_refresh()
+
+
+func _build_players(parent: Control) -> void:
+	var box := _glass(parent)
+	box.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	_players = VBoxContainer.new()
+	_players.add_theme_constant_override(&"separation", 6)
+	box.add_child(_players)
+	_turn_label = _label(_players, "", 28, Style.SUNSET)
+
+
+## 사람마다 한 줄: 차례 표시, 이름, 도토리, 손패 수. 누르면 그 사람 숲을 본다.
+func _show_players() -> void:
+	if not _players:
+		return
+	_turn_label.text = tr("ONLINE_YOUR_TURN") if _net.my_turn() else tr("ONLINE_TURN_OF") % _net.name_of(_match.turn)
+	while _players.get_child_count() - 1 < _match.players:
+		var b := Button.new()
+		b.toggle_mode = true
+		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		b.icon = Art.acorn()
+		b.expand_icon = false
+		b.add_theme_font_override(&"font", Style.bold())
+		b.add_theme_font_size_override(&"font_size", 24)
+		b.custom_minimum_size = Vector2(420, 56)
+		b.add_theme_constant_override(&"icon_max_width", 32)
+		b.pressed.connect(_view.bind(_players.get_child_count() - 1))
+		b.tooltip_text = tr("ONLINE_VIEW")
+		_players.add_child(b)
+	for p in _match.players:
+		var b: Button = _players.get_child(p + 1)
+		var mark := "▶ " if p == _match.turn else "   "
+		var me := " (%s)" % tr("LOBBY_ME") if p == _net.seat else ""
+		b.text = "%s%s%s   %d   ✋%d" % [mark, _net.name_of(p), me, _total(_match.forests[p]), _match.hand_of(p).size()]
+		b.set_pressed_no_signal(p == _viewing)
+
+
+func _view(p: int) -> void:
+	if p == _viewing:
+		p = _net.seat
+	_viewing = p
+	world.rebuild(_shown())
+	world.set_overview(_overview.button_pressed)
+	_refresh()
+
+
+func _toggle_overview() -> void:
+	world.set_overview(_overview.button_pressed)
+
+
+## 판 끝: 모두의 숲 점수로 순위를 보여 준다
+func _end_match() -> void:
+	if _ranked:
+		return
+	_ranked = true
+	_busy = true
+	_refresh()
+	create_tween().tween_property(_bottom, ^"modulate:a", 0.0, 0.4)
+	if _net.is_host():
+		_net.db.req("PUT", "rooms/%s/status" % _net.code, "done")
+	var panel := PanelContainer.new()
+	panel.add_theme_stylebox_override(&"panel", Style.glass())
+	add_child(panel)
+	var col := VBoxContainer.new()
+	col.add_theme_constant_override(&"separation", Style.GAP)
+	panel.add_child(col)
+	_label(col, tr("ONLINE_RANKING"), Style.HEADLINE, Style.SUNSET)
+	var rank := 0
+	for r in _match.ranking():
+		rank += 1
+		var row := _row(col)
+		var text := "%d. %s" % [rank, _net.name_of(r.who)]
+		if r.who == _net.seat:
+			text += " (%s)" % tr("LOBBY_ME")
+		_label(row, text, Style.BODY, Style.SPROUT if rank == 1 else Style.CREAM)
+		var acorn := TextureRect.new()
+		acorn.texture = Art.acorn()
+		acorn.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		acorn.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		acorn.custom_minimum_size = Vector2(44, 44)
+		row.add_child(acorn)
+		_label(row, str(r.total), Style.HEADLINE, Style.SPROUT if rank == 1 else Style.CREAM)
+		_label(row, tr("ONLINE_CAVE") % r.cave, 24, Color(Style.CREAM, 0.7))
+	var go := _button(col, Art.ICON_HOME, tr("ONLINE_DONE"), Game.leave_match, 360)
+	go.theme_type_variation = &"AccentButton"
+	panel.reset_size()
+	panel.position = (get_viewport_rect().size - panel.get_combined_minimum_size()) / 2.0
+	Sfx.play(&"chime")

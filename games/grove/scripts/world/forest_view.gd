@@ -12,9 +12,12 @@ const ISLAND_RADIUS := 6.4
 const PLOT_SPACING := 3.0
 const PITCH_DEG := 48.0
 const DISTANCE := 34.0
-## 땅 넓히기: 시작 9칸 + 섬 둘레에 떠오르는 작은 섬 자리(최대 25칸)
+## 땅 넓히기: 시작 9칸 + 섬 둘레에 떠오르는 작은 섬 자리. 혼자 하기는 25칸까지,
+## 온라인 대전은 제한 없이 바깥 고리가 계속 생긴다(고리마다 RING_GAP씩 멀어지고 8자리씩 늘어난다).
 const MAX_PLOTS := 25
 const RING_RADIUS := 8.6
+const RING_GAP := 3.6
+const OVERVIEW_ZOOM := 1.45
 const ISLET_RADIUS := 1.45
 ## 땅이 넓어지면 카메라를 이만큼 뒤로 뺀다
 const WIDE_ZOOM := 1.32
@@ -113,11 +116,66 @@ static func plot_positions(n := 9) -> Array[Vector3]:
 	for z in range(-1, 2):
 		for x in range(-1, 2):
 			out.append(Vector3(x * PLOT_SPACING, 0.0, z * PLOT_SPACING))
-	for slot: int in RING_ORDER:
-		var a := TAU * slot / RING_ORDER.size() + PI / RING_ORDER.size()
-		out.append(Vector3(cos(a), 0.0, sin(a)) * RING_RADIUS)
-	out.resize(mini(n, MAX_PLOTS))
+	var ring := 0
+	while out.size() < n:
+		var slots := RING_ORDER.size() + 8 * ring
+		var r := RING_RADIUS + RING_GAP * ring
+		var off := PI / slots + (0.5 * TAU / slots if ring % 2 == 1 else 0.0)
+		for slot: int in _ring_order(slots):
+			var a := TAU * slot / slots + off
+			out.append(Vector3(cos(a), 0.0, sin(a)) * r)
+		ring += 1
+	out.resize(n)
 	return out
+
+
+## 고리의 자리 순서: 첫 고리는 RING_ORDER, 바깥 고리는 반씩 쪼개 마주 보는 쪽을 번갈아
+static func _ring_order(slots: int) -> Array:
+	if slots == RING_ORDER.size():
+		return RING_ORDER
+	var order := range(slots)
+	order.sort_custom(func(a: int, b: int) -> bool: return _vdc(a) < _vdc(b) if _vdc(a) != _vdc(b) else a < b)
+	return order
+
+
+static func _vdc(i: int) -> float:
+	var v := 0.0
+	var base := 0.5
+	while i > 0:
+		if i & 1:
+			v += base
+		base *= 0.5
+		i >>= 1
+	return v
+
+
+## 고리 수에 맞춘 카메라 거리 배율
+static func zoom_for(open: int) -> float:
+	if open <= 9:
+		return 1.0
+	var rings := 0
+	var n := 9
+	while n < open:
+		n += RING_ORDER.size() + 8 * rings
+		rings += 1
+	return WIDE_ZOOM + 0.42 * (rings - 1)
+
+
+var _overview := false
+
+
+## 숲 전체 보기: 카메라를 더 뒤로 빼서 바깥 섬까지 한눈에 본다
+func set_overview(on: bool) -> void:
+	_overview = on
+	create_tween().tween_method(_set_zoom, _zoom, _target_zoom(), 0.6).set_trans(Tween.TRANS_SINE)
+
+
+func _target_zoom() -> float:
+	return zoom_for(_open) * (OVERVIEW_ZOOM if _overview else 1.0)
+
+
+func _pos(i: int) -> Vector3:
+	return plot_positions(i + 1)[i]
 
 
 func open_count() -> int:
@@ -126,8 +184,8 @@ func open_count() -> int:
 
 ## 땅 자리를 n칸까지 연다: 안개 아래에서 작은 섬이 떠오른다.
 func open_plots(n: int, animate := true) -> void:
-	var all := plot_positions(MAX_PLOTS)
-	for i in range(_open, mini(n, MAX_PLOTS)):
+	var all := plot_positions(maxi(n, _open))
+	for i in range(_open, n):
 		var islet := Node3D.new()
 		islet.position = all[i]
 		_island.add_child(islet)
@@ -150,8 +208,10 @@ func open_plots(n: int, animate := true) -> void:
 			var tw := islet.create_tween().set_parallel().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 			tw.tween_property(islet, ^"position", to, 0.9).set_delay(0.15 * (i - _open))
 			tw.tween_property(islet, ^"scale", Vector3.ONE, 0.9).set_delay(0.15 * (i - _open))
-	_open = clampi(maxi(n, _open), 9, MAX_PLOTS)
-	var zoom := WIDE_ZOOM if _open > 9 else 1.0
+	_open = maxi(maxi(n, _open), 9)
+	if _trees.size() < _open:
+		_trees.resize(_open)
+	var zoom := _target_zoom()
 	if animate:
 		create_tween().tween_method(_set_zoom, _zoom, zoom, 1.0).set_trans(Tween.TRANS_SINE)
 	else:
@@ -169,7 +229,8 @@ func reset_plots() -> void:
 		for m in _plot_marks.pop_back():
 			m.queue_free()
 	_open = 9
-	_set_zoom(1.0)
+	_trees.resize(MAX_PLOTS)
+	_set_zoom(_target_zoom())
 
 
 func _set_zoom(z: float) -> void:
@@ -235,13 +296,15 @@ func turn(dir: int) -> void:
 
 ## 땅 자리 i에 나무를 심는다(빈 이름이면 비운다).
 func plant(i: int, kind: StringName) -> ForestTree:
+	if i >= _trees.size():
+		_trees.resize(i + 1)
 	if _trees[i]:
 		_trees[i].queue_free()
 		_trees[i] = null
 	if kind == &"":
 		return null
 	var t := ForestTree.make(kind, _season)
-	t.position = plot_positions(MAX_PLOTS)[i]
+	t.position = _pos(i)
 	t.rotation.y = _rng.randf_range(-0.6, 0.6)
 	_island.add_child(t)
 	_trees[i] = t
@@ -275,7 +338,7 @@ func targets_for(kind: StringName, side: StringName = &"") -> Array[Dictionary]:
 func target_position(target: Dictionary) -> Vector3:
 	var t := _trees[target.plot]
 	if target.side == &"" or not t:
-		return _island.to_global(plot_positions(MAX_PLOTS)[target.plot])
+		return _island.to_global(_pos(target.plot))
 	return t.socket(target.side).global_position
 
 
@@ -330,7 +393,7 @@ func preview(target: Dictionary, kind: StringName) -> void:
 		return
 	if target.side == &"":
 		_ghost = ForestTree.make(kind, _season)
-		_ghost.position = plot_positions(MAX_PLOTS)[target.plot]
+		_ghost.position = _pos(target.plot)
 		_island.add_child(_ghost)
 	else:
 		_ghost = Dweller.make(kind)

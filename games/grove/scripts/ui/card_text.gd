@@ -19,6 +19,18 @@ static func group_of(group: StringName) -> String:
 	return _t("GROUP_%s" % String(group).to_upper())
 
 
+## 분류 아이콘 토큰({g_bird}); 아이콘이 없으면 이름
+static func gicon(group: StringName) -> String:
+	var n := StringName("g_" + String(group))
+	return "{%s}" % n if Art.ICONS.has(n) else group_of(group)
+
+
+## 자리 아이콘 토큰({side_left})
+static func sicon(side: StringName) -> String:
+	var n := StringName("side_" + String(side).to_lower())
+	return "{%s}" % n if Art.ICONS.has(n) else side_of(side)
+
+
 static func side_of(side: StringName) -> String:
 	return _t("SIDE_%s" % String(side).to_upper())
 
@@ -39,7 +51,7 @@ static func gives(give: Dictionary, short := false) -> String:
 			&"draw", &"pick", &"cave":
 				parts.append(_t(key) % give[k])
 			&"draw_per", &"free", &"free_all":
-				parts.append(_t(key) % thing(give[k]))
+				parts.append(_t(key) % (thing(give[k]) if not short or def_of(give[k]).size() > 0 else gicon(give[k])))
 			_:
 				parts.append(_t(key))
 	return (" " if short else ", ").join(parts)
@@ -54,8 +66,8 @@ static func hook(kind: StringName, short := false) -> String:
 	if h.on == &"plant":
 		return _t("HOOK_PLANT" + s) % give
 	if h.has("tag"):
-		return _t("HOOK_TAG" + s) % [group_of(h.tag), give]
-	return _t("HOOK_PLACE" + s) % [side_of(h.side), give]
+		return _t("HOOK_TAG" + s) % [gicon(h.tag) if short else group_of(h.tag), give]
+	return _t("HOOK_PLACE" + s) % [sicon(h.side) if short else side_of(h.side), give]
 
 
 ## 점수 규칙 한 줄(상세 창)
@@ -106,11 +118,11 @@ static func face(kind: StringName) -> Dictionary:
 	var d := def_of(kind)
 	var r: Dictionary = d.get("score", {})
 	if r.has("butterfly_sets"):
-		return {pts = "", text = _t("FACE_BUTTERFLY") + " " + _table(r.butterfly_sets, 2, true)}
+		return {pts = "", text = _t("FACE_BUTTERFLY"), table = cells(r.butterfly_sets, 2)}
 	if r.has("set"):
-		return {pts = "", text = _t("FACE_SET") + " " + _table(r.set, 1, true)}
+		return {pts = "", text = _t("FACE_SET"), table = cells(r.set, 1)}
 	if r.has("distinct_at_least"):
-		return {pts = str(r.each), text = _t("FACE_DISTINCT_AT_LEAST") % [group_of(d.kind), r.distinct_at_least]}
+		return {pts = str(r.each), text = _t("FACE_DISTINCT_AT_LEAST") % [gicon(d.kind), r.distinct_at_least]}
 	if r.has("at_least"):
 		return {pts = str(r.each), text = _t("FACE_AT_LEAST") % r.at_least}
 	if r.has("tree_kinds"):
@@ -120,7 +132,7 @@ static func face(kind: StringName) -> Dictionary:
 	if r.has("most"):
 		return {pts = str(r.most), text = _t("FACE_MOST") % r.get("other", 0)}
 	if r.has("same_tree"):
-		return {pts = str(r.pts), text = _t("FACE_SAME_TREE") % group_of(r.same_tree)}
+		return {pts = str(r.pts), text = _t("FACE_SAME_TREE") % gicon(r.same_tree)}
 	if r.has("on"):
 		return {pts = str(r.pts), text = _t("FACE_ON") % _names(r.on)}
 	if r.has("with"):
@@ -130,11 +142,11 @@ static func face(kind: StringName) -> Dictionary:
 	if r.has("per_sym"):
 		return {pts = str(r.per_sym), text = _t("FACE_PER_SYM")}
 	if r.has("per_kind"):
-		return {pts = str(r.pts), text = _t("FACE_PER") % _groups(r.per_kind)}
+		return {pts = str(r.pts), text = _t("FACE_PER") % _groups(r.per_kind, true)}
 	if r.has("per_species"):
 		return {pts = str(r.pts), text = _t("FACE_PER") % name_of(r.per_species)}
 	if r.has("per_side"):
-		return {pts = str(r.pts), text = _t("FACE_PER_SIDE") % side_of(r.per_side)}
+		return {pts = str(r.pts), text = _t("FACE_PER_SIDE") % sicon(r.per_side)}
 	if r.has("full"):
 		return {pts = str(r.full), text = _t("FACE_FULL")}
 	if r.has("per_tree"):
@@ -161,6 +173,31 @@ static func chips(kind: StringName) -> Array[Dictionary]:
 
 ## 상세 창 용어 풀이: 이 카드에 나오는 말만 [글]
 static func terms(kind: StringName) -> Array[String]:
+	var out: Array[String] = []
+	for k in term_keys(kind):
+		out.append(_t(k))
+	for g in groups_in(kind):
+		out.append(_t("TERM_GROUP") % [group_of(g), members(g)])
+	return out
+
+
+## 이 카드 점수·효과에 나오는 분류(새·발굽 등)
+static func groups_in(kind: StringName) -> Array[StringName]:
+	var d := def_of(kind)
+	var r: Dictionary = d.get("score", {})
+	var give: Dictionary = d.get("effect", {}).merged(d.get("bonus", {})).merged(d.get("hook", {}).get("give", {}))
+	var groups: Array[StringName] = []
+	for g in [r.get("per_kind", []), r.get("same_tree", []), give.get("free", []), give.get("free_all", []), give.get("draw_per", []), d.get("hook", {}).get("tag", [])]:
+		for x in (g if g is Array else [g]):
+			if not def_of(x).size() and x != &"tree" and not x in groups:
+				groups.append(x)
+	if r.has("distinct_at_least") and not d.kind in groups:
+		groups.append(d.kind)
+	return groups
+
+
+## 이 카드에 나오는 용어 키(TERM_*)
+static func term_keys(kind: StringName) -> Array[String]:
 	var d := def_of(kind)
 	var keys: Array[String] = ["TERM_COST"]
 	var r: Dictionary = d.get("score", {})
@@ -190,19 +227,7 @@ static func terms(kind: StringName) -> Array[String]:
 		keys.append("TERM_FULL")
 	if r.has("per_sym") and not "TERM_COLOR" in keys:
 		keys.append("TERM_COLOR")
-	var out: Array[String] = []
-	for k in keys:
-		out.append(_t(k))
-	var groups: Array = []
-	for g in [r.get("per_kind", []), r.get("same_tree", []), give.get("free", []), give.get("free_all", []), give.get("draw_per", []), d.get("hook", {}).get("tag", [])]:
-		for x in (g if g is Array else [g]):
-			if not def_of(x).size() and x != &"tree" and not x in groups:
-				groups.append(x)
-	if r.has("distinct_at_least"):
-		groups.append(d.kind)
-	for g: StringName in groups:
-		out.append(_t("TERM_GROUP") % [group_of(g), members(g)])
-	return out
+	return keys
 
 
 ## 그 상징을 가진 종들 이름("올빼미·참매 … 외 n종")
@@ -219,6 +244,15 @@ static func members(tag: StringName) -> String:
 
 
 ## 점수 표: from번째부터 "1→1 2→4" (short: "1:1 2:4")
+## 장수별 점수표의 칸: [[장수, 점수]] (0점 칸은 뺀다). 카드 면은 위에 장수, 아래에 도토리 점수로 그린다.
+static func cells(t: Array, from: int) -> Array:
+	var out := []
+	for i in range(from, t.size()):
+		if t[i] > 0:
+			out.append([i, t[i]])
+	return out
+
+
 static func _table(t: Array, from: int, short := false) -> String:
 	var out: Array[String] = []
 	for i in range(from, t.size()):
@@ -233,11 +267,11 @@ static func _names(list: Array) -> String:
 	return "·".join(out)
 
 
-static func _groups(g: Variant) -> String:
+static func _groups(g: Variant, icons := false) -> String:
 	var out: Array[String] = []
 	for k in (g if g is Array else [g]):
-		out.append(group_of(k))
-	return "·".join(out)
+		out.append(gicon(k) if icons else group_of(k))
+	return ("" if icons else "·").join(out)
 
 
 static func _t(key: String) -> String:

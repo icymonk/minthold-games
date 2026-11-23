@@ -20,6 +20,7 @@ const SCREENS := {
 	&"codex": preload("res://scenes/screens/codex.tscn"),
 	&"setup": preload("res://scenes/screens/setup.tscn"),
 	&"album": preload("res://scenes/screens/album.tscn"),
+	&"lobby": preload("res://scenes/screens/lobby.tscn"),
 }
 const SEASON_KEYS: Array[String] = ["SEASON_SPRING", "SEASON_SUMMER", "SEASON_AUTUMN", "SEASON_WINTER"]
 ## 계절 목표 점수(기획서 2.2 초기값)
@@ -44,6 +45,9 @@ var keeper: StringName = &"grandma"
 var grade := 0
 ## 런이 막 끝나서 앨범 사진을 찍을 차례
 var photo_pending := false
+## 온라인 대전(방). 처음 대기실에 들어갈 때 만든다.
+var online: Online
+var nick := ""
 
 
 func start_run(seed_value := -1, day := "") -> void:
@@ -183,3 +187,29 @@ func next_year() -> void:
 	if run and run.next_year():
 		Save.write(run, save_path)
 		goto(&"cabin")
+
+
+## 온라인 방 연결(Firebase). 없으면 만든다.
+func net() -> Online:
+	if online == null:
+		online = Online.new(Fire.new())
+		add_child(online)
+	return online
+
+
+## 온라인 판이 진행 중인가(계절 화면이 온라인 규칙을 쓴다)
+func in_match() -> bool:
+	return online != null and online.game != null
+
+
+## 방장이 시작했다: 숲을 비우고 계절 화면으로
+func begin_match() -> void:
+	run_started.emit()
+	_set_season(0)
+	goto(&"season")
+
+
+func leave_match() -> void:
+	if online:
+		online.leave()
+	goto(&"title")

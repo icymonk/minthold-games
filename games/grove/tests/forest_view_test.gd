@@ -11,6 +11,23 @@ func test_nine_plots_fit_on_island() -> void:
 	assert_int(seen.size()).is_equal(9)
 
 
+func test_online_plots_grow_in_outer_rings() -> void:
+	var all := ForestView.plot_positions(70)
+	assert_int(all.size()).is_equal(70)
+	for i in range(9, 70):
+		for j in range(9, i):
+			assert_float(all[i].distance_to(all[j])).is_greater(ForestView.ISLET_RADIUS * 2.0)
+	assert_array(ForestView.plot_positions(25)).is_equal(all.slice(0, 25))
+	assert_float(ForestView.zoom_for(25)).is_equal(ForestView.WIDE_ZOOM)
+	assert_float(ForestView.zoom_for(26)).is_greater(ForestView.WIDE_ZOOM)
+	var view: ForestView = auto_free(ForestView.new())
+	add_child(view)
+	view.plant_layout(ForestView.EMPTY_FOREST)
+	view.open_plots(40, false)
+	assert_int(view.targets_for(&"oak").size()).is_equal(40)
+	assert_object(view.plant(39, &"fir")).is_not_null()
+
+
 func test_land_opens_islets_up_to_25() -> void:
 	var all := ForestView.plot_positions(ForestView.MAX_PLOTS)
 	assert_int(all.size()).is_equal(25)
