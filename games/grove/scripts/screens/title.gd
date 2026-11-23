@@ -20,6 +20,9 @@ func _ready() -> void:
 	else:
 		start.theme_type_variation = &"AccentButton"
 		start.grab_focus()
+	var best: int = Game.records.daily.get(Game.today(), -1)
+	var daily_text := tr("TITLE_DAILY") if best < 0 else tr("TITLE_DAILY_BEST") % best
+	_button(col, Art.ICON_RETRY, daily_text, Game.start_daily, 560)
 	var row := _row(col)
 	_button(row, Art.ICON_HOME, tr("TITLE_CODEX"), Game.goto.bind(&"codex"), 300)
 	_button(row, Art.ICON_HOME, tr("TITLE_ALBUM"), Game.goto.bind(&"album"), 300)

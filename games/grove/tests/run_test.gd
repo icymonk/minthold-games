@@ -145,7 +145,7 @@ func test_bot_plays_a_whole_year() -> void:
 
 
 func test_thirty_spirits_all_have_names_and_work() -> void:
-	assert_int(Spirits.ALL.size()).is_equal(30)
+	assert_int(Spirits.ALL.size()).is_equal(60)
 	var f := Forest.new()
 	f.plant(0, {id = 1}, &"oak")
 	f.attach(0, &"Top", {id = 2}, &"owl")
@@ -178,6 +178,6 @@ func test_deco_from_shop() -> void:
 
 
 func test_forty_species_with_names() -> void:
-	assert_int(Cards.SPECIES.size()).is_equal(40)
+	assert_int(Cards.SPECIES.size()).is_equal(90)
 	for k: StringName in Cards.SPECIES:
 		assert_str(tr("KIND_%s" % String(k).to_upper())).is_not_equal("KIND_%s" % String(k).to_upper())

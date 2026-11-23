@@ -1,6 +1,6 @@
 class_name Spirits
 extends RefCounted
-## 숲 정령(규칙 1-3·3-1, 유물 5칸, 30종). 계절 끝 점수 = (나무·이웃 + 굴) × (1 + 정령 배수 합).
+## 숲 정령(규칙 1-3·3-1, 유물 5칸, 60종). 계절 끝 점수 = (나무·이웃 + 굴) × (1 + 정령 배수 합).
 ## 배수 말: kinds + at_least + x(그 종류들 합이 at_least마리 이상이면 +x), distinct_kind + x(그 종류의 종 가짓수마다 +x),
 ##   sides + at_least + x(그 자리 이웃 합), per_tree_kinds(나무 종류마다), per_full(꽉 찬 나무마다), trees_at_least + x,
 ##   per_sapling(묘목마다), cave_step + x(굴 cave_step장마다), in_season + x(그 계절에만), always(늘)
@@ -38,6 +38,37 @@ const ALL := {
 	&"deep_pocket": {hand = 2},
 	&"still_air": {clearing = 3},
 	&"acorn_cache": {acorns = 3},
+	# 4-2: 30종 더
+	&"cicada_song": {kinds = [&"insect"], at_least = 3, x = 0.3},
+	&"squirrel_hoard": {kinds = [&"paw"], at_least = 8, x = 0.6},
+	&"crane_dance": {kinds = [&"bird"], at_least = 6, x = 0.5},
+	&"deer_path": {kinds = [&"deer"], at_least = 2, x = 0.3},
+	&"spore_cloud": {kinds = [&"mushroom"], at_least = 4, x = 0.6},
+	&"lily_pond": {kinds = [&"amphibian", &"flower"], at_least = 5, x = 0.4},
+	&"night_wings": {kinds = [&"bat", &"butterfly"], at_least = 5, x = 0.4},
+	&"canopy_song": {sides = [&"Top"], at_least = 8, x = 0.5},
+	&"deep_roots": {sides = [&"Bottom"], at_least = 8, x = 0.5},
+	&"wide_trails": {sides = [&"Left", &"Right"], at_least = 10, x = 0.5},
+	&"butterfly_scholar": {distinct_kind = &"butterfly", x = 0.1},
+	&"bat_scholar": {distinct_kind = &"bat", x = 0.15},
+	&"beetle_lord": {distinct_kind = &"insect", x = 0.1},
+	&"mushroom_scholar": {distinct_kind = &"mushroom", x = 0.1},
+	&"flower_scholar": {distinct_kind = &"flower", x = 0.08},
+	&"deer_scholar": {distinct_kind = &"deer", x = 0.15},
+	&"ancient_oak": {trees_at_least = 8, x = 0.3},
+	&"wild_wood": {trees_at_least = 16, x = 0.8},
+	&"seedling_sprite": {per_sapling = 0.15},
+	&"magpie_hoard": {cave_step = 3, x = 0.1},
+	&"summer_sun": {in_season = 1, x = 0.25},
+	&"autumn_moon": {in_season = 2, x = 0.3},
+	&"mist_spirit": {always = 0.15},
+	&"full_bloom": {per_full = 0.15},
+	&"old_grove": {per_tree_kinds = 0.08},
+	&"night_breeze": {wind_draw = 1},
+	&"bear_den": {cave = 3},
+	&"long_arms": {hand = 1},
+	&"open_glade": {clearing = 2},
+	&"acorn_rain": {acorns = 2},
 }
 
 

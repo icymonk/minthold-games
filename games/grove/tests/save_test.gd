@@ -66,7 +66,7 @@ func test_records_track_seasons_runs_and_codex() -> void:
 	assert_int(back.finished).is_equal(0)
 	assert_int(back.best_year).is_equal(run.scores[0].total)
 	assert_int(back.seen[&"eagle"]).is_equal(2)
-	assert_int(Records.all_kinds().size()).is_equal(Cards.TREES.size() + 40)
+	assert_int(Records.all_kinds().size()).is_equal(Cards.TREES.size() + 90)
 
 
 func test_keepers_change_bag_spirit_and_unlock() -> void:
@@ -118,3 +118,51 @@ func test_album_keeps_latest_photos() -> void:
 		r.add_photo({file = "user://none_%d.png" % i, year = i, keeper = &"grandma", grade = 0})
 	assert_int(r.album.size()).is_equal(Records.ALBUM_MAX)
 	assert_int(r.album[0].year).is_equal(3)
+
+
+func test_endless_year_keeps_forest_and_counts_once() -> void:
+	var run := Run.new(5)
+	run.forest.plant(4, {id = 900, sym = &""}, &"oak")
+	assert_bool(run.next_year()).is_false()
+	run.season_index = 4
+	run.done = true
+	var r := Records.new()
+	r.note_run(run)
+	assert_bool(run.next_year()).is_true()
+	assert_int(run.year).is_equal(1)
+	assert_int(run.season_index).is_equal(0)
+	assert_int(run.target_of(0)).is_equal(70)
+	assert_int(run.offers.size()).is_equal(3)
+	assert_int(run.events.size()).is_equal(4)
+	assert_bool(run.forest.trees.has(4)).is_true()
+	run.lost = true
+	r.note_run(run)
+	assert_int(r.runs).is_equal(1)
+	assert_int(r.finished).is_equal(1)
+	assert_int(r.best_endless).is_equal(1)
+	Save.write(run, SAVE)
+	assert_int(Save.read(SAVE).year).is_equal(1)
+
+
+func test_daily_forest_is_same_for_the_day() -> void:
+	assert_int(Game.daily_seed("2026-11-23")).is_equal(Game.daily_seed("2026-11-23"))
+	assert_int(Game.daily_seed("2026-11-23")).is_not_equal(Game.daily_seed("2026-11-24"))
+	assert_bool(Keepers.ALL.has(Game.daily_keeper("2026-11-23"))).is_true()
+	var run := Run.new(Game.daily_seed("2026-11-23"), Game.daily_keeper("2026-11-23"))
+	run.daily = "2026-11-23"
+	run.lost = true
+	var r := Records.new()
+	r.note_run(run)
+	assert_bool(r.daily.has("2026-11-23")).is_true()
+
+
+func test_content_counts_and_models() -> void:
+	assert_int(Cards.SPECIES.size()).is_equal(90)
+	assert_int(Spirits.ALL.size()).is_equal(60)
+	for s in Events.BY_SEASON:
+		assert_int(s.size()).is_equal(8)
+	for k: StringName in Cards.SPECIES:
+		assert_bool(Dweller.KINDS.has(k)).override_failure_message(String(k)).is_true()
+		assert_str(tr("KIND_%s" % String(k).to_upper())).is_not_equal("KIND_%s" % String(k).to_upper())
+	for k: StringName in Spirits.ALL:
+		assert_str(tr("SPIRIT_%s_DESC" % String(k).to_upper())).is_not_equal("SPIRIT_%s_DESC" % String(k).to_upper())

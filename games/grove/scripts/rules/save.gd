@@ -12,7 +12,7 @@ static func to_dict(run: Run) -> Dictionary:
 	for s in run.scores:
 		scores.append({lines = s.lines, cave = s.cave, base = s.base, mult = s.mult, total = s.total})
 	return {
-		v = VERSION, keeper = run.keeper, grade = run.grade, seed = run.rng.seed, state = run.rng.state, bag = run.bag,
+		v = VERSION, keeper = run.keeper, grade = run.grade, year = run.year, noted = run.noted, daily = run.daily, seed = run.rng.seed, state = run.rng.state, bag = run.bag,
 		forest = {plots = run.forest.plots, trees = run.forest.trees, cave = run.forest.cave},
 		spirits = run.spirits, acorns = run.acorns, events = run.events, season_index = run.season_index,
 		scores = scores, offers = run.offers, lost = run.lost, done = run.done, next_id = run._next_id,
@@ -23,6 +23,9 @@ static func from_dict(d: Dictionary) -> Run:
 	if d.get("v", 0) != VERSION:
 		return null
 	var run := Run.new(d.seed, d.get("keeper", &"grandma"), d.get("grade", 0))
+	run.year = d.get("year", 0)
+	run.noted = d.get("noted", false)
+	run.daily = d.get("daily", "")
 	run.rng.state = d.state
 	run.bag.assign(d.bag)
 	run.forest.plots = d.forest.plots
