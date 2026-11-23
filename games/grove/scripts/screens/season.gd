@@ -106,9 +106,9 @@ func _ready() -> void:
 	side.size_flags_vertical = Control.SIZE_SHRINK_END
 	side.add_theme_constant_override(&"separation", 12)
 	bottom.add_child(side)
-	_deck = _button(side, Art.ICON_NEXT, "", _draw_deck, 320)
+	_deck = _button(side, Art.ICON_NEXT, "", _draw_deck, 270)
 	_deck.theme_type_variation = &"AccentButton"
-	_sapling = _button(side, null, tr("SEASON_SAPLING"), _toggle_sapling, 320)
+	_sapling = _button(side, null, tr("SEASON_SAPLING"), _toggle_sapling, 270)
 	_sapling.toggle_mode = true
 	hand = Hand.new()
 	hand.demo = false

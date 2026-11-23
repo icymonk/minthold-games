@@ -2,7 +2,7 @@ class_name CardView
 extends Control
 ## 손패의 카드 한 장. 나무 카드는 그림 하나, 이웃 카드는 반쪽 둘(위/아래 또는 왼/오른).
 
-const CARD := Vector2(240, 340)
+const CARD := Vector2(228, 330)
 ## 나무 색(카드 귀퉁이 동그라미)
 const TREE_COLORS := {&"linden": Color("#A8C84A"), &"oak": Color("#8A6A2A"), &"fir": Color("#2F6A50"), &"birch": Color("#E8E2CC"),
 	&"beech": Color("#C9853E"), &"maple": Color("#D85A3A"), &"pine": Color("#4F7FB0"), &"chestnut": Color("#7A3A2A")}
@@ -146,7 +146,7 @@ func _half_box(kind: StringName, r: Rect2, color: Color, portraits: Portrait, sy
 	var y := 36.0
 	for c in CardText.chips(kind):
 		var bg: Color = {effect = Style.SUNSET, bonus = GOLD, hook = Style.MOSS}[c.tone]
-		var chip := _badge(c.text, bg, Style.FOREST if c.tone == &"bonus" else Style.CREAM, Vector2.ZERO, 22 if narrow else 26, w)
+		var chip := _badge(c.text, bg, Style.FOREST if c.tone == &"bonus" else Style.CREAM, Vector2.ZERO, 22 if narrow else 26, w - (0.0 if narrow else 36.0))
 		chip.position = Vector2(4 if narrow else r.size.x - chip.size.x - 4, y)
 		box.add_child(chip)
 		y += chip.size.y + 4.0
