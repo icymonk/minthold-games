@@ -2,30 +2,42 @@ class_name Season
 extends RefCounted
 ## 계절 하나(규칙 1-1): 계절 덱·손패·빈터·숲. 화면을 모르고, 한 일은 log에 사건으로 남긴다.
 ## 차례 = A) 2장 가져오기(덱 맨 위 또는 빈터에서 1장씩) 또는 B) 1장 내기(비용만큼 손패를 빈터로).
-## 낸 뒤 효과 → 보너스(비용으로 낸 카드가 모두 같은 나무 색일 때). 차례 끝에 빈터가 10장 이상이면 쓸려 간다.
+## 낸 뒤 효과 → 버섯 지속 효과(Hook) → 보너스(비용으로 낸 카드가 모두 같은 나무 색일 때). 차례 끝에 빈터가 10장 이상이면 쓸려 간다.
+## 덱 아래 1/3에 계절 바람이 섞여 있다. 뽑히면 바람 칸이 차고 1장 더 뽑으며, 마지막 바람이 뜨면 그 즉시 계절이 끝난다.
+## log가 SeasonLog다: 화면은 사건을 차례대로 연출만 한다.
 
 const HAND_LIMIT := 10
 const CLEARING_LIMIT := 10
 const START_HAND := 6
 const DRAWS_PER_TURN := 2
+const WINDS := 3
 
 var deck: Array[Dictionary] = []
 var hand: Array[Dictionary] = []
 var clearing: Array[Dictionary] = []
 var discard: Array[Dictionary] = []
 var forest: Forest
-## [{t = draw|pay|plant|sapling|attach|drift|effect|bonus|sweep, ...}]
+## SeasonLog: [{t = deal|draw|pay|plant|sapling|attach|drift|effect|hook|bonus|cave|wind|over|sweep, ...}]
 var log: Array[Dictionary] = []
+var winds := WINDS
+var winds_seen := 0
+## 마지막 바람이 떠서 계절이 끝났다. 이후 모든 행동은 거절된다.
+var over := false
 var _rng := RandomNumberGenerator.new()
 var _draws := 0
 var _played := false
 
 
-func _init(bag: Array[Dictionary], seed_value: int, grove: Forest = null) -> void:
+func _init(bag: Array[Dictionary], seed_value: int, grove: Forest = null, wind_count := WINDS) -> void:
 	_rng.seed = seed_value
 	forest = grove if grove else Forest.new()
+	winds = wind_count
 	deck = bag.duplicate()
 	_shuffle(deck)
+	# 덱의 맨 위는 배열 끝이다: 바람은 앞쪽(아래) 1/3에 섞는다
+	var bottom := maxi(1, deck.size() / 3)
+	for i in winds:
+		deck.insert(_rng.randi_range(0, bottom + i), {id = -1 - i, wind = true, sym = &""})
 	for i in START_HAND:
 		_draw_top(&"deal")
 
@@ -39,7 +51,7 @@ func find(id: int, pile: Array[Dictionary]) -> int:
 
 ## A) 1장 가져오기. from = -1이면 덱 맨 위, 아니면 빈터의 그 카드 id.
 func draw(from: int = -1) -> bool:
-	if _played or _draws >= DRAWS_PER_TURN or hand.size() >= HAND_LIMIT:
+	if over or _played or _draws >= DRAWS_PER_TURN or hand.size() >= HAND_LIMIT:
 		return false
 	if from < 0:
 		if not _draw_top(&"deck"):
@@ -62,6 +74,7 @@ func play(id: int, half: int, plot: int, pay: Array[int], picks: Array[int] = []
 		return false
 	var card: Dictionary = hand[find(id, hand)]
 	var def := Cards.def_of(card, half)
+	var hooks: Array[Dictionary] = []
 	var paid: Array[Dictionary] = []
 	for p in pay:
 		var c: Dictionary = hand.pop_at(find(p, hand))
@@ -73,16 +86,20 @@ func play(id: int, half: int, plot: int, pay: Array[int], picks: Array[int] = []
 		forest.plant(plot, card, card.tree)
 		log.append({t = &"plant", card = id, plot = plot})
 		# 나무를 심으면 덱 맨 위 1장이 빈터로 날아간다
-		if not deck.is_empty():
-			var drift: Dictionary = deck.pop_back()
+		var drift := _take()
+		if not drift.is_empty():
 			clearing.append(drift)
 			log.append({t = &"drift", card = drift.id})
 	else:
 		var side := Cards.side_of(card, half)
-		forest.attach(plot, side, card, card.halves[half])
+		var species: StringName = card.halves[half]
+		hooks = Hook.matching(Hook.collect(forest), &"place", {side = side, kind = Cards.SPECIES[species].kind})
+		forest.attach(plot, side, card, species)
 		log.append({t = &"attach", card = id, half = half, plot = plot, side = side})
 	_played = true
 	_apply(&"effect", id, def.effect, picks)
+	for h in hooks:
+		_apply(&"hook", h.card, h.give, picks)
 	if not paid.is_empty() and paid.all(func(c: Dictionary) -> bool: return c.sym == card.sym):
 		_apply(&"bonus", id, def.bonus, picks)
 	return true
@@ -90,7 +107,7 @@ func play(id: int, half: int, plot: int, pay: Array[int], picks: Array[int] = []
 
 func can_play(id: int, half: int, plot: int, pay: Array[int]) -> bool:
 	var i := find(id, hand)
-	if _played or _draws > 0 or i < 0 or half < 0 or half > 1:
+	if over or _played or _draws > 0 or i < 0 or half < 0 or half > 1:
 		return false
 	var card: Dictionary = hand[i]
 	if pay.size() != Cards.cost_of(card, half) or pay.has(id):
@@ -108,7 +125,7 @@ func can_play(id: int, half: int, plot: int, pay: Array[int]) -> bool:
 ## 아무 카드나 뒷면으로 묘목으로 심는다(비용·효과 없음).
 func sapling(id: int, plot: int) -> bool:
 	var i := find(id, hand)
-	if _played or _draws > 0 or i < 0 or not forest.is_free(plot):
+	if over or _played or _draws > 0 or i < 0 or not forest.is_free(plot):
 		return false
 	forest.plant(plot, hand.pop_at(i), Forest.SAPLING)
 	log.append({t = &"sapling", card = id, plot = plot})
@@ -146,20 +163,34 @@ func _apply(kind: StringName, id: int, what: Dictionary, picks: Array[int]) -> v
 		hand.append(c)
 		log.append({t = &"draw", card = c.id, from = &"clearing"})
 	for i in what.get("cave", 0):
-		if deck.is_empty():
+		var c := _take()
+		if c.is_empty():
 			break
-		var c: Dictionary = deck.pop_back()
 		forest.cave.append(c)
 		log.append({t = &"cave", card = c.id})
 
 
 func _draw_top(why: StringName) -> bool:
-	if deck.is_empty():
+	var c := _take()
+	if c.is_empty():
 		return false
-	var c: Dictionary = deck.pop_back()
 	hand.append(c)
 	log.append({t = &"draw", card = c.id, from = why})
 	return true
+
+
+## 덱 맨 위 카드 1장. 바람이면 바람 칸을 채우고 다음 장으로 넘어간다. 마지막 바람이면 계절 끝({}).
+func _take() -> Dictionary:
+	while not over and not deck.is_empty():
+		var c: Dictionary = deck.pop_back()
+		if not c.get("wind", false):
+			return c
+		winds_seen += 1
+		log.append({t = &"wind", n = winds_seen})
+		if winds_seen >= winds:
+			over = true
+			log.append({t = &"over"})
+	return {}
 
 
 func _shuffle(pile: Array[Dictionary]) -> void:
