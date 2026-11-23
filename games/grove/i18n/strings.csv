@@ -194,3 +194,34 @@ CODEX_FOUND,찾은 종 %d / %d,Found %d / %d
 CODEX_RECORDS,한 해 %d번 · 완주 %d번 · 최고 %d점,Years %d · Finished %d · Best %d
 CODEX_UNKNOWN,???,???
 CODEX_NEW,도감에 새로 열림: %s,New in the field guide: %s
+TITLE_ALBUM,앨범,Album
+SETUP_TITLE,숲지기 고르기,Choose a Keeper
+SETUP_START,이 숲지기로 시작,Start with this keeper
+SETUP_GRADE,"숲 등급 %d: %s","Forest grade %d: %s"
+KEEPER_GRANDMA,할머니 수첩,Grandma's Notebook
+KEEPER_BIRD_DOCTOR,새 박사,Bird Doctor
+KEEPER_MUSHROOM_GRANDPA,버섯 할아버지,Mushroom Grandpa
+KEEPER_BAT_KEEPER,박쥐 지기,Bat Warden
+KEEPER_BUTTERFLY_GIRL,나비 소녀,Butterfly Girl
+KEEPER_RANGER,산지기,Ranger
+KEEPER_POND_KEEPER,물가지기,Pond Keeper
+KEEPER_ACORN_MERCHANT,도토리 상인,Acorn Merchant
+KEEPER_PAIRS,이웃 카드 %d장 더,+%d neighbor cards
+KEEPER_ACORNS,도토리 %d개로 시작,Start with %d acorns
+KEEPER_SPIRIT,정령: %s,Spirit: %s
+KEEPER_PLAIN,처음 주머니 그대로,The original seed bag
+UNLOCK_RUNS,잠김 · 한 해를 %d번 해 보면,Locked · play %d year
+UNLOCK_FINISHED,잠김 · %d번 완주하면,Locked · finish %d years
+UNLOCK_FOUND,잠김 · 도감에서 %d종을 찾으면,Locked · find %d species
+GRADE_0,기본,Standard
+GRADE_1,목표 점수 ×1.1,Goals ×1.1
+GRADE_2,+ 빈터 한 칸 적게,+ clearing holds 1 fewer
+GRADE_3,+ 손패 한도 1 적게,+ hand limit 1 lower
+GRADE_4,+ 목표 점수 ×1.2,+ goals ×1.2
+GRADE_5,+ 도토리 ×0.75,+ acorns ×0.75
+GRADE_6,+ 겨울 바람 1장 적게,+ 1 fewer winter wind
+GRADE_7,+ 목표 점수 ×1.35,+ goals ×1.35
+GRADE_8,+ 도토리 ×0.5,+ acorns ×0.5
+ALBUM_TITLE,내 숲 앨범,My Forest Album
+ALBUM_EMPTY,"한 해를 끝내면 숲 사진이 여기 남아요","Finish a year to keep a photo of your forest here"
+ALBUM_ENTRY,%d점 · %s · 등급 %d,%d pts · %s · grade %d

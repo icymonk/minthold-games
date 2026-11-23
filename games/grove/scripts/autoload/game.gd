@@ -18,6 +18,8 @@ const SCREENS := {
 	&"cabin": preload("res://scenes/screens/cabin.tscn"),
 	&"run_end": preload("res://scenes/screens/run_end.tscn"),
 	&"codex": preload("res://scenes/screens/codex.tscn"),
+	&"setup": preload("res://scenes/screens/setup.tscn"),
+	&"album": preload("res://scenes/screens/album.tscn"),
 }
 const SEASON_KEYS: Array[String] = ["SEASON_SPRING", "SEASON_SUMMER", "SEASON_AUTUMN", "SEASON_WINTER"]
 ## 계절 목표 점수(기획서 2.2 초기값)
@@ -36,10 +38,16 @@ var records := Records.load_file()
 ## 테스트는 다른 곳에 남긴다
 var save_path := Save.PATH
 var records_path := Records.PATH
+var album_dir := "user://album"
+## 새 런에서 고른 숲지기·숲 등급(준비 화면)
+var keeper: StringName = &"grandma"
+var grade := 0
+## 런이 막 끝나서 앨범 사진을 찍을 차례
+var photo_pending := false
 
 
 func start_run(seed_value := -1) -> void:
-	run = Run.new(seed_value if seed_value >= 0 else randi())
+	run = Run.new(seed_value if seed_value >= 0 else randi(), keeper, grade)
 	Save.clear(save_path)
 	run.begin()
 	run_started.emit()
@@ -96,6 +104,7 @@ func after_season() -> void:
 	if run.lost or run.done:
 		records.note_run(run)
 		records.save(records_path)
+		photo_pending = true
 		Save.clear(save_path)
 		goto(&"run_end")
 	else:
@@ -129,3 +138,19 @@ func _set_season(i: int) -> void:
 	winds = 0
 	Sfx.ambience(i)
 	season_changed.emit(season)
+
+
+## 런 끝 숲 사진을 앨범에 남긴다(4-1)
+func save_photo(img: Image) -> void:
+	photo_pending = false
+	if run == null or img == null or img.is_empty():
+		return
+	DirAccess.make_dir_recursive_absolute(album_dir)
+	var file := "%s/%d_%d.png" % [album_dir, int(Time.get_unix_time_from_system()), records.album.size()]
+	if img.save_png(file) != OK:
+		return
+	var year := 0
+	for s in run.scores:
+		year += s.total
+	records.add_photo({file = file, year = year, keeper = run.keeper, grade = run.grade, finished = run.done and not run.lost, date = Time.get_date_string_from_system()})
+	records.save(records_path)
