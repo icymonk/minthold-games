@@ -68,3 +68,21 @@ func test_turn_keys_do_not_use_arrows() -> void:
 	key.pressed = true
 	key.keycode = KEY_E
 	assert_int(season._turn_dir(key)).is_equal(1)
+
+
+func test_cabin_land_and_rewards() -> void:
+	Game.start_run(5)
+	Game.run.events[0] = &"doves"
+	_grow(9)
+	Game.finish_season()
+	var plots := [0]
+	var on_plots := func(n: int) -> void: plots[0] = n
+	Game.plots_changed.connect(on_plots)
+	Game.run.acorns = 10
+	assert_bool(Game.buy({t = &"land"})).is_true()
+	assert_int(plots[0]).is_equal(11)
+	var spirit := Game.run.offers.map(func(o: Dictionary) -> StringName: return o.t).find(&"spirit")
+	assert_bool(Game.take_reward(spirit)).is_true()
+	assert_int(Game.run.spirits.size()).is_equal(1)
+	assert_int(Game.run.offers.size()).is_equal(0)
+	Game.plots_changed.disconnect(on_plots)

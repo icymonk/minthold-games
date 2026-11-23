@@ -48,7 +48,7 @@ CABIN_TITLE,숲지기 오두막,Keeper's Cabin
 CABIN_NEXT,다음 계절: %s,Next: %s
 RUN_END_WIN,보호림 지정!,Protected Forest!
 RUN_END_RETRY,한 해 더,One More Year
-SEASON_SCORE,점수 %d / 목표 %d,Score %d / Goal %d
+SEASON_SCORE,점수 %d / %d,Score %d / %d
 SEASON_CLEARING,빈터,Clearing
 SEASON_DECK,덱에서 가져오기 (%d),Draw from deck (%d)
 SEASON_TAKE,빈터에서 가져오기,Take from the clearing
@@ -84,3 +84,25 @@ EVENT_DEEP_COLD,혹한: 위 자리 이웃 점수 절반,Deep cold: top neighbors
 EVENT_BLIZZARD,폭설: 손패 7장,Blizzard: hand limit 7
 EVENT_LONG_NIGHT,긴 밤: 박쥐 ×2 · 나비 0점,Long night: bats ×2 · butterflies 0
 EVENT_FOOD_SHORTAGE,먹이 부족: 발바닥 짐승 점수 절반,Food shortage: pawed animals score half
+CABIN_PICK,보상 하나를 고르세요,Pick one reward
+CABIN_SHOP,도토리 가게,Acorn shop
+CABIN_PRICE,도토리 %d,%d acorns
+CABIN_SPIRITS,숲 정령 %d/%d: %s,Forest spirits %d/%d: %s
+CABIN_PAIR,새 이웃 카드 2장을 씨앗 주머니에,Add 2 new neighbor cards to your seed bag
+CABIN_REMOVE,카드 빼기,Remove cards
+CABIN_REMOVE_DESC,씨앗 주머니에서 카드 2장을 빼요,Remove 2 cards from your seed bag
+CABIN_REMOVE_PICK,뺄 카드 %d장을 고르세요,Pick %d cards to remove
+CABIN_REMOVE_OK,빼기,Remove
+CABIN_LAND,땅 넓히기,Expand land
+CABIN_LAND_DESC,섬 둘레에 땅 2칸이 떠올라요 (%d/%d칸),2 plots rise around the island (%d/%d)
+RUN_END_FOREST,나무 %d그루 · 이웃 %d마리,%d trees · %d neighbors
+SPIRIT_FIREFLY,반딧불 정령,Firefly Spirit
+SPIRIT_FIREFLY_DESC,나비·곤충이 5마리 이상이면 점수 배수 +0.5,5+ butterflies & insects: score multiplier +0.5
+SPIRIT_OLD_OWL,늙은 부엉이,Old Owl
+SPIRIT_OLD_OWL_DESC,숲의 새 종류마다 점수 배수 +0.1,+0.1 multiplier per bird species in the forest
+SPIRIT_WIND_CHILD,바람 아이,Wind Child
+SPIRIT_WIND_CHILD_DESC,첫 계절 바람이 뜨면 카드 2장 더 뽑기,Draw 2 extra cards when the first wind shows
+SPIRIT_HIBERNATING_BEAR,겨울잠 곰,Hibernating Bear
+SPIRIT_HIBERNATING_BEAR_DESC,겨울 사건을 무시해요,Ignore the winter event
+SPIRIT_ACORN_SQUIRREL,도토리 다람쥐,Acorn Squirrel
+SPIRIT_ACORN_SQUIRREL_DESC,굴의 카드 1장 = 2점,Each card in the cave scores 2
