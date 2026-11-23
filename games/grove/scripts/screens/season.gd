@@ -72,8 +72,6 @@ func _ready() -> void:
 		var ev := _glass(clear_row)
 		ev.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 		var ev_text := _label(ev, tr("EVENT_%s" % String(Game.run.events[Game.run.season_index]).to_upper()), 28, Style.SUNSET)
-		ev_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		ev_text.custom_minimum_size.x = 460
 	_spacer(col)
 	_pay_bar = _row(col)
 	_pay_ok = _button(_pay_bar, Art.ICON_NEXT, tr("SEASON_PAY_OK"), _confirm_pay, 280)
