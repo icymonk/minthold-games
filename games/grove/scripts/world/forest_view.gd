@@ -21,6 +21,7 @@ const WIDE_ZOOM := 1.32
 ## 둘레 섬이 열리는 순서(16자리): 마주 보는 쪽을 번갈아
 const RING_ORDER := [0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15]
 const TURN_TIME := 0.5
+const DRAG_DEG_PER_PX := 0.35
 ## 계절별 [풀, 하늘 위, 지평선]: 봄 연두 → 여름 초록 → 가을 단풍 → 겨울 눈
 const SEASONS := [
 	[Color("#7DB24A"), Color("#8DB8D6"), Color("#F7CF97")],
@@ -184,6 +185,46 @@ func set_mode(m: Mode) -> void:
 	mode = m
 	if mode == Mode.FIXED:
 		_tween_yaw(45.0 + turn_step * 90.0)
+
+
+## 마우스로 끌어 섬을 돌린다(dx: 끈 거리 px).
+func drag_yaw(dx: float) -> void:
+	if _yaw_tween:
+		_yaw_tween.kill()
+	_yaw -= dx * DRAG_DEG_PER_PX
+
+
+## 끌기가 끝나면 가장 가까운 90° 방향을 기억해 둔다(Q/E와 화면 전환이 그 방향에서 이어진다).
+func end_drag_yaw() -> void:
+	turn_step = posmod(roundi((_yaw - 45.0) / 90.0), 4)
+
+
+## 화면 위치 at에 가장 가까운 숲 카드: {plot, side} (side가 비면 나무). 없으면 {}
+func pick_at(at: Vector2, radius := 64.0) -> Dictionary:
+	var best := {}
+	var best_d := radius
+	for i in _trees.size():
+		var t := _trees[i]
+		if not t or not t.is_inside_tree():
+			continue
+		for side in ForestTree.SOCKETS:
+			if t.occupants(side).is_empty():
+				continue
+			var d := _screen_distance(t.socket(side).global_position, at)
+			if d < best_d:
+				best_d = d
+				best = {plot = i, side = side}
+		var trunk := _screen_distance(t.global_position + Vector3.UP * 1.0, at) + 12.0
+		if trunk < best_d:
+			best_d = trunk
+			best = {plot = i, side = &""}
+	return best
+
+
+func _screen_distance(p: Vector3, at: Vector2) -> float:
+	if _camera.is_position_behind(p):
+		return INF
+	return _camera.unproject_position(p).distance_to(at)
 
 
 ## dir: -1 왼쪽, +1 오른쪽으로 섬을 90° 돌려 본다.

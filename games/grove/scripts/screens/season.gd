@@ -25,6 +25,8 @@ var _sapling_mode := false
 var _pending := {}
 var _seen_log := 0
 var _busy := false
+var _inspected := {}
+var _inspect_card: CardDetail
 
 
 func _ready() -> void:
@@ -154,6 +156,9 @@ func start_coach() -> void:
 
 ## 화살표·십자키는 버튼 사이 이동에 쓰이니, 섬 돌리기는 Q/E·LB/RB로 한다.
 func _unhandled_input(event: InputEvent) -> void:
+	var mm := event as InputEventMouseMotion
+	if mm:
+		_inspect(get_global_mouse_position() if mm.button_mask == 0 else Vector2.INF)
 	var dir := _turn_dir(event)
 	if dir != 0:
 		Game.turn_requested.emit(dir)
@@ -476,3 +481,37 @@ func _pop(at: Vector2, text: String) -> void:
 	tw.tween_property(l, ^"global_position:y", l.global_position.y - 80, 0.9)
 	tw.tween_property(l, ^"modulate:a", 0.0, 0.9).set_delay(0.4)
 	tw.chain().tween_callback(l.queue_free)
+
+
+## 숲에 붙은 나무·이웃에 마우스를 올리면 그 카드의 상세 창(지금 점수 포함)을 띄운다.
+func _inspect(at: Vector2) -> void:
+	var hit := {}
+	if world and season and at != Vector2.INF and not (hand and (hand.dragging() or hand.picking())):
+		hit = world.pick_at(at)
+	if hit == _inspected:
+		if is_instance_valid(_inspect_card):
+			_inspect_card.place_near(Rect2(at - Vector2(40, 40), Vector2(80, 80)), get_viewport_rect().size)
+		return
+	_inspected = hit
+	if is_instance_valid(_inspect_card):
+		_inspect_card.queue_free()
+	_inspect_card = null
+	if hit.is_empty() or not season.forest.trees.has(hit.plot):
+		return
+	var tree_kind := season.forest.kind_at(hit.plot)
+	var kind := tree_kind
+	var card: Dictionary = season.forest.trees[hit.plot].get("card", {})
+	var where := ""
+	if hit.side != &"":
+		var here := season.forest.occupants(hit.plot, hit.side)
+		if here.is_empty():
+			return
+		kind = here[0].species
+		card = here[0].card
+		where = tr("CARD_ON_TREE") % [CardText.name_of(tree_kind), CardText.side_of(hit.side)]
+		if here.size() > 1:
+			where += " ×%d" % here.size()
+	var pts: int = _points_by_spot().get("%d/%s" % [hit.plot, hit.side], 0)
+	_inspect_card = CardDetail.for_kind(kind, pts, where, card)
+	add_child(_inspect_card)
+	_inspect_card.place_near(Rect2(at - Vector2(40, 40), Vector2(80, 80)), get_viewport_rect().size)

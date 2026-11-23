@@ -70,8 +70,9 @@ func _half_box(kind: StringName, r: Rect2, color: Color, portraits: Portrait) ->
 	var pic := TextureRect.new()
 	pic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	pic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	var wide := r.size.x > 150
 	pic.position = Vector2(4, 4)
-	pic.size = r.size - Vector2(8, 44)
+	pic.size = r.size - Vector2(8, 66 if wide else 44)
 	pic.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.add_child(pic)
 	if portraits:
@@ -82,15 +83,57 @@ func _half_box(kind: StringName, r: Rect2, color: Color, portraits: Portrait) ->
 	name_label.text = tr("KIND_%s" % String(kind).to_upper())
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.add_theme_font_override(&"font", Style.bold())
-	name_label.add_theme_font_size_override(&"font_size", 26 if r.size.x > 150 else 22)
+	name_label.add_theme_font_size_override(&"font_size", 22)
 	name_label.clip_text = true
 	name_label.add_theme_color_override(&"font_color", Style.FOREST)
 	name_label.add_theme_constant_override(&"shadow_offset_y", 0)
-	name_label.position = Vector2(0, r.size.y - 40)
-	name_label.size = Vector2(r.size.x, 36)
+	name_label.position = Vector2(0, r.size.y - (64 if wide else 38))
+	name_label.size = Vector2(r.size.x, 30)
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.add_child(name_label)
+	if wide:
+		var rule := Label.new()
+		rule.text = CardText.rule(kind)
+		rule.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		rule.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		rule.add_theme_font_size_override(&"font_size", 15)
+		rule.add_theme_color_override(&"font_color", Style.FOREST.lightened(0.15))
+		rule.add_theme_color_override(&"font_shadow_color", Color.TRANSPARENT)
+		rule.position = Vector2(4, r.size.y - 34)
+		rule.size = Vector2(r.size.x - 8, 28)
+		rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		box.add_child(rule)
+	box.add_child(_badge(str(CardText.def_of(kind).get("cost", 0)), Style.FOREST, Style.CREAM, Vector2(4, 4), 30))
+	var y := 4.0
+	for c in CardText.chips(kind):
+		var bg: Color = {effect = Style.SUNSET, bonus = GOLD, hook = Style.MOSS}[c.tone]
+		var chip := _badge(c.text, bg, Style.FOREST if c.tone == &"bonus" else Style.CREAM, Vector2.ZERO, 26)
+		chip.position = Vector2(r.size.x - chip.size.x - 4, y)
+		box.add_child(chip)
+		y += 30.0
 	return box
+
+
+## 둥근 표시(비용 숫자·효과 칩). 크기는 글 길이에 맞춘다.
+func _badge(text: String, bg: Color, fg: Color, at: Vector2, h: float) -> Panel:
+	var p := Panel.new()
+	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	p.add_theme_stylebox_override(&"panel", Style.box(bg, h / 2.0, Color(Style.CREAM, 0.9), 2))
+	var l := Label.new()
+	l.text = text
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	l.add_theme_font_override(&"font", Style.bold())
+	l.add_theme_font_size_override(&"font_size", int(h * 0.6))
+	l.add_theme_color_override(&"font_color", fg)
+	l.add_theme_color_override(&"font_shadow_color", Color.TRANSPARENT)
+	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var w := maxf(h, Style.bold().get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, int(h * 0.6)).x + 14.0)
+	p.size = Vector2(w, h)
+	p.position = at
+	l.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	p.add_child(l)
+	return p
 
 
 ## 쓸 반쪽을 밝히고 다른 반쪽은 어둡게

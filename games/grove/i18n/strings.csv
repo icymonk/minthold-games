@@ -356,3 +356,59 @@ TITLE_DAILY_BEST,오늘의 숲 · 최고 %d점,Today's Forest · best %d
 DAILY_TAG,오늘의 숲 %s,Today's Forest %s
 RUN_END_YEAR,%d년째 숲,Year %d
 RUN_END_NEXT_YEAR,%d년째로 계속,Go on to year %d
+GROUP_BIRD,새,birds
+GROUP_BAT,박쥐,bats
+GROUP_BUTTERFLY,나비,butterflies
+GROUP_INSECT,곤충,insects
+GROUP_MUSHROOM,버섯,mushrooms
+GROUP_FLOWER,꽃·풀,plants
+GROUP_PAW,발 동물,paw animals
+GROUP_AMPHIBIAN,물가 동물,amphibians
+GROUP_DEER,사슴,deer
+GROUP_HOOF,발굽 동물,hoofed animals
+GROUP_TREE,나무,tree
+SIDE_TOP,위,top
+SIDE_BOTTOM,아래,bottom
+SIDE_LEFT,왼쪽,left
+SIDE_RIGHT,오른쪽,right
+SIDE_SIDE,왼쪽·오른쪽,left/right
+GIVE_DRAW,덱에서 %d장,draw %d
+GIVE_PICK,빈터에서 %d장,take %d from the clearing
+GIVE_CAVE,굴에 %d장 넣기,tuck %d into the cave
+GIVE_DRAW_S,덱+%d,Draw %d
+GIVE_PICK_S,빈터+%d,Pick %d
+GIVE_CAVE_S,굴+%d,Cave %d
+HOOK_PLACE,숲에 있는 동안: 나무 %s 자리에 낼 때마다 %s,While in the forest: each card played on a %s side gives %s
+HOOK_PLANT,숲에 있는 동안: 나무를 심을 때마다 %s,While in the forest: each tree planted gives %s
+RULE_FLAT,%d점,%d pts
+RULE_PER,%s 하나마다 %d점,each of %s: %d pts
+RULE_PER_HERE,이 나무의 이웃 하나마다 %d점,%d pts per neighbor on this tree
+RULE_PER_SIDE,%s 자리 이웃 하나마다 %d점,each %s neighbor: %d pts
+RULE_DISTINCT_KIND,서로 다른 %s 종마다 %d점,each different %s: %d pts
+RULE_FULL,4방향이 다 찬 나무마다 %d점,%d pts per tree with all 4 sides full
+RULE_TREE_KINDS,나무가 %d종 이상이면 %d점,%d+ tree kinds: %d pts
+RULE_LATE,"가을·겨울 %d점, 봄·여름 %d점","%d pts in autumn/winter, %d in spring/summer"
+RULE_SET,같은 종 수에 따라 %s점,By count of this species: %s pts
+RULE_SPREAD,붙은 나무 종류 수에 따라 %s점,By kinds of trees it is on: %s pts
+RULE_MOST,"숲에서 가장 많은 나무면 %d점, 아니면 %d점","%d pts if most common tree, else %d"
+RULE_AT_LEAST,"같은 종 %d장 이상이면 장마다 %d점, 아니면 %d점","%d+ of this: %d pts each, else %d"
+RULE_SAME_TREE,"같은 나무에 %s 있으면 %d점, 아니면 %d점","%s on the same tree: %d pts, else %d"
+RULE_ON,"%s에 붙으면 %d점, 아니면 %d점","on %s: %d pts, else %d"
+RULE_KIND_SET,서로 다른 %s 종 수에 따라 %s점,By different %s: %s pts
+RULE_DISTINCT_AT_LEAST,"서로 다른 %s %d종 이상이면 마리마다 %d점, 아니면 %d점","different %s %d+: %d pts each, else %d"
+RULE_PER_TREE,나무 한 그루마다 %d점,%d pts per tree
+RULE_KINDS_OF_TREES,나무 종류마다 %d점,%d pts per tree kind
+RULE_PER_CAVE,굴 카드 한 장마다 %d점,%d pts per card in the cave
+CARD_COST,비용 %d,Cost %d
+CARD_EFFECT,효과,Effect
+CARD_BONUS,보너스 (같은 색 카드로 비용을 내면),Bonus (pay with same-color cards)
+CARD_SCORE,점수,Score
+CARD_NONE,없음,none
+CARD_COLOR,카드 색: %s,Card color: %s
+CARD_ANY_COLOR,금빛 잎: 어느 나무 색으로도 셈,Golden leaf: counts as any color
+CARD_DEW,이슬: 점수 +%d,Dew: +%d pts
+CARD_STACK,한 자리에 같은 종이 여럿 겹쳐 붙어요,Stacks with the same species on one side
+CARD_NOW,지금 %d점,Now %d pts
+CARD_HALF_USE,카드를 든 채 오른쪽 클릭·휠·Tab으로 반쪽 바꾸기,"Right-click, wheel or Tab while holding to switch half"
+CARD_SAPLING,묘목: 이웃이 붙을 수 있는 작은 나무,Sapling: a small tree neighbors can join
+CARD_ON_TREE,%s의 %s 자리,"%s tree, %s side"
