@@ -25,6 +25,10 @@ var _drag: CardView
 var _float: CardView
 var _targets: Array[Dictionary] = []
 var _target := {}
+var _detail: CardDetail
+var _detail_of: CardView
+var _press_at := Vector2.ZERO
+const DETAIL_DELAY := 0.35
 
 
 func _ready() -> void:
@@ -71,6 +75,32 @@ func _hover(v: CardView, on: bool) -> void:
 		return
 	v.z_index = 1 if on else 0
 	v.create_tween().tween_property(v, ^"scale", Vector2.ONE * (1.08 if on else 1.0), 0.12)
+	if not on:
+		hide_detail(v)
+		return
+	get_tree().create_timer(DETAIL_DELAY).timeout.connect(func() -> void:
+		if is_instance_valid(v) and v in cards and not _drag and v.get_global_rect().has_point(get_global_mouse_position()):
+			show_detail(v))
+
+
+## 카드 상세 창(크게 + 비용·효과·보너스·점수 글)
+func show_detail(v: CardView) -> void:
+	if _detail_of == v and is_instance_valid(_detail):
+		return
+	hide_detail()
+	_detail_of = v
+	_detail = CardDetail.for_card(v.card, portraits, v.half)
+	add_child(_detail)
+	_detail.place_near(v.get_global_rect(), get_viewport_rect().size)
+
+
+func hide_detail(only: CardView = null) -> void:
+	if only and only != _detail_of:
+		return
+	if is_instance_valid(_detail):
+		_detail.queue_free()
+	_detail = null
+	_detail_of = null
 
 
 func _on_card_input(event: InputEvent, v: CardView) -> void:
@@ -79,7 +109,9 @@ func _on_card_input(event: InputEvent, v: CardView) -> void:
 		if not _pick.is_empty():
 			_toggle_pick(v)
 		else:
-			begin_drag(v, v.half_at(mb.position))
+			_press_at = get_global_mouse_position()
+			if not begin_drag(v, v.half_at(mb.position)):
+				show_detail(v)
 		accept_event()
 
 
@@ -116,6 +148,7 @@ func begin_drag(v: CardView, half := 0) -> bool:
 		v.shake()
 		return false
 	Sfx.play(&"click")
+	hide_detail()
 	_drag = v
 	v.scale = Vector2.ONE
 	v.modulate.a = 0.25
@@ -189,6 +222,8 @@ func end_drag() -> void:
 		_layout()
 	else:
 		world.clear_targets()
+		if get_global_mouse_position().distance_to(_press_at) < 12.0:
+			show_detail(v)
 		var tw := f.create_tween().set_parallel().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 		tw.tween_property(f, ^"global_position", v.global_position, 0.2)
 		tw.tween_property(f, ^"scale", Vector2.ONE, 0.2)
