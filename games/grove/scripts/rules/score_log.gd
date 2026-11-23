@@ -5,17 +5,28 @@ extends RefCounted
 
 var lines: Array[Dictionary] = []
 var cave := 0
+## 나무·이웃 점수 합 + 굴
+var base := 0
+## 숲 정령 배수(Run이 마지막에 곱한다)
+var mult := 1.0
 var total := 0
 
 
 func add(line: Dictionary) -> void:
 	lines.append(line)
-	total += line.pts
+	base += line.pts
+	total = base
 
 
-func add_cave(n: int) -> void:
-	cave = n
-	total += n
+func add_cave(n: int, each := 1) -> void:
+	cave = n * each
+	base += cave
+	total = base
+
+
+func apply(m: float) -> void:
+	mult = m
+	total = int(base * m)
 
 
 ## 종(나무 종 또는 이웃 종)별 합

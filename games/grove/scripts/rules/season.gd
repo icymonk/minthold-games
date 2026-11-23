@@ -21,6 +21,11 @@ var forest: Forest
 var log: Array[Dictionary] = []
 var winds := WINDS
 var winds_seen := 0
+## 계절 사건·정령이 바꾸는 값
+var hand_limit := HAND_LIMIT
+var clearing_limit := CLEARING_LIMIT
+## 첫 바람이 뜰 때 더 뽑는 장수(바람 아이)
+var wind_bonus := 0
 ## 마지막 바람이 떠서 계절이 끝났다. 이후 모든 행동은 거절된다.
 var over := false
 var _rng := RandomNumberGenerator.new()
@@ -51,7 +56,7 @@ func find(id: int, pile: Array[Dictionary]) -> int:
 
 ## A) 1장 가져오기. from = -1이면 덱 맨 위, 아니면 빈터의 그 카드 id.
 func draw(from: int = -1) -> bool:
-	if over or _played or _draws >= DRAWS_PER_TURN or hand.size() >= HAND_LIMIT:
+	if over or _played or _draws >= DRAWS_PER_TURN or hand.size() >= hand_limit:
 		return false
 	if from < 0:
 		if not _draw_top(&"deck"):
@@ -135,7 +140,7 @@ func sapling(id: int, plot: int) -> bool:
 
 ## 차례 끝: 빈터가 넘치면 바람이 쓸어 간다.
 func end_turn() -> void:
-	if clearing.size() >= CLEARING_LIMIT:
+	if clearing.size() >= clearing_limit:
 		log.append({t = &"sweep", count = clearing.size()})
 		discard.append_array(clearing)
 		clearing.clear()
@@ -148,10 +153,10 @@ func _apply(kind: StringName, id: int, what: Dictionary, picks: Array[int]) -> v
 		return
 	log.append({t = kind, card = id, what = what})
 	for i in what.get("draw", 0):
-		if hand.size() >= HAND_LIMIT or not _draw_top(kind):
+		if hand.size() >= hand_limit or not _draw_top(kind):
 			break
 	for i in what.get("pick", 0):
-		if hand.size() >= HAND_LIMIT or clearing.is_empty():
+		if hand.size() >= hand_limit or clearing.is_empty():
 			break
 		var at := -1
 		for p in picks:
@@ -190,6 +195,15 @@ func _take() -> Dictionary:
 		if winds_seen >= winds:
 			over = true
 			log.append({t = &"over"})
+		elif winds_seen == 1:
+			for k in wind_bonus:
+				var extra := _take()
+				if extra.is_empty() or hand.size() >= hand_limit:
+					if not extra.is_empty():
+						clearing.append(extra)
+					break
+				hand.append(extra)
+				log.append({t = &"draw", card = extra.id, from = &"wind"})
 	return {}
 
 

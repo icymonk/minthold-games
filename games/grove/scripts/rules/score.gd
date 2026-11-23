@@ -1,6 +1,7 @@
 class_name Score
 extends RefCounted
-## 계절 끝 점수(규칙 1-2): 숲 전체 나무·이웃 점수 + 굴 1장당 1. 정령 배수는 1-3(Run)에서.
+## 계절 끝 점수(규칙 1-2): 숲 전체 나무·이웃 점수 + 굴 1장당 1. 정령 배수는 Run이 곱한다.
+## mods(계절 사건·정령): {score = [{side?, kind?, x}], cave = 굴 1장 점수}. 이웃 줄마다 맞는 x를 곱한다(내림).
 ## 규칙 말(Cards.TREES/SPECIES의 score):
 ##   flat = n                     그냥 n
 ##   per_here = n                 이 나무에 붙은 이웃 1마리마다 n
@@ -21,7 +22,7 @@ extends RefCounted
 const LATE_FROM := 2
 
 
-static func count(forest: Forest, season := 0) -> ScoreLog:
+static func count(forest: Forest, season := 0, mods := {}) -> ScoreLog:
 	var log := ScoreLog.new()
 	var c := _census(forest)
 	var once := {}
@@ -35,8 +36,11 @@ static func count(forest: Forest, season := 0) -> ScoreLog:
 	for n in forest.neighbors():
 		var rule: Dictionary = Cards.SPECIES[n.species].score
 		var pts := _eval(rule, n.species, c.species, n.plot, forest, c, season, once)
+		for m: Dictionary in mods.get("score", []):
+			if m.get("side", n.side) == n.side and m.get("kind", Cards.SPECIES[n.species].kind) == Cards.SPECIES[n.species].kind:
+				pts = int(pts * m.x)
 		log.add({card = n.card.id, plot = n.plot, side = n.side, what = n.species, pts = pts, rule = rule.keys()[0]})
-	log.add_cave(forest.cave.size())
+	log.add_cave(forest.cave.size(), mods.get("cave", 1))
 	return log
 
 
