@@ -1,5 +1,5 @@
 extends GdUnitTestSuite
-## 규칙 1-1: 카드 데이터·숲·계절(가져오기·내기·비용·반쪽·효과→보너스·빈터 쓸림)
+## 규칙 1-1: 카드 데이터·숲·계절(가져오기·내기·비용·반쪽·효과→보너스·공터 쓸림)
 
 
 func _season(seed_value := 3) -> Season:
@@ -159,7 +159,7 @@ func test_effect_cave_and_pick() -> void:
 	assert_bool(s.play(mole.id, 1, 0, pay)).is_true()
 	assert_int(s.forest.cave.size()).is_equal(2)
 	s.end_turn()
-	# 마멋(효과: 빈터에서 1장 줍기) — 고른 카드를 줍는다
+	# 마멋(효과: 공터에서 1장 줍기) — 고른 카드를 줍는다
 	var marmot := _give(s, func(c: Dictionary) -> bool: return c.get("halves", []) == [&"fox", &"marmot"])
 	var want: int = s.clearing[0].id
 	assert_bool(s.play(marmot.id, 1, 0, [s.hand.filter(func(c: Dictionary) -> bool: return c.id != marmot.id)[0].id], [want])).is_true()

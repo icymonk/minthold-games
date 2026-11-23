@@ -1,11 +1,11 @@
 class_name Run
 extends RefCounted
-## 한 해(규칙 1-3): 봄→여름→가을→겨울. 숲·씨앗 주머니·정령·도토리는 계절 사이에 남는다.
-## begin() → Season을 끝까지 → finish()(점수·목표·도토리·보상 3장) → take()/buy() → begin() ...
+## 한 해(규칙 1-3): 봄→여름→가을→겨울. 숲·씨앗 주머니·정령·솔방울는 계절 사이에 남는다.
+## begin() → Season을 끝까지 → finish()(점수·목표·솔방울·보상 3장) → take()/buy() → begin() ...
 ## 계절 덱은 매번 씨앗 주머니 전체를 섞어 만든다(숲에 심은 카드도 씨앗으로 다시 돌아온다).
 
 const TARGETS := [35, 150, 400, 800]
-## 도토리 = 목표 넘긴 점수 / OVER_PER_ACORN + 남은 덱 / DECK_PER_ACORN (4-3에서 조정)
+## 솔방울 = 목표 넘긴 점수 / OVER_PER_ACORN + 남은 덱 / DECK_PER_ACORN (4-3에서 조정)
 const OVER_PER_ACORN := 10
 const DECK_PER_ACORN := 4
 ## 끝없는 해(4-2): 한 해 지날 때마다 목표 +75%
@@ -67,7 +67,7 @@ func target_of(i: int) -> int:
 	return int(round(TARGETS[i] * Keepers.grade_mods(grade).target * (1.0 + YEAR_STEP * year) / 5.0)) * 5
 
 
-## 겨울을 넘긴 숲으로 다음 해 봄을 시작한다. 숲·주머니·정령·도토리는 그대로.
+## 겨울을 넘긴 숲으로 다음 해 봄을 시작한다. 숲·주머니·정령·솔방울는 그대로.
 func next_year() -> bool:
 	if not done or lost:
 		return false
@@ -126,7 +126,7 @@ func begin() -> Season:
 	return season
 
 
-## 계절 끝: 점수를 세고 목표와 비교한다. 넘으면 도토리와 보상 3장, 아니면 런 끝.
+## 계절 끝: 점수를 세고 목표와 비교한다. 넘으면 솔방울와 보상 3장, 아니면 런 끝.
 func finish() -> ScoreLog:
 	var e := event()
 	if e.get("cut_bare", false):
@@ -159,7 +159,7 @@ func take(i: int, ids: Array[int] = []) -> bool:
 	return true
 
 
-## 도토리 가게: {t = pair|spirit|remove|land|deco, ...}. deco는 꾸밀 카드 id 하나를 ids로.
+## 솔방울 가게: {t = pair|spirit|remove|land|deco, ...}. deco는 꾸밀 카드 id 하나를 ids로.
 func buy(item: Dictionary, ids: Array[int] = []) -> bool:
 	var price: int = Reward.PRICES[item.t]
 	if acorns < price:

@@ -21,7 +21,7 @@ static func side_of(side: StringName) -> String:
 	return _t("SIDE_%s" % String(side).to_upper())
 
 
-## {draw = 1, pick = 1} → "덱에서 1장, 빈터에서 1장" (short: "덱+1 빈터+1")
+## {draw = 1, pick = 1} → "덱에서 1장, 공터에서 1장" (short: "덱+1 공터+1")
 static func gives(give: Dictionary, short := false) -> String:
 	var parts: Array[String] = []
 	for k in GIVES:

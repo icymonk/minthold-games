@@ -2,7 +2,7 @@ class_name Cards
 extends RefCounted
 ## 카드 데이터(규칙 1-1). 나무 카드 {id, tree, sym}, 이웃 카드 {id, halves = [a, b], axis, sym}.
 ## axis v는 위/아래 반쪽, h는 왼/오른 반쪽. sym은 카드 귀퉁이의 나무 색(보너스 조건).
-## 효과·보너스 말: draw(덱에서 뽑기), pick(빈터에서 줍기), cave(덱 맨 위를 굴에 넣기).
+## 효과·보너스 말: draw(덱에서 뽑기), pick(공터에서 줍기), cave(덱 맨 위를 굴에 넣기).
 ## 점수 규칙 말은 Score에 적혀 있다.
 
 const SIDES := {&"v": [&"Top", &"Bottom"], &"h": [&"Left", &"Right"]}
