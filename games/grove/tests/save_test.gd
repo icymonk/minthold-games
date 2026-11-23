@@ -14,8 +14,8 @@ func _passed_spring(seed_value: int) -> Run:
 	var run := Run.new(seed_value)
 	run.begin()
 	for p in 9:
-		run.forest.plant(p, {id = 1000 + p, sym = &""}, &"fir")
-	run.forest.attach(0, &"Top", {id = 2000}, &"eagle")
+		run.forest.plant(p, {id = 1000 + p, sym = &""}, &"pine")
+	run.forest.attach(0, &"Top", {id = 2000}, &"goshawk")
 	run.finish()
 	return run
 
@@ -31,7 +31,7 @@ func test_round_trip_keeps_run_and_rng() -> void:
 	assert_int(back.acorns).is_equal(run.acorns)
 	assert_int(back.bag.size()).is_equal(run.bag.size())
 	assert_int(back.forest.trees.size()).is_equal(9)
-	assert_str(String(back.forest.occupants(0, &"Top")[0].species)).is_equal("eagle")
+	assert_str(String(back.forest.occupants(0, &"Top")[0].species)).is_equal("goshawk")
 	assert_array(back.spirits).is_equal(run.spirits)
 	assert_int(back.scores[0].total).is_equal(run.scores[0].total)
 	assert_int(back.offers.size()).is_equal(run.offers.size())
@@ -54,7 +54,7 @@ func test_records_track_seasons_runs_and_codex() -> void:
 	var r := Records.new()
 	var run := _passed_spring(12)
 	var fresh := r.note_season(0, run.scores[0], run.forest)
-	assert_array(fresh).contains([&"fir", &"eagle"])
+	assert_array(fresh).contains([&"pine", &"goshawk"])
 	assert_array(r.note_season(0, run.scores[0], run.forest)).is_empty()
 	assert_int(r.found()).is_equal(2)
 	assert_int(r.best_season[0]).is_equal(run.scores[0].total)
@@ -65,8 +65,8 @@ func test_records_track_seasons_runs_and_codex() -> void:
 	assert_int(back.runs).is_equal(1)
 	assert_int(back.finished).is_equal(0)
 	assert_int(back.best_year).is_equal(run.scores[0].total)
-	assert_int(back.seen[&"eagle"]).is_equal(2)
-	assert_int(Records.all_kinds().size()).is_equal(Cards.TREES.size() + 90)
+	assert_int(back.seen[&"goshawk"]).is_equal(2)
+	assert_int(Records.all_kinds().size()).is_equal(Cards.TREES.size() + 49)
 
 
 func test_keepers_change_bag_spirit_and_unlock() -> void:
@@ -78,10 +78,9 @@ func test_keepers_change_bag_spirit_and_unlock() -> void:
 	assert_array(bird.spirits).is_empty()
 	assert_int(Run.new(3, &"acorn_merchant").acorns).is_equal(8)
 	for id: StringName in Keepers.ALL:
-		for p in Keepers.ALL[id].pairs:
-			assert_bool(Cards.SPECIES.has(p[0]) and Cards.SPECIES.has(p[1])).is_true()
-			var card := Cards.pair(0, p[0], p[1], p[2], p[3])
-			assert_bool(Cards.fits(p[0], Cards.side_of(card, 0)) and Cards.fits(p[1], Cards.side_of(card, 1))).override_failure_message(String(p[0])).is_true()
+		for p: int in Keepers.ALL[id].pairs:
+			var card := Cards.full_pair(0, p)
+			assert_bool(Cards.fits(card.halves[0], Cards.side_of(card, 0)) and Cards.fits(card.halves[1], Cards.side_of(card, 1))).override_failure_message(str(p)).is_true()
 		var s: StringName = Keepers.ALL[id].spirit
 		assert_bool(s == &"" or Spirits.ALL.has(s)).is_true()
 	var r := Records.new()
@@ -157,7 +156,7 @@ func test_daily_forest_is_same_for_the_day() -> void:
 
 
 func test_content_counts_and_models() -> void:
-	assert_int(Cards.SPECIES.size()).is_equal(90)
+	assert_int(Cards.SPECIES.size()).is_equal(49)
 	assert_int(Spirits.ALL.size()).is_equal(60)
 	for s in Events.BY_SEASON:
 		assert_int(s.size()).is_equal(8)

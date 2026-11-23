@@ -4,7 +4,7 @@ extends RefCounted
 ## 계절 한가운데는 남기지 않는다. 이어 하면 오두막에서 다시 시작한다.
 
 const PATH := "user://run.save"
-const VERSION := 1
+const VERSION := 2
 
 
 static func to_dict(run: Run) -> Dictionary:

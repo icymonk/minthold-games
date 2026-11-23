@@ -5,12 +5,12 @@ extends RefCounted
 
 const ALL := {
 	&"grandma": {pairs = [], spirit = &"", acorns = 0, unlock = {}},
-	&"bird_doctor": {pairs = [[&"eagle", &"duck", &"v", &"oak"], [&"woodpecker", &"field_mouse", &"v", &"beech"], [&"jay", &"violet", &"v", &"oak"]], spirit = &"old_owl", acorns = 0, unlock = {runs = 1}},
-	&"mushroom_grandpa": {pairs = [[&"owl", &"chanterelle", &"v", &"birch"], [&"finch", &"fly_agaric", &"v", &"fir"], [&"bat", &"chanterelle", &"v", &"pine"]], spirit = &"mushroom_sage", acorns = 0, unlock = {found = 12}},
-	&"bat_keeper": {pairs = [[&"long_eared_bat", &"fern", &"v", &"fir"], [&"horseshoe_bat", &"mole", &"v", &"pine"], [&"bat", &"fern", &"v", &"linden"]], spirit = &"bat_lantern", acorns = 0, unlock = {finished = 1}},
-	&"butterfly_girl": {pairs = [[&"swallowtail", &"violet", &"v", &"maple"], [&"morpho", &"flower", &"v", &"linden"], [&"peacock_butterfly", &"bee", &"v", &"chestnut"], [&"cabbage_white", &"violet", &"v", &"birch"]], spirit = &"moth_queen", acorns = 0, unlock = {found = 20}},
-	&"ranger": {pairs = [[&"roe_deer", &"red_deer", &"h", &"oak"], [&"wolf", &"badger", &"h", &"fir"], [&"goat", &"roe_deer", &"h", &"pine"]], spirit = &"stag_king", acorns = 0, unlock = {finished = 2}},
-	&"pond_keeper": {pairs = [[&"finch", &"newt", &"v", &"birch"], [&"owl", &"fire_salamander", &"v", &"beech"], [&"otter", &"crested_ibis", &"h", &"linden"]], spirit = &"frog_choir", acorns = 0, unlock = {found = 30}},
+	&"bird_doctor": {pairs = [45, 47, 44], spirit = &"old_owl", acorns = 0, unlock = {runs = 1}},
+	&"mushroom_grandpa": {pairs = [69, 74, 75], spirit = &"mushroom_sage", acorns = 0, unlock = {found = 12}},
+	&"bat_keeper": {pairs = [1, 8, 26], spirit = &"bat_lantern", acorns = 0, unlock = {finished = 1}},
+	&"butterfly_girl": {pairs = [48, 49, 50, 63], spirit = &"moth_queen", acorns = 0, unlock = {found = 20}},
+	&"ranger": {pairs = [19, 20, 24], spirit = &"stag_king", acorns = 0, unlock = {finished = 2}},
+	&"pond_keeper": {pairs = [52, 55, 51], spirit = &"frog_choir", acorns = 0, unlock = {found = 30}},
 	&"acorn_merchant": {pairs = [], spirit = &"acorn_squirrel", acorns = 8, unlock = {finished = 3}},
 }
 

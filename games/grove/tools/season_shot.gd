@@ -85,7 +85,7 @@ func _grow() -> void:
 		s.forest.plant(p, Cards.tree(id, kind), kind)
 		w.place({plot = p, side = &""}, kind)
 		id += 1
-	for put in [[0, &"Top", &"owl"], [1, &"Bottom", &"flower"], [2, &"Left", &"fox"], [3, &"Right", &"hare"], [3, &"Top", &"butterfly"], [5, &"Bottom", &"bee"]]:
+	for put in [[0, &"Top", &"tawny_owl"], [1, &"Bottom", &"moss"], [2, &"Left", &"fox"], [3, &"Right", &"hare"], [3, &"Top", &"peacock_butterfly"], [5, &"Bottom", &"wood_ant"]]:
 		if s.forest.attach(put[0], put[1], {id = id, sym = &""}, put[2]):
 			w.place({plot = put[0], side = put[1]}, put[2])
 		id += 1

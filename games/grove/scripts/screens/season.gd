@@ -3,7 +3,7 @@ extends ScreenBase
 ## 차례 = 덱/공터에서 2장 가져오기 또는 카드 1장 내기(끌어 놓기 → 비용 고르기 → 숲에 붙음).
 ## 마지막 바람이 뜨면 계절 끝 점수 연출(6.6) 후 오두막 또는 런 끝으로 간다.
 
-const MINI := 0.5
+const MINI := 0.44
 const LINE_TIME := 0.09
 
 var hand: Hand
@@ -17,6 +17,9 @@ var _hint: Label
 var _deck: Button
 var _sapling: Button
 var _clearing: HBoxContainer
+var _more_bar: HBoxContainer
+var _clearing_detail: CardDetail
+var _stashing := false
 var _pay_bar: HBoxContainer
 var _pay_ok: Button
 var _gain: Label
@@ -90,6 +93,9 @@ func _ready() -> void:
 	_pay_ok.theme_type_variation = &"AccentButton"
 	_button(_pay_bar, null, tr("SEASON_CANCEL"), _cancel_pay, 220)
 	_pay_bar.visible = false
+	_more_bar = _row(col)
+	_button(_more_bar, Art.ICON_NEXT, tr("SEASON_MORE_DONE"), _done_more, 320)
+	_more_bar.visible = false
 	_hint = _label(col, "", 30, Color(Style.CREAM, 0.95))
 	_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_hint.custom_minimum_size.x = 600
@@ -180,17 +186,17 @@ static func _turn_dir(event: InputEvent) -> int:
 
 ## 지금 카드를 낼 수 있는 자리: 규칙(Forest)에 묻는다
 func _targets(card: Dictionary, half: int) -> Array[Dictionary]:
-	if _busy or season.over or season.draws() > 0 or hand.picking():
+	if _busy or season.over or season.draws() > 0 or hand.picking() or not season.allows(card, half):
 		return []
 	var out: Array[Dictionary] = []
 	if _sapling_mode or Cards.is_tree(card):
-		if not _sapling_mode and Cards.cost_of(card, half) > season.hand.size() - 1:
+		if not _sapling_mode and season.cost_now(card, half) > season.hand.size() - 1:
 			return out
 		for p in season.forest.free_plots():
 			if p < ForestView.MAX_PLOTS:
 				out.append({plot = p, side = &""})
 		return out
-	if Cards.cost_of(card, half) > season.hand.size() - 1:
+	if season.cost_now(card, half) > season.hand.size() - 1:
 		return out
 	return season.forest.targets(card.halves[half], Cards.side_of(card, half))
 
@@ -203,7 +209,7 @@ func _on_drop(v: CardView, half: int, target: Dictionary) -> void:
 			_set_sapling(false)
 			_after_action()
 		return
-	var cost := Cards.cost_of(card, half)
+	var cost := season.cost_now(card, half)
 	if cost == 0:
 		_commit(card, half, target, [])
 		return
@@ -211,12 +217,19 @@ func _on_drop(v: CardView, half: int, target: Dictionary) -> void:
 	world.preview(target, Cards.kind_of(card, half))
 	_pay_bar.visible = true
 	_pay_ok.disabled = true
-	hand.pick(cost, card.id, Bot._cheapest(season.hand, card.id, cost, card.sym), func(ids: Array[int]) -> void:
+	hand.pick(cost, card.id, Bot._cheapest(season.hand, card.id, cost, Cards.sym_of(card, half)), func(ids: Array[int]) -> void:
 		_pay_ok.disabled = ids.size() != cost)
 	_refresh()
 
 
 func _confirm_pay() -> void:
+	if _stashing:
+		var picked := hand.picked().duplicate()
+		_stashing = false
+		_close_pay()
+		season.stash(picked)
+		_continue_turn()
+		return
 	if _pending.is_empty() or hand.picked().size() != _pending.cost:
 		return
 	var p := _pending
@@ -226,6 +239,12 @@ func _confirm_pay() -> void:
 
 
 func _cancel_pay() -> void:
+	if _stashing:
+		_stashing = false
+		_close_pay()
+		season.stash([])
+		_continue_turn()
+		return
 	if _pending.is_empty():
 		return
 	world.clear_targets()
@@ -249,6 +268,30 @@ func _commit(card: Dictionary, half: int, target: Dictionary, pay: Array[int]) -
 		return
 	world.place(target, Cards.kind_of(card, half))
 	_cheer(before, target)
+	_continue_turn()
+
+
+## 낸 뒤: 라쿤이면 굴에 넣을 손패를 고르고, 공짜·두더지 기회가 남았으면 더 내게 하고, 아니면 차례 끝
+func _continue_turn() -> void:
+	_play_log()
+	hand.sync(season.hand)
+	if season.wants_stash():
+		_stashing = true
+		_pay_bar.visible = true
+		_pay_ok.disabled = false
+		hand.pick(season.hand.size(), -1, [] as Array[int], Callable())
+		_refresh()
+	elif season.can_play_more():
+		_more_bar.visible = true
+		_refresh()
+	else:
+		_more_bar.visible = false
+		_after_action()
+
+
+func _done_more() -> void:
+	season.skip()
+	_more_bar.visible = false
 	_after_action()
 
 
@@ -361,15 +404,24 @@ func _refresh() -> void:
 	var undeck := season.deck.size() - (season.winds - season.winds_seen)
 	_deck.text = tr("SEASON_DECK") % maxi(undeck, 0)
 	_deck.disabled = _busy or not season.can_draw() or hand.picking()
-	_sapling.disabled = _busy or season.draws() > 0 or season.forest.free_plots().is_empty() or hand.picking()
+	_sapling.disabled = _busy or season.can_play_more() or season.draws() > 0 or season.forest.free_plots().is_empty() or hand.picking()
 	for c in _clearing.get_children():
 		c.queue_free()
+	if is_instance_valid(_clearing_detail):
+		_clearing_detail.queue_free()
 	for c in season.clearing:
 		_clearing.add_child(_mini_card(c))
 	if season.over:
 		_hint.text = ""
+	elif _stashing:
+		_hint.text = tr("SEASON_STASH")
 	elif hand.picking():
 		_hint.text = tr("SEASON_PAY") % _pending.cost
+	elif season.can_play_more():
+		var parts: Array[String] = []
+		for e in season.pending:
+			parts.append(tr("SEASON_FREE") % CardText.group_of(e.tag) if e.t == &"free" else tr("SEASON_MORE"))
+		_hint.text = " · ".join(parts)
 	elif _sapling_mode:
 		_hint.text = tr("SEASON_SAPLING_HINT")
 	elif season.draws() > 0:
@@ -383,7 +435,6 @@ func _mini_card(c: Dictionary) -> Control:
 	box.flat = true
 	box.custom_minimum_size = CardView.CARD * MINI
 	box.focus_mode = Control.FOCUS_ALL
-	box.tooltip_text = tr("SEASON_TAKE")
 	var v := CardView.make(c, hand.portraits if hand else null)
 	v.scale = Vector2.ONE * MINI
 	v.pivot_offset = Vector2.ZERO
@@ -391,7 +442,23 @@ func _mini_card(c: Dictionary) -> Control:
 	box.add_child(v)
 	box.disabled = _busy or not season.can_draw() or hand.picking()
 	box.pressed.connect(_take_card.bind(c.id))
+	box.mouse_entered.connect(func() -> void:
+		get_tree().create_timer(Hand.DETAIL_DELAY).timeout.connect(func() -> void:
+			if is_instance_valid(box) and box.get_global_rect().has_point(get_global_mouse_position()):
+				_show_clearing_detail(box, c)))
+	box.mouse_exited.connect(func() -> void:
+		if is_instance_valid(_clearing_detail):
+			_clearing_detail.queue_free())
 	return box
+
+
+## 공터 카드 상세: 마우스를 잠깐 올리면 아래로 크게 펼친다
+func _show_clearing_detail(box: Control, c: Dictionary) -> void:
+	if is_instance_valid(_clearing_detail):
+		_clearing_detail.queue_free()
+	_clearing_detail = CardDetail.for_card(c, hand.portraits)
+	add_child(_clearing_detail)
+	_clearing_detail.place_near(box.get_global_rect(), get_viewport_rect().size)
 
 
 func _pulse(c: Control) -> void:

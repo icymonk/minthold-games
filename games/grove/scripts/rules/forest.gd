@@ -1,7 +1,7 @@
 class_name Forest
 extends RefCounted
 ## 숲(규칙 1-1): 땅 자리마다 나무 또는 묘목, 나무마다 4방향 자리, 그리고 굴.
-## 자리 하나에 이웃 하나. 겹치는 종(산토끼)만 같은 종끼리 STACK마리까지.
+## 자리 하나에 이웃 하나. 겹치는 종(멧토끼)은 같은 종끼리 STACK마리까지, 두꺼비는 둘까지.
 
 const SIDES: Array[StringName] = [&"Top", &"Bottom", &"Left", &"Right"]
 const SAPLING := &"sapling"
@@ -50,8 +50,11 @@ func can_attach(plot: int, side: StringName, species: StringName) -> bool:
 	var here := occupants(plot, side)
 	if here.is_empty():
 		return true
-	var stacks: bool = Cards.SPECIES[species].get("stack", false)
-	return stacks and here.size() < STACK and here.all(func(o: Dictionary) -> bool: return o.species == species)
+	var st: Variant = Cards.SPECIES[species].get("stack", false)
+	if typeof(st) == TYPE_BOOL and not st:
+		return false
+	var limit: int = STACK if typeof(st) == TYPE_BOOL else int(st)
+	return here.size() < limit and here.all(func(o: Dictionary) -> bool: return o.species == species)
 
 
 func attach(plot: int, side: StringName, card: Dictionary, species: StringName) -> bool:

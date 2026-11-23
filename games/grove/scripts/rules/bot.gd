@@ -10,6 +10,14 @@ static func turn(s: Season, season_index: int, mods := {}) -> bool:
 	var acted := false
 	if not best.is_empty() and (best.gain > 0 or s.hand.size() >= s.hand_limit):
 		acted = s.play(best.id, best.half, best.plot, best.pay)
+	# 공짜·두더지로 더 낼 수 있으면 오르는 수가 있는 동안 더 낸다. 라쿤(손패 굴에 넣기)은 넘긴다.
+	while acted and (s.can_play_more() or s.wants_stash()):
+		if s.wants_stash():
+			s.stash([])
+			continue
+		var more := _best_play(s, season_index, mods)
+		if more.is_empty() or more.gain <= 0 or not s.play(more.id, more.half, more.plot, more.pay):
+			s.skip()
 	if not acted and s.hand.size() < s.hand_limit:
 		acted = s.draw()
 		s.draw()
@@ -24,10 +32,10 @@ static func _best_play(s: Season, season_index: int, mods: Dictionary) -> Dictio
 	var best := {}
 	for card in s.hand:
 		for half in (1 if Cards.is_tree(card) else 2):
-			var cost := Cards.cost_of(card, half)
+			var cost := s.cost_now(card, half)
 			if cost > s.hand.size() - 1:
 				continue
-			var pay := _cheapest(s.hand, card.id, cost, card.sym)
+			var pay := _cheapest(s.hand, card.id, cost, Cards.sym_of(card, half))
 			for plot in _plots(s.forest, card, half):
 				if not s.can_play(card.id, half, plot, pay):
 					continue
@@ -59,7 +67,7 @@ static func _cheapest(hand: Array[Dictionary], except: int, n: int, sym: StringN
 	for c in hand:
 		if c.id == except:
 			continue
-		(same if c.sym == sym else other).append(c.id)
+		(same if Cards.has_sym(c, sym) else other).append(c.id)
 	var out := same + other
 	out.resize(mini(n, out.size()))
 	return out

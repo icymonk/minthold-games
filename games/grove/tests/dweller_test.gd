@@ -31,7 +31,7 @@ func test_animals_play_idle() -> void:
 
 
 func test_ghost_is_see_through() -> void:
-	var d: Dweller = auto_free(Dweller.make(&"owl"))
+	var d: Dweller = auto_free(Dweller.make(&"tawny_owl"))
 	Fx.ghostify(d)
 	for g: GeometryInstance3D in d.find_children("*", "GeometryInstance3D", true, false):
 		assert_float(g.transparency).is_greater(0.0)

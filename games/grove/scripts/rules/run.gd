@@ -40,8 +40,8 @@ func _init(seed_value: int, keeper_id: StringName = &"grandma", grade_value := 0
 	grade = grade_value
 	bag = Cards.start_bag()
 	var k := Keepers.def_of(keeper)
-	for p in k.pairs:
-		bag.append(Cards.pair(bag.size(), p[0], p[1], p[2], p[3]))
+	for i: int in k.pairs:
+		bag.append(Cards.full_pair(bag.size(), i))
 	acorns = k.acorns
 	_next_id = bag.size()
 	_roll_events()

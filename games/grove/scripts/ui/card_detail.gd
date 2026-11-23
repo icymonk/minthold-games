@@ -22,16 +22,20 @@ static func for_card(card: Dictionary, portraits: Portrait, active := 0) -> Card
 	holder.add_child(big)
 	row.add_child(holder)
 	var col := d._col(row)
+	var terms: Array[String] = []
 	if Cards.is_tree(card):
-		d._half(col, card.tree, true)
+		d._half(col, card.tree, true, card.tree)
+		terms = CardText.terms(card.tree)
 	else:
 		for i in 2:
-			d._half(col, card.halves[i], i == active)
+			d._half(col, card.halves[i], i == active, Cards.sym_of(card, i))
+			for t in CardText.terms(card.halves[i]):
+				if not t in terms:
+					terms.append(t)
+		terms.append(TranslationServer.translate("TERM_HALF"))
 		d._line(col, TranslationServer.translate("CARD_HALF_USE"), 20, Color(Style.CREAM, 0.6))
-		var sym: StringName = card.get("sym", &"")
-		if sym != &"" and card.get("deco", &"") != &"gold":
-			d._line(col, TranslationServer.translate("CARD_COLOR") % CardText.name_of(sym), 22, Style.SPROUT)
 	d._deco(col, card)
+	d._terms(col, terms)
 	return d
 
 
@@ -44,10 +48,13 @@ static func for_kind(kind: StringName, pts := -1, where := "", card := {}) -> Ca
 	if kind == Forest.SAPLING:
 		d._line(col, TranslationServer.translate("CARD_SAPLING"), 22, Style.CREAM)
 	else:
-		d._half(col, kind, true)
+		var sym := Cards.placed_sym(card, kind) if not card.is_empty() else &""
+		d._half(col, kind, true, kind if Cards.TREES.has(kind) else sym)
 	if pts >= 0:
 		d._line(col, TranslationServer.translate("CARD_NOW") % pts, 30, Style.SUNSET, true)
 	d._deco(col, card)
+	if kind != Forest.SAPLING:
+		d._terms(col, CardText.terms(kind))
 	return d
 
 
@@ -80,7 +87,7 @@ func _col(row: HBoxContainer) -> VBoxContainer:
 	return col
 
 
-func _half(col: VBoxContainer, kind: StringName, active: bool) -> void:
+func _half(col: VBoxContainer, kind: StringName, active: bool, sym: StringName = &"") -> void:
 	var def := CardText.def_of(kind)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override(&"separation", 2)
@@ -90,6 +97,8 @@ func _half(col: VBoxContainer, kind: StringName, active: bool) -> void:
 	var meta := [group, TranslationServer.translate("CARD_COST") % def.cost]
 	if def.has("side"):
 		meta.insert(1, CardText.side_of(def.side))
+	if sym != &"":
+		meta.append(TranslationServer.translate("CARD_COLOR") % CardText.name_of(sym))
 	_line(box, CardText.name_of(kind), 34, Style.SUNSET if active else Style.CREAM, true)
 	_line(box, " · ".join(meta), 22, Color(Style.CREAM, 0.75))
 	_pair(box, "CARD_EFFECT", CardText.gives(def.get("effect", {})))
@@ -103,6 +112,15 @@ func _half(col: VBoxContainer, kind: StringName, active: bool) -> void:
 	var gap := Control.new()
 	gap.custom_minimum_size.y = 8
 	col.add_child(gap)
+
+
+## 용어 풀이: 카드에 나온 말을 작은 글로
+func _terms(col: VBoxContainer, terms: Array[String]) -> void:
+	if terms.is_empty():
+		return
+	_line(col, TranslationServer.translate("CARD_TERMS"), 22, Style.SPROUT, true)
+	for t in terms:
+		_line(col, "· " + t, 18, Color(Style.CREAM, 0.8))
 
 
 func _deco(col: VBoxContainer, card: Dictionary) -> void:

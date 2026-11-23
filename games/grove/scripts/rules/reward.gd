@@ -7,15 +7,9 @@ const PRICES := {pair = 3, spirit = 6, remove = 2, land = 4, deco = 3}
 const REMOVE := 2
 
 
-## 새 이웃 카드 1장: 위/아래 또는 왼/오른 반쪽 둘, 나무 색은 무작위
+## 새 이웃 카드 1장: 원작 덱의 반쪽 카드 중 하나
 static func new_pair(rng: RandomNumberGenerator, id: int) -> Dictionary:
-	var axis: StringName = [&"v", &"h"][rng.randi_range(0, 1)]
-	var halves: Array[StringName] = []
-	for side in Cards.SIDES[axis]:
-		var fit := Cards.SPECIES.keys().filter(func(k: StringName) -> bool: return Cards.fits(k, side))
-		halves.append(fit[rng.randi_range(0, fit.size() - 1)])
-	var syms := Cards.TREES.keys()
-	return Cards.pair(id, halves[0], halves[1], axis, syms[rng.randi_range(0, syms.size() - 1)])
+	return Cards.full_pair(id, rng.randi_range(0, Cards.FULL_PAIRS.size() - 1))
 
 
 ## 보상 3장: [{t = pair, cards} | {t = spirit, id} | {t = remove}]

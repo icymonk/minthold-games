@@ -18,10 +18,10 @@ func test_tree_card_targets_empty_plots() -> void:
 func test_neighbor_targets_free_side_of_every_tree() -> void:
 	var view := _view()
 	var trees := ForestView.START_FOREST.size() - ForestView.START_FOREST.count(&"")
-	var targets := view.targets_for(&"owl", &"Top")
+	var targets := view.targets_for(&"tawny_owl", &"Top")
 	assert_int(targets.size()).is_equal(trees)
-	view.place(targets[0], &"owl")
-	assert_int(view.targets_for(&"finch", &"Top").size()).is_equal(trees - 1)
+	view.place(targets[0], &"tawny_owl")
+	assert_int(view.targets_for(&"chaffinch", &"Top").size()).is_equal(trees - 1)
 	var tree := view.tree_at(targets[0].plot)
 	assert_int(tree.occupants(&"Top").size()).is_equal(1)
 	assert_object(tree.occupants(&"Top")[0].get_parent()).is_same(tree.socket(&"Top"))
@@ -47,9 +47,9 @@ func test_planting_fills_plot() -> void:
 
 func test_full_tree_shows_ring() -> void:
 	var view := _view()
-	var plot: int = view.targets_for(&"owl", &"Top")[0].plot
+	var plot: int = view.targets_for(&"tawny_owl", &"Top")[0].plot
 	var tree := view.tree_at(plot)
-	for pair in [[&"owl", &"Top"], [&"mole", &"Bottom"], [&"fox", &"Left"], [&"goat", &"Right"]]:
+	for pair in [[&"tawny_owl", &"Top"], [&"mole", &"Bottom"], [&"fox", &"Left"], [&"fallow_deer", &"Right"]]:
 		view.place({plot = plot, side = pair[1]}, pair[0])
 	assert_bool(tree.is_complete()).is_true()
 	assert_bool(tree._ring.visible).is_true()
@@ -68,10 +68,10 @@ func test_placed_signal() -> void:
 	var view := _view()
 	var got := []
 	view.placed.connect(func(t: Dictionary, k: StringName) -> void: got.append([t, k]))
-	var t: Dictionary = view.targets_for(&"axolotl", &"Bottom")[0]
-	view.place(t, &"axolotl")
+	var t: Dictionary = view.targets_for(&"toad", &"Bottom")[0]
+	view.place(t, &"toad")
 	assert_int(got.size()).is_equal(1)
-	assert_str(String(got[0][1])).is_equal("axolotl")
+	assert_str(String(got[0][1])).is_equal("toad")
 
 
 func test_demo_cards_fit_their_sides() -> void:
@@ -94,7 +94,7 @@ func test_coach_waits_for_its_signal() -> void:
 		{text = "COACH_PLANT", wait = view.placed, check = func(a: Array) -> bool: return a[0].side == &""},
 		{text = "COACH_WIND"},
 	] as Array[Dictionary])
-	view.place(view.targets_for(&"owl", &"Top")[0], &"owl")
+	view.place(view.targets_for(&"tawny_owl", &"Top")[0], &"tawny_owl")
 	await get_tree().process_frame
 	assert_int(coach.index).is_equal(0)
 	view.place(view.targets_for(&"oak")[0], &"oak")
