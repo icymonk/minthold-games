@@ -73,9 +73,10 @@ func _next() -> void:
 		var d := Dweller.make(kind)
 		d.rotation.y = 0.5
 		_stage.add_child(d)
-		h = Dweller.KINDS[kind].height
+		d.set_process(false)
+		h = Dweller.KINDS[kind].height * Dweller.KINDS[kind].get("frame", 1.0)
 	var aim := Vector3(0, h * 0.5, 0)
-	var dist := h / tan(deg_to_rad(_camera.fov * 0.5)) * 0.62
+	var dist := h / tan(deg_to_rad(_camera.fov * 0.5)) * 0.8
 	var dir := Vector3(0, sin(deg_to_rad(18.0)), cos(deg_to_rad(18.0)))
 	_camera.look_at_from_position(aim + dir * dist, aim)
 	render_target_update_mode = SubViewport.UPDATE_ONCE

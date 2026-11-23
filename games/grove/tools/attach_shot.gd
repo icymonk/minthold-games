@@ -72,9 +72,10 @@ func _hold(pick: Callable, half: int) -> void:
 	for v in h.cards:
 		if pick.call(v.card):
 			if h.begin_drag(v, half):
-				# 카메라에 가장 가까운(화면 아래쪽) 자리로 가져간다
+				# 화면 가운데에 가장 가까운 자리로 가져간다
+				var mid := Vector2(960, 420)
 				var targets: Array = h.world.targets_for(v.kind(), v.side())
-				targets.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return h.world.screen_position(a).y > h.world.screen_position(b).y)
+				targets.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return h.world.screen_position(a).distance_to(mid) < h.world.screen_position(b).distance_to(mid))
 				h.move_drag(h.world.screen_position(targets[0]))
 			return
 	print("no card")

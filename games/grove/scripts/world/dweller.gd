@@ -15,7 +15,7 @@ const KINDS := {
 	&"bat": {model = "Bat", scale = 0.00256, sides = [&"Top"], entrance = Entrance.FLY, height = 0.88, color = Color("#E0A83A")},
 	&"butterfly": {model = "", scale = 1.5, sides = [&"Top"], entrance = Entrance.FLUTTER, height = 0.65, color = Color("#F29E4C")},
 	&"bee": {model = "Bee", scale = 0.192, sides = [&"Bottom"], entrance = Entrance.FLUTTER, height = 0.72, color = Color("#F2C14C")},
-	&"mushroom": {model = "Mushroom_Laetiporus", scale = 0.88, sides = [&"Bottom"], entrance = Entrance.POP, height = 0.8, color = Color("#E08A3C")},
+	&"mushroom": {model = "Mushroom_Laetiporus", scale = 0.88, frame = 1.7, sides = [&"Bottom"], entrance = Entrance.POP, height = 0.8, color = Color("#E08A3C")},
 	&"flower": {model = "Flower_3_Group", scale = 0.4, sides = [&"Bottom"], entrance = Entrance.POP, height = 0.85, color = Color("#E7A6C8")},
 	&"mole": {model = "Mole", scale = 0.224, sides = [&"Bottom"], entrance = Entrance.POP, height = 0.8, color = Color("#8C7F9A")},
 	&"axolotl": {model = "Axolotl", scale = 0.224, sides = [&"Bottom"], entrance = Entrance.HOP, height = 0.72, color = Color("#E9A3B0")},
@@ -92,7 +92,7 @@ func _process(delta: float) -> void:
 	if _seg != Vector2.ZERO and _ap and _ap.is_playing() and _ap.current_animation_position >= _seg.y:
 		_ap.seek(_seg.x, true)
 	for i in _wings.size():
-		_wings[i].rotation.z = (1.0 if i == 0 else -1.0) * (0.55 + sin(_time * 14.0) * 0.6)
+		_wings[i].rotation.z = (1.0 if i == 0 else -1.0) * (1.0 + sin(_time * 14.0) * 0.5)
 
 
 ## 둥지 자리에 오는 연출. away: 섬 가운데→나무 바깥쪽(전역, 수평), face: 다 와서 바라볼 방향(전역)
@@ -225,5 +225,6 @@ func _butterfly() -> Node3D:
 			wing.scale = w[1]
 			wing.position = Vector3(side * w[0].x, w[0].y, w[0].z)
 			pivot.add_child(wing)
+		pivot.rotation.z = -side * 1.0
 		_wings.append(pivot)
 	return root

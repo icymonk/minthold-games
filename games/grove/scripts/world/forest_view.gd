@@ -542,9 +542,11 @@ func _build_camera() -> void:
 	_camera.fov = 25.0
 	_camera.far = 200.0
 	var pitch := deg_to_rad(PITCH_DEG)
-	_camera.position = Vector3(0, sin(pitch) * DISTANCE, cos(pitch) * DISTANCE)
+	# 아래쪽 손패에 섬이 가리지 않게 섬을 화면 위쪽으로 조금 올려 본다
+	var lift := Vector3(0, 0, 1.6)
+	_camera.position = Vector3(0, sin(pitch) * DISTANCE, cos(pitch) * DISTANCE) + lift
 	_rig.add_child(_camera)
-	_camera.look_at_from_position(_camera.position, Vector3(0, 0.6, 0))
+	_camera.look_at_from_position(_camera.position, Vector3(0, 0.6, 0) + lift)
 	_camera.current = true
 	# 데스크톱(Forward+)에서만 먼 곳을 흐려 미니어처처럼 보이게 한다
 	var attrs := CameraAttributesPractical.new()
