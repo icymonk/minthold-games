@@ -85,4 +85,5 @@ func season_name(i: int = season) -> String:
 func _set_season(i: int) -> void:
 	season = i
 	winds = 0
+	Sfx.ambience(i)
 	season_changed.emit(season)

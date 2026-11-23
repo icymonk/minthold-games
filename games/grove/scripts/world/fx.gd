@@ -59,3 +59,76 @@ static func ghostify(node: Node) -> void:
 		g.transparency = 0.5
 		g.material_overlay = overlay
 		g.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+
+
+## 계절 소품(3-2): 섬 위로 늘 내리는 것 — 봄 꽃잎, 여름 반딧불, 가을 낙엽, 겨울 눈.
+## [색들, 떨어지는 힘, 흔들림, 크기, 빛남]
+const SEASON_PROPS := [
+	[[Color("#FF9EC4"), Color("#FFD6E6")], -0.35, 0.6, 0.2, false],
+	[[Color("#F4FF7A"), Color("#C8FF6A")], 0.0, 0.35, 0.08, true],
+	[[Color("#F0802A"), Color("#D0401E"), Color("#F0C02A")], -0.5, 0.8, 0.22, false],
+	[[Color("#FFFFFF"), Color("#E6F0FF")], -0.6, 0.25, 0.08, false],
+]
+
+
+static func season_props(season: int, radius: float) -> CPUParticles3D:
+	var d: Array = SEASON_PROPS[season]
+	var p := CPUParticles3D.new()
+	p.name = "SeasonProps"
+	p.amount = 160 if season != 1 else 80
+	p.lifetime = 7.0
+	p.preprocess = 7.0
+	p.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
+	p.emission_box_extents = Vector3(radius, 0.4, radius)
+	p.position.y = 5.5 if d[1] < 0.0 else 1.6
+	p.direction = Vector3(1, 0, 0.3)
+	p.spread = 180.0
+	p.gravity = Vector3(0, d[1], 0)
+	p.initial_velocity_min = 0.05
+	p.initial_velocity_max = d[2]
+	p.angular_velocity_min = -90.0
+	p.angular_velocity_max = 90.0
+	p.particle_flag_rotate_y = true
+	p.scale_amount_min = 0.6
+	p.scale_amount_max = 1.3
+	var g := Gradient.new()
+	g.colors = PackedColorArray(d[0])
+	p.color_initial_ramp = g
+	var mesh: Mesh
+	if season == 1 or season == 3:
+		var sphere := SphereMesh.new()
+		sphere.radius = d[3]
+		sphere.height = d[3] * 2.0
+		sphere.radial_segments = 6
+		sphere.rings = 3
+		mesh = sphere
+	else:
+		var quad := QuadMesh.new()
+		quad.size = Vector2(d[3] * 1.6, d[3])
+		mesh = quad
+	var mat := StandardMaterial3D.new()
+	mat.vertex_color_use_as_albedo = true
+	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	if d[4]:
+		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		mat.emission_enabled = true
+		mat.emission = d[0][0]
+		mat.emission_energy_multiplier = 6.0
+	mesh.material = mat
+	p.mesh = mesh
+	p.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	if d[4]:
+		# 반딧불은 깜빡인다
+		var curve := Curve.new()
+		curve.add_point(Vector2(0, 0))
+		curve.add_point(Vector2(0.2, 1))
+		curve.add_point(Vector2(0.5, 0.2))
+		curve.add_point(Vector2(0.8, 1))
+		curve.add_point(Vector2(1, 0))
+		p.scale_amount_curve = curve
+	return p
+
+
+## 이웃끼리 반응(3-2): 점수가 오른 이웃 위로 반짝임이 튄다.
+static func cheer(parent: Node3D, at: Vector3, color: Color) -> void:
+	burst(parent, at + Vector3(0, 0.3, 0), [color.lightened(0.4), Color("#FFF4D6")], 16, 1.6, 0.05, -2.0)
