@@ -381,7 +381,8 @@ func _light(on: bool) -> void:
 
 ## 놓기 전 반투명 미리 보기. 빈 target이면 지운다.
 func preview(target: Dictionary, kind: StringName) -> void:
-	if kind == Forest.SAPLING:
+	# 빈 땅에 나무가 아닌 카드를 끌면(묘목으로 심기) 묘목 모습으로 보여 준다
+	if kind == Forest.SAPLING or (not target.is_empty() and target.side == &"" and not ForestTree.SPECIES.has(kind)):
 		kind = SAPLING_LOOK
 	if target == _ghost_target and (_ghost != null) == not target.is_empty():
 		return
@@ -410,6 +411,8 @@ func place(target: Dictionary, kind: StringName) -> Node3D:
 	clear_targets()
 	var node: Node3D
 	if target.side == &"":
+		if not ForestTree.SPECIES.has(kind):
+			kind = Forest.SAPLING
 		var t := plant(target.plot, SAPLING_LOOK if kind == Forest.SAPLING else kind)
 		if kind == Forest.SAPLING:
 			t.scale = Vector3.ONE * SAPLING_SCALE

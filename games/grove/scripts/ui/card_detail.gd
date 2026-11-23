@@ -123,11 +123,10 @@ func _half(col: VBoxContainer, kind: StringName, active: bool, sym: StringName =
 	var def := CardText.def_of(kind)
 	var frame := PanelContainer.new()
 	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	frame.add_theme_stylebox_override(&"panel", Style.box(Color(Style.SUNSET, 0.16) if active else Color(0, 0, 0, 0), 12, Style.SUNSET if active else Color(Style.CREAM, 0.2), 2, 10))
+	frame.add_theme_stylebox_override(&"panel", Style.box(Color(Style.SUNSET, 0.05) if active else Color(0, 0, 0, 0), 12, Style.SUNSET if active else Color(Style.CREAM, 0.2), 3 if active else 2, 10))
 	col.add_child(frame)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override(&"separation", 2)
-	box.modulate = Color.WHITE if active else Color(1, 1, 1, 0.85)
 	frame.add_child(box)
 	var group := CardText.group_of(&"tree") if Cards.TREES.has(kind) else CardText.group_of(def.kind)
 	var gi := CardText.gicon(&"tree") if Cards.TREES.has(kind) else CardText.gicon(def.kind)
@@ -135,7 +134,7 @@ func _half(col: VBoxContainer, kind: StringName, active: bool, sym: StringName =
 	if def.has("side"):
 		meta.insert(1, CardText.sicon(def.side) + " " + _link(CardText.side_of(def.side)))
 	if sym != &"":
-		meta.append(_link(TranslationServer.translate("CARD_COLOR") % CardText.name_of(sym)))
+		meta.append("{t_%s} " % sym + _link(TranslationServer.translate("CARD_COLOR") % CardText.name_of(sym)))
 	_line(box, CardText.name_of(kind), 34, Style.SUNSET if active else Style.CREAM, true)
 	_rich(box, " · ".join(meta), 22, Color(Style.CREAM, 0.8))
 	_pair(box, "CARD_EFFECT", CardText.gives(def.get("effect", {})), CardText.gives(def.get("effect", {}), true))
