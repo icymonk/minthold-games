@@ -342,6 +342,13 @@ func tree_at(i: int) -> ForestTree:
 
 func set_season(i: int, animate := true) -> void:
 	_season = i
+	if _island:
+		var old := _island.get_node_or_null(^"SeasonProps")
+		if old:
+			old.name = "OldProps"
+			old.emitting = false
+			get_tree().create_timer(old.lifetime).timeout.connect(old.queue_free) if is_inside_tree() else old.queue_free()
+		_island.add_child(Fx.season_props(i, ISLAND_RADIUS + 1.0))
 	var c: Array = SEASONS[i]
 	for t in _trees:
 		if t:
@@ -696,3 +703,8 @@ func _faceted(source: PrimitiveMesh, jitter: float) -> Mesh:
 	st.deindex()
 	st.generate_normals()
 	return st.commit()
+
+
+## 이웃 반응: 그 자리 위에서 반짝
+func cheer(target: Dictionary, color: Color) -> void:
+	Fx.cheer(self, target_position(target), color)

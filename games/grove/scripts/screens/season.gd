@@ -237,12 +237,40 @@ func _close_pay() -> void:
 
 
 func _commit(card: Dictionary, half: int, target: Dictionary, pay: Array[int]) -> void:
+	var before := _points_by_spot()
 	if not season.play(card.id, half, target.plot, pay):
 		hand.sync(season.hand)
 		_refresh()
 		return
 	world.place(target, Cards.kind_of(card, half))
+	_cheer(before, target)
 	_after_action()
+
+
+## 숲의 자리별 점수: "plot/side" → pts
+func _points_by_spot() -> Dictionary:
+	var out := {}
+	for l in Score.count(season.forest, Game.run.season_index, Game.run.score_mods()).lines:
+		var key := "%d/%s" % [l.plot, l.side]
+		out[key] = out.get(key, 0) + l.pts
+	return out
+
+
+## 이웃끼리 반응: 방금 낸 카드 덕에 점수가 오른 다른 이웃·나무가 반짝인다
+func _cheer(before: Dictionary, placed: Dictionary) -> void:
+	var after := _points_by_spot()
+	var delay := 0.6
+	for key: String in after:
+		var parts := key.split("/")
+		var spot := {plot = int(parts[0]), side = StringName(parts[1])}
+		if spot.plot == placed.plot and spot.side == placed.side:
+			continue
+		if after[key] > before.get(key, 0):
+			get_tree().create_timer(delay).timeout.connect(func() -> void:
+				if is_instance_valid(world):
+					world.cheer(spot, Style.SPROUT)
+					Sfx.play(&"chime", 0.4, 1.4))
+			delay += 0.12
 
 
 func _draw_deck() -> void:

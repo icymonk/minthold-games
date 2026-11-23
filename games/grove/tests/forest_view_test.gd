@@ -53,3 +53,24 @@ func test_seasons_look_different() -> void:
 	for s in ForestView.SEASONS:
 		seen[s[0].to_html()] = true
 	assert_int(seen.size()).is_equal(ForestView.SEASONS.size())
+
+
+func test_season_props_swap_with_season() -> void:
+	var view: ForestView = auto_free(ForestView.new())
+	add_child(view)
+	for i in 4:
+		view.set_season(i, false)
+		var props := view.find_children("SeasonProps", "CPUParticles3D", true, false)
+		assert_int(props.size()).is_equal(1)
+		assert_bool(props[0].emitting).is_true()
+	assert_float(auto_free(Fx.season_props(0, 5.0)).gravity.y).is_less(0.0)
+	assert_float(auto_free(Fx.season_props(1, 5.0)).gravity.y).is_equal(0.0)
+
+
+func test_season_ambience_crossfades() -> void:
+	var sfx: Node = get_tree().root.get_node(^"Sfx")
+	assert_int(sfx.AMBIENCE.size()).is_equal(4)
+	sfx.ambience(2)
+	assert_int(sfx.ambience_season).is_equal(2)
+	sfx.ambience(3)
+	assert_int(sfx.ambience_season).is_equal(3)
