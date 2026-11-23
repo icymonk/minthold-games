@@ -6,6 +6,7 @@ extends RefCounted
 const SIDES: Array[StringName] = [&"Top", &"Bottom", &"Left", &"Right"]
 const SAPLING := &"sapling"
 const STACK := 5
+const MAX_PLOTS := 25
 
 var plots := 9
 ## 땅 자리 → {card, kind(나무 종 또는 sapling), sides = {side: [{card, species}]}}
@@ -81,3 +82,30 @@ func targets(species: StringName, side: StringName) -> Array[Dictionary]:
 		if can_attach(p, side, species):
 			out.append({plot = p, side = side})
 	return out
+
+
+## 이웃이 하나도 없는 나무를 벤다(벌목꾼 측량). 벤 땅 자리들을 돌려준다.
+func cut_bare() -> Array[int]:
+	var cut: Array[int] = []
+	for p in trees.keys():
+		if SIDES.all(func(s: StringName) -> bool: return occupants(p, s).is_empty()):
+			trees.erase(p)
+			cut.append(p)
+	return cut
+
+
+## 땅 넓히기(오두막): 땅 자리 n칸을 더 연다.
+func expand(n := 2) -> bool:
+	if plots >= MAX_PLOTS:
+		return false
+	plots = mini(plots + n, MAX_PLOTS)
+	return true
+
+
+## 봇이 미리 계산할 때 쓰는 깊은 복사
+func clone() -> Forest:
+	var f := Forest.new()
+	f.plots = plots
+	f.trees = trees.duplicate(true)
+	f.cave = cave.duplicate()
+	return f
