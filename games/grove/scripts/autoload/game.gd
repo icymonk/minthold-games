@@ -5,6 +5,8 @@ signal screen_changed(screen: StringName, scene: PackedScene)
 signal season_changed(season: int)
 signal turn_requested(dir: int)
 signal winds_changed(winds: int)
+## 새 한 해: 숲을 처음 모습으로 되돌린다
+signal run_started
 
 const SCREENS := {
 	&"title": preload("res://scenes/screens/title.tscn"),
@@ -23,6 +25,7 @@ var screen: StringName = &""
 
 
 func start_run() -> void:
+	run_started.emit()
 	_set_season(0)
 	goto(&"season")
 

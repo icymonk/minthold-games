@@ -1,7 +1,11 @@
 extends ScreenBase
-## 계절 화면 뼈대: 윗줄(계절·바람 칸·목표), 아래(섬 돌리기·바람). 손패·빈터는 0-3·2-1에서.
+## 계절 화면: 윗줄(계절·바람 칸·목표·섬 돌리기), 아래(손패·바람). 빈터는 2-1에서.
+## 0-3: 손패의 카드를 끌어 숲에 붙인다(규칙 없음). 처음이면 Coach가 안내한다.
 
+var hand: Hand
 var _dots: Array[Panel] = []
+var _turns: Array[Button] = []
+var _wind: Button
 
 
 func _ready() -> void:
@@ -10,7 +14,7 @@ func _ready() -> void:
 	var col := _frame()
 	var top := _row(col)
 	top.alignment = BoxContainer.ALIGNMENT_BEGIN
-	_button(top, Art.ICON_HOME, tr("BACK_TO_TITLE"), Game.goto.bind(&"title"), 260).custom_minimum_size.y = 112
+	_button(top, Art.ICON_HOME, tr("BACK_TO_TITLE"), Game.goto.bind(&"title"), 220).custom_minimum_size.y = 112
 	var info := _glass(top)
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_label(info, Game.season_name(), Style.HEADLINE)
@@ -25,14 +29,50 @@ func _ready() -> void:
 	_label(info, tr("SEASON_GOAL") % Game.GOALS[Game.season], Style.HEADLINE, Style.SPROUT)
 	_show_winds()
 	Game.winds_changed.connect(_on_winds_changed)
+	for d in [-1, 1]:
+		var b := _button(top, null, tr("SEASON_TURN_LEFT" if d < 0 else "SEASON_TURN_RIGHT"), Game.turn_requested.emit.bind(d), 220)
+		b.custom_minimum_size.y = 112
+		_turns.append(b)
+	var help := _button(top, Art.ICON_HELP, "", start_coach, 112)
+	help.custom_minimum_size.y = 112
+	help.tooltip_text = tr("COACH_HELP")
 	_spacer(col)
-	_label(col, tr("SEASON_DEMO_HINT"), Style.BODY, Color(Style.CREAM, 0.9))
+	_label(col, tr("SEASON_HAND_HINT"), 30, Color(Style.CREAM, 0.9))
 	var bottom := _row(col)
-	_button(bottom, null, tr("SEASON_TURN_LEFT"), Game.turn_requested.emit.bind(-1), 360)
-	var blow := _button(bottom, Art.ICON_NEXT, tr("SEASON_WIND"), _on_wind, 480)
-	blow.theme_type_variation = &"AccentButton"
-	blow.grab_focus()
-	_button(bottom, null, tr("SEASON_TURN_RIGHT"), Game.turn_requested.emit.bind(1), 360)
+	bottom.alignment = BoxContainer.ALIGNMENT_END
+	hand = Hand.new()
+	hand.world = get_tree().get_first_node_in_group(&"forest_view") as ForestView
+	hand.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bottom.add_child(hand)
+	_wind = _button(bottom, Art.ICON_NEXT, tr("SEASON_WIND"), _on_wind, 400)
+	_wind.theme_type_variation = &"AccentButton"
+	_wind.size_flags_vertical = Control.SIZE_SHRINK_END
+	_wind.grab_focus()
+	if hand.world == null:
+		hand.queue_free()
+		hand = null
+	elif Game.season == 0 and Game.winds == 0 and not Coach.seen():
+		start_coach.call_deferred()
+
+
+func start_coach() -> void:
+	if not hand:
+		return
+	for c in get_children():
+		if c is Coach:
+			c.queue_free()
+	var coach := Coach.new()
+	add_child(coach)
+	var world := hand.world
+	coach.start([
+		{text = "COACH_PLANT", hole = hand.card_rect.bind(DemoCards.is_tree), wait = world.placed,
+			check = func(a: Array) -> bool: return a[0].side == &""},
+		{text = "COACH_HALF", hole = hand.card_rect.bind(func(c: Dictionary) -> bool: return not DemoCards.is_tree(c)),
+			wait = world.placed, check = func(a: Array) -> bool: return a[0].side != &""},
+		{text = "COACH_TURN", hole = func() -> Rect2: return _turns[0].get_global_rect().merge(_turns[1].get_global_rect()),
+			wait = Game.turn_requested},
+		{text = "COACH_WIND", hole = _wind.get_global_rect},
+	] as Array[Dictionary])
 
 
 ## 화살표·십자키는 버튼 사이 이동에 쓰이니, 섬 돌리기는 Q/E·LB/RB로 한다.

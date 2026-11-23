@@ -24,8 +24,16 @@ const SPECIES := {
 		leaves = [Color("#9DC25A"), Color("#4E8640"), Color("#C2622E"), Color("#E0DAD2")]},
 }
 
+## 산토끼처럼 한 자리에 여럿 붙는 종은 소켓 둘레 정해진 자리 5곳에 퍼진다
+const STACK_OFFSETS: Array[Vector3] = [
+	Vector3.ZERO, Vector3(0.32, 0, 0.22), Vector3(-0.32, 0, 0.22), Vector3(0.22, 0, -0.3), Vector3(-0.22, 0, -0.3),
+]
+const GLOW_SHADER := preload("res://shaders/glow.gdshader")
+
 var species: StringName
 var _leaves: ShaderMaterial
+var _occupants := {}
+var _glows := {}
 var _markers: Array[Node3D] = []
 var _ring: MeshInstance3D
 var _tween: Tween
@@ -60,6 +68,80 @@ func show_sockets(on: bool) -> void:
 		m.visible = on
 
 
+## 자리 side에 kind를 붙일 수 있는지. 비었거나, 같은 종이 겹치는 종(stack)이면 5마리까지.
+func can_attach(side: StringName, kind: StringName) -> bool:
+	var here: Array = _occupants.get(side, [])
+	if here.is_empty():
+		return true
+	var stacks: bool = Dweller.KINDS.get(kind, {}).get("stack", false)
+	return stacks and here.size() < STACK_OFFSETS.size() and here.all(func(d: Node) -> bool: return d.get(&"kind") == kind)
+
+
+func occupants(side: StringName) -> Array:
+	return _occupants.get(side, [])
+
+
+## 자리에 이웃 노드를 자식으로 붙인다(나무를 돌려도 함께 돈다).
+func attach(side: StringName, node: Node3D) -> void:
+	var here: Array = _occupants.get(side, [])
+	node.position = STACK_OFFSETS[here.size()]
+	socket(side).add_child(node)
+	here.append(node)
+	_occupants[side] = here
+	set_complete(is_complete())
+
+
+func is_complete() -> bool:
+	return SOCKETS.all(func(s: StringName) -> bool: return not occupants(s).is_empty())
+
+
+## 카드를 들었을 때 붙일 수 있는 자리에 뜨는 노을빛 원
+func glow(side: StringName, on: bool) -> void:
+	if on and not _glows.has(side):
+		var g := MeshInstance3D.new()
+		var quad := QuadMesh.new()
+		quad.size = Vector2.ONE * 1.1
+		g.mesh = quad
+		var m := ShaderMaterial.new()
+		m.shader = GLOW_SHADER
+		m.set_shader_parameter(&"color", Style.SUNSET)
+		g.material_override = m
+		g.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		g.position.y = 0.3
+		socket(side).add_child(g)
+		_glows[side] = g
+	if _glows.has(side):
+		_glows[side].visible = on
+	socket(side).get_child(0).visible = on
+
+
+## 씨앗이 떨어져 흙이 솟고 새싹 → 나무로 통통 자란다.
+func grow() -> Tween:
+	var model: Node3D = $Model
+	var full := model.scale
+	model.scale = full * 0.05
+	var seed := MeshInstance3D.new()
+	var ball := SphereMesh.new()
+	ball.radius = 0.09
+	ball.height = 0.14
+	seed.mesh = ball
+	var m := StandardMaterial3D.new()
+	m.albedo_color = Color("#7A5132")
+	seed.material_override = m
+	seed.position.y = 3.0
+	add_child(seed)
+	var tw := create_tween()
+	tw.tween_property(seed, ^"position:y", 0.05, 0.35).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tw.tween_callback(seed.queue_free)
+	tw.tween_callback(Fx.burst.bind(self, Vector3(0, 0.1, 0), [Color("#7A5132"), Color("#A67B52")] as Array[Color], 20, 2.0, 0.07, -6.0))
+	tw.tween_property(model, ^"scale", full * Vector3(0.35, 0.25, 0.35), 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tw.tween_property(model, ^"scale", full * 1.12, 0.38).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tw.tween_property(model, ^"scale", full, 0.22).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	var leaf: Color = SPECIES[species].leaves[0]
+	tw.tween_callback(Fx.burst.bind(self, Vector3(0, socket(&"Top").position.y * 0.7, 0), [leaf, leaf.lightened(0.3)] as Array[Color], 30, 2.5, 0.09, -2.0))
+	return tw
+
+
 ## 네 자리가 모두 차면 수관에 작은 빛 고리
 func set_complete(on: bool) -> void:
 	_ring.visible = on
@@ -86,10 +168,10 @@ func _build(season: int) -> void:
 	var box := _bounds(model)
 	var r := minf(box.size.x, box.size.z) * 0.5
 	var top := box.end.y
-	_add_socket(&"Top", Vector3(0, top * 0.86, 0), Vector3.UP)
-	_add_socket(&"Bottom", Vector3(0, 0.05, r * 0.55), Vector3.DOWN)
-	_add_socket(&"Left", Vector3(-r * 0.75, 0.05, 0), Vector3.LEFT)
-	_add_socket(&"Right", Vector3(r * 0.75, 0.05, 0), Vector3.RIGHT)
+	_add_socket(&"Top", Vector3(0, top * 0.97, 0), Vector3.UP)
+	_add_socket(&"Bottom", Vector3(0, 0.05, r * 0.9), Vector3.DOWN)
+	_add_socket(&"Left", Vector3(-r * 1.05, 0.05, 0), Vector3.LEFT)
+	_add_socket(&"Right", Vector3(r * 1.05, 0.05, 0), Vector3.RIGHT)
 	_ring = MeshInstance3D.new()
 	var torus := TorusMesh.new()
 	torus.inner_radius = r * 0.9
