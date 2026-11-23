@@ -13,7 +13,9 @@ func _ready() -> void:
 	Game.screen_changed.connect(_show)
 	Game.season_changed.connect(_world.set_season)
 	Game.turn_requested.connect(_world.turn)
+	Game.run_started.connect(_world.reset_plots)
 	Game.run_started.connect(_world.plant_layout.bind(ForestView.EMPTY_FOREST))
+	Game.plots_changed.connect(_world.open_plots)
 	Game.goto(&"title")
 
 

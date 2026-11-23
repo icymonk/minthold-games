@@ -7,6 +7,8 @@ signal turn_requested(dir: int)
 signal winds_changed(winds: int)
 ## 새 한 해: 숲을 처음 모습으로 되돌린다
 signal run_started
+## 땅 자리 수가 바뀌었다(오두막 땅 넓히기)
+signal plots_changed(plots: int)
 
 const SCREENS := {
 	&"title": preload("res://scenes/screens/title.tscn"),
@@ -39,6 +41,20 @@ func start_run(seed_value := -1) -> void:
 func finish_season() -> ScoreLog:
 	last_score = run.finish()
 	return last_score
+
+
+## 오두막: 보상 하나 고르기 / 가게에서 사기. 땅이 넓어지면 숲 화면에 알린다.
+func take_reward(i: int, ids: Array[int] = []) -> bool:
+	var ok := run.take(i, ids)
+	plots_changed.emit(run.forest.plots)
+	return ok
+
+
+func buy(item: Dictionary, ids: Array[int] = []) -> bool:
+	var ok := run.buy(item, ids)
+	if ok and item.t == &"land":
+		plots_changed.emit(run.forest.plots)
+	return ok
 
 
 func after_season() -> void:

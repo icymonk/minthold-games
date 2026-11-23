@@ -53,6 +53,11 @@ func _ready() -> void:
 		_dot_row.add_child(dot)
 		_dots.append(dot)
 	_score = _label(info, "", 48, Style.SPROUT)
+	# 화면이 좁거나 글이 길어도 윗줄이 화면 밖으로 밀리지 않게 줄어든다
+	_score.clip_text = true
+	_score.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_score.custom_minimum_size.x = 300
+	_score.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	for d in [-1, 1]:
 		var b := _button(top, null, tr("SEASON_TURN_LEFT" if d < 0 else "SEASON_TURN_RIGHT"), Game.turn_requested.emit.bind(d), 190)
 		b.custom_minimum_size.y = 112
@@ -71,7 +76,12 @@ func _ready() -> void:
 	if not Game.run.event().is_empty():
 		var ev := _glass(clear_row)
 		ev.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-		_label(ev, tr("EVENT_%s" % String(Game.run.events[Game.run.season_index]).to_upper()), 28, Style.SUNSET)
+		var ev_text := _label(ev, tr("EVENT_%s" % String(Game.run.events[Game.run.season_index]).to_upper()), 26, Style.SUNSET)
+		ev_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+		ev_text.clip_text = true
+		ev_text.custom_minimum_size.x = 420
+		ev_text.tooltip_text = ev_text.text
+		ev_text.mouse_filter = Control.MOUSE_FILTER_PASS
 	_spacer(col)
 	_pay_bar = _row(col)
 	_pay_ok = _button(_pay_bar, Art.ICON_NEXT, tr("SEASON_PAY_OK"), _confirm_pay, 280)
@@ -172,7 +182,7 @@ func _targets(card: Dictionary, half: int) -> Array[Dictionary]:
 		if not _sapling_mode and Cards.cost_of(card, half) > season.hand.size() - 1:
 			return out
 		for p in season.forest.free_plots():
-			if p < ForestView.plot_positions().size():
+			if p < ForestView.MAX_PLOTS:
 				out.append({plot = p, side = &""})
 		return out
 	if Cards.cost_of(card, half) > season.hand.size() - 1:

@@ -12,6 +12,14 @@ const ISLAND_RADIUS := 6.4
 const PLOT_SPACING := 3.0
 const PITCH_DEG := 48.0
 const DISTANCE := 34.0
+## 땅 넓히기: 시작 9칸 + 섬 둘레에 떠오르는 작은 섬 자리(최대 25칸)
+const MAX_PLOTS := 25
+const RING_RADIUS := 8.6
+const ISLET_RADIUS := 1.45
+## 땅이 넓어지면 카메라를 이만큼 뒤로 뺀다
+const WIDE_ZOOM := 1.32
+## 둘레 섬이 열리는 순서(16자리): 마주 보는 쪽을 번갈아
+const RING_ORDER := [0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15]
 const TURN_TIME := 0.5
 ## 계절별 [풀, 하늘 위, 지평선]: 봄 연두 → 여름 초록 → 가을 단풍 → 겨울 눈
 const SEASONS := [
@@ -71,6 +79,10 @@ var _time := 0.0
 var _yaw := 45.0
 var _yaw_tween: Tween
 var _season_tween: Tween
+var _open := 9
+var _islets: Array[Node3D] = []
+var _zoom := 1.0
+var _lift := Vector3(0, 0, 1.6)
 
 
 func _ready() -> void:
@@ -94,13 +106,78 @@ func _process(delta: float) -> void:
 		mark[1].scale = Vector3.ONE * (1.0 + sin(_time * 2.4) * 0.06)
 
 
-## 땅 자리 9칸(3×3)의 섬 기준 위치. 0-2부터 나무를 여기에 심는다.
-static func plot_positions() -> Array[Vector3]:
+## 땅 자리의 섬 기준 위치: 처음 n칸. 앞 9칸은 3×3, 그 뒤는 섬 둘레의 작은 섬들.
+static func plot_positions(n := 9) -> Array[Vector3]:
 	var out: Array[Vector3] = []
 	for z in range(-1, 2):
 		for x in range(-1, 2):
 			out.append(Vector3(x * PLOT_SPACING, 0.0, z * PLOT_SPACING))
+	for slot: int in RING_ORDER:
+		var a := TAU * slot / RING_ORDER.size() + PI / RING_ORDER.size()
+		out.append(Vector3(cos(a), 0.0, sin(a)) * RING_RADIUS)
+	out.resize(mini(n, MAX_PLOTS))
 	return out
+
+
+func open_count() -> int:
+	return _open
+
+
+## 땅 자리를 n칸까지 연다: 안개 아래에서 작은 섬이 떠오른다.
+func open_plots(n: int, animate := true) -> void:
+	var all := plot_positions(MAX_PLOTS)
+	for i in range(_open, mini(n, MAX_PLOTS)):
+		var islet := Node3D.new()
+		islet.position = all[i]
+		_island.add_child(islet)
+		_add_mesh(islet, _cylinder(ISLET_RADIUS, ISLET_RADIUS - 0.1, 0.35, 12, 0.06), _grass_mat, Vector3(0, -0.18, 0))
+		_add_mesh(islet, _cylinder(ISLET_RADIUS - 0.1, 0.25, 2.2, 9, 0.25), _mat(Color("#7A5132")), Vector3(0, -1.45, 0))
+		for k in 3:
+			var tuft := Nature.spawn("Grass_Common_Short")
+			var a := _rng.randf() * TAU
+			tuft.position = Vector3(cos(a), 0, sin(a)) * (ISLET_RADIUS - 0.25)
+			tuft.scale = Vector3.ONE * 0.45
+			islet.add_child(tuft)
+		var glow := _add_mesh(_island, _ring_mesh(1.05, 1.25), _glow_mat(), all[i] + Vector3(0, 0.03, 0))
+		glow.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		_plot_marks.append([_add_mesh(_island, _cylinder(0.95, 1.05, 0.08, 14, 0.03), _mat(Color("#6B4A2E")), all[i] + Vector3(0, 0.02, 0)), glow])
+		_islets.append(islet)
+		if animate:
+			var to := islet.position
+			islet.position = to + Vector3(0, -6, 0)
+			islet.scale = Vector3.ONE * 0.2
+			var tw := islet.create_tween().set_parallel().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+			tw.tween_property(islet, ^"position", to, 0.9).set_delay(0.15 * (i - _open))
+			tw.tween_property(islet, ^"scale", Vector3.ONE, 0.9).set_delay(0.15 * (i - _open))
+	_open = clampi(maxi(n, _open), 9, MAX_PLOTS)
+	var zoom := WIDE_ZOOM if _open > 9 else 1.0
+	if animate:
+		create_tween().tween_method(_set_zoom, _zoom, zoom, 1.0).set_trans(Tween.TRANS_SINE)
+	else:
+		_set_zoom(zoom)
+
+
+## 새 한 해: 둘레 섬을 걷고 9칸으로 되돌린다
+func reset_plots() -> void:
+	for i in range(9, _trees.size()):
+		plant(i, &"")
+	for islet in _islets:
+		islet.queue_free()
+	_islets.clear()
+	while _plot_marks.size() > 9:
+		for m in _plot_marks.pop_back():
+			m.queue_free()
+	_open = 9
+	_set_zoom(1.0)
+
+
+func _set_zoom(z: float) -> void:
+	_zoom = z
+	if not _camera:
+		return
+	var pitch := deg_to_rad(PITCH_DEG)
+	_camera.position = Vector3(0, sin(pitch), cos(pitch)) * DISTANCE * z + _lift
+	_camera.look_at_from_position(_camera.position, Vector3(0, 0.6, 0) + _lift)
 
 
 func set_mode(m: Mode) -> void:
@@ -123,7 +200,7 @@ func plant(i: int, kind: StringName) -> ForestTree:
 	if kind == &"":
 		return null
 	var t := ForestTree.make(kind, _season)
-	t.position = plot_positions()[i]
+	t.position = plot_positions(MAX_PLOTS)[i]
 	t.rotation.y = _rng.randf_range(-0.6, 0.6)
 	_island.add_child(t)
 	_trees[i] = t
@@ -145,7 +222,7 @@ func plant_layout(layout: Array[StringName]) -> void:
 ## 카드 하나(kind)를 놓을 수 있는 곳. 나무 카드는 빈 땅, 이웃 카드는 나무의 side 자리.
 func targets_for(kind: StringName, side: StringName = &"") -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
-	for i in _trees.size():
+	for i in _open:
 		if ForestTree.SPECIES.has(kind):
 			if not _trees[i]:
 				out.append({plot = i, side = &""})
@@ -157,7 +234,7 @@ func targets_for(kind: StringName, side: StringName = &"") -> Array[Dictionary]:
 func target_position(target: Dictionary) -> Vector3:
 	var t := _trees[target.plot]
 	if target.side == &"" or not t:
-		return _island.to_global(plot_positions()[target.plot])
+		return _island.to_global(plot_positions(MAX_PLOTS)[target.plot])
 	return t.socket(target.side).global_position
 
 
@@ -212,7 +289,7 @@ func preview(target: Dictionary, kind: StringName) -> void:
 		return
 	if target.side == &"":
 		_ghost = ForestTree.make(kind, _season)
-		_ghost.position = plot_positions()[target.plot]
+		_ghost.position = plot_positions(MAX_PLOTS)[target.plot]
 		_island.add_child(_ghost)
 	else:
 		_ghost = Dweller.make(kind)
@@ -385,7 +462,7 @@ func _build_island() -> void:
 		rock.rotation.y = _rng.randf() * TAU
 		rock.scale = Vector3.ONE * _rng.randf_range(0.45, 0.8)
 		_island.add_child(rock)
-	_trees.resize(plot_positions().size())
+	_trees.resize(MAX_PLOTS)
 	# 빈 땅 자리: 흙 원판과 빛 고리(나무를 심으면 숨긴다)
 	var dirt_mesh := _cylinder(0.95, 1.05, 0.08, 14, 0.03)
 	var dirt_mat := _mat(Color("#6B4A2E"))
@@ -551,10 +628,9 @@ func _build_camera() -> void:
 	_camera.far = 200.0
 	var pitch := deg_to_rad(PITCH_DEG)
 	# 아래쪽 손패에 섬이 가리지 않게 섬을 화면 위쪽으로 조금 올려 본다
-	var lift := Vector3(0, 0, 1.6)
-	_camera.position = Vector3(0, sin(pitch) * DISTANCE, cos(pitch) * DISTANCE) + lift
+	_camera.position = Vector3(0, sin(pitch) * DISTANCE, cos(pitch) * DISTANCE) + _lift
 	_rig.add_child(_camera)
-	_camera.look_at_from_position(_camera.position, Vector3(0, 0.6, 0) + lift)
+	_camera.look_at_from_position(_camera.position, Vector3(0, 0.6, 0) + _lift)
 	_camera.current = true
 	# 데스크톱(Forward+)에서만 먼 곳을 흐려 미니어처처럼 보이게 한다
 	var attrs := CameraAttributesPractical.new()
