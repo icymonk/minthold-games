@@ -1,10 +1,14 @@
 extends SceneTree
-## 화면 확인용 스크린샷: 제목·계절 4개를 찍는다.
-## xvfb-run godot --path . --resolution 1920x1080 -s res://tools/shot.gd -- <저장 폴더>
+## 1080p 스크린샷: godot --path . --resolution 1920x1080 -s res://tools/shot.gd -- <출력 폴더>
 
-var _f := 0
+## 계절 색 전환(1.2초)이 끝난 뒤 찍는다.
+const SETTLE := 1.6
+
 var _out := "user://shots"
 var _game: Node
+var _step := 0
+var _wait := 0.0
+var _f := 0
 
 
 func _initialize() -> void:
@@ -14,24 +18,34 @@ func _initialize() -> void:
 	DirAccess.make_dir_recursive_absolute(_out)
 
 
-func _process(_d: float) -> bool:
+func _process(delta: float) -> bool:
 	_f += 1
-	match _f:
+	if _f == 2:
+		_game = root.get_node(^"/root/Game")
+		root.add_child(load("res://scenes/main.tscn").instantiate())
+	if _f < 3:
+		return false
+	_wait -= delta
+	if _wait > 0.0:
+		return false
+	_wait = SETTLE
+	_step += 1
+	match _step:
+		1: pass
 		2:
-			# 자동 로드(Game)가 붙은 뒤에 main을 불러야 한다
-			_game = root.get_node(^"/root/Game")
-			root.add_child(load("res://scenes/main.tscn").instantiate())
-		12: _save("title")
-		13: _game.start_run()
-		30: _save("spring")
-		31: _game.next_season()
-		48: _save("summer")
-		49: _game.next_season()
-		66: _save("autumn")
-		67:
+			_save("title")
+			_game.start_run()
+		3:
+			_save("spring")
+			_game.next_season()
+		4:
+			_save("summer")
+			_game.next_season()
+		5:
+			_save("autumn")
 			_game.next_season()
 			_game.turn_requested.emit(1)
-		90:
+		6:
 			_save("winter")
 			return true
 	return false
