@@ -54,6 +54,12 @@ func find(id: int, pile: Array[Dictionary]) -> int:
 	return -1
 
 
+## 덱에서 n장 더 나눠 받기(정령: 씨앗 지기)
+func deal(n: int) -> void:
+	for i in n:
+		_draw_top(&"deal")
+
+
 ## 이번 차례에 가져온 장수(1장이라도 가져오면 내기는 못 한다)
 func draws() -> int:
 	return _draws
@@ -97,6 +103,7 @@ func play(id: int, half: int, plot: int, pay: Array[int], picks: Array[int] = []
 		log.append({t = &"pay", card = p})
 	hand.remove_at(find(id, hand))
 	if Cards.is_tree(card):
+		hooks = Hook.matching(Hook.collect(forest), &"plant", {})
 		forest.plant(plot, card, card.tree)
 		log.append({t = &"plant", card = id, plot = plot})
 		# 나무를 심으면 덱 맨 위 1장이 빈터로 날아간다
@@ -114,7 +121,7 @@ func play(id: int, half: int, plot: int, pay: Array[int], picks: Array[int] = []
 	_apply(&"effect", id, def.effect, picks)
 	for h in hooks:
 		_apply(&"hook", h.card, h.give, picks)
-	if not paid.is_empty() and paid.all(func(c: Dictionary) -> bool: return c.sym == card.sym):
+	if not paid.is_empty() and (card.get("deco", &"") == &"gold" or paid.all(func(c: Dictionary) -> bool: return c.sym == card.sym or c.get("deco", &"") == &"gold")):
 		_apply(&"bonus", id, def.bonus, picks)
 	return true
 

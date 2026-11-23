@@ -142,3 +142,42 @@ func test_bot_plays_a_whole_year() -> void:
 	var again := Run.new(11)
 	Bot.play_run(again)
 	assert_int(again.scores.back().total).is_equal(run.scores.back().total)
+
+
+func test_thirty_spirits_all_have_names_and_work() -> void:
+	assert_int(Spirits.ALL.size()).is_equal(30)
+	var f := Forest.new()
+	f.plant(0, {id = 1}, &"oak")
+	f.attach(0, &"Top", {id = 2}, &"owl")
+	for id: StringName in Spirits.ALL:
+		var owned: Array[StringName] = [id]
+		assert_float(Spirits.mult(f, owned, 0)).is_greater_equal(1.0)
+		assert_str(tr("SPIRIT_%s" % String(id).to_upper())).is_not_equal("SPIRIT_%s" % String(id).to_upper())
+		assert_str(tr("SPIRIT_%s_DESC" % String(id).to_upper())).is_not_equal("SPIRIT_%s_DESC" % String(id).to_upper())
+
+
+func test_rule_spirits_change_season() -> void:
+	var run := Run.new(12)
+	run.events[0] = &"doves"
+	run.spirits.append(&"deep_pocket")
+	run.spirits.append(&"seed_keeper")
+	var s := run.begin()
+	assert_int(s.hand_limit).is_equal(Season.HAND_LIMIT + 2)
+	assert_int(s.hand.size()).is_equal(Season.START_HAND + 2)
+
+
+func test_deco_from_shop() -> void:
+	var run := Run.new(13)
+	run.acorns = 3
+	var id: int = run.bag[0].id
+	var ids: Array[int] = [id]
+	assert_bool(run.buy({t = &"deco", deco = &"dew"}, ids)).is_true()
+	assert_str(String(run.bag[0].deco)).is_equal("dew")
+	run.acorns = 3
+	assert_bool(run.buy({t = &"deco", deco = &"gold"}, ids)).is_false()
+
+
+func test_forty_species_with_names() -> void:
+	assert_int(Cards.SPECIES.size()).is_equal(40)
+	for k: StringName in Cards.SPECIES:
+		assert_str(tr("KIND_%s" % String(k).to_upper())).is_not_equal("KIND_%s" % String(k).to_upper())

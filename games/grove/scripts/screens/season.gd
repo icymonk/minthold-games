@@ -304,7 +304,7 @@ func _on_hover(card: Dictionary, half: int, target: Dictionary) -> void:
 
 func _total(f: Forest) -> int:
 	var log := Score.count(f, Game.run.season_index, Game.run.score_mods())
-	log.apply(Spirits.mult(f, Game.run.spirits))
+	log.apply(Spirits.mult(f, Game.run.spirits, Game.run.season_index))
 	return log.total
 
 

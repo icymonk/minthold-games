@@ -18,14 +18,14 @@ const TREES := {
 	&"linden": {cost = 1, effect = {}, bonus = {}, score = {most = 4, other = 1}},
 	&"beech": {cost = 1, effect = {}, bonus = {}, score = {at_least = 3, each = 5}},
 }
-## 이웃 14종: 종류, 자리, 비용, 효과, 보너스, 점수. stack이면 한 자리에 여럿 겹친다.
+## 이웃 40종: 종류, 자리, 비용, 효과, 보너스, 점수. stack이면 한 자리에 여럿 겹친다.
 ## hook은 숲에 있는 동안 계속 걸리는 효과(버섯): 이후 그 자리에 낼 때마다 give.
 ## 키는 3D 모델(Dweller.KINDS)과 같다.
 const SPECIES := {
 	&"owl": {kind = &"bird", side = &"Top", cost = 2, effect = {}, bonus = {draw = 1}, score = {per_kind = &"paw", pts = 1}},
 	&"finch": {kind = &"bird", side = &"Top", cost = 1, effect = {}, bonus = {pick = 1}, score = {same_tree = &"butterfly", pts = 5, other = 2}},
-	&"bat": {kind = &"bat", side = &"Top", cost = 1, effect = {}, bonus = {draw = 1}, score = {at_least = 3, each = 5, other = 1}},
-	&"butterfly": {kind = &"butterfly", side = &"Top", cost = 0, effect = {}, bonus = {}, score = {spread = [0, 3, 7, 12, 20, 32]}},
+	&"bat": {kind = &"bat", side = &"Top", cost = 1, effect = {}, bonus = {draw = 1}, score = {distinct_at_least = 3, each = 5, other = 1}},
+	&"butterfly": {kind = &"butterfly", side = &"Top", cost = 0, effect = {}, bonus = {}, score = {kind_set = BUTTERFLY_SET}},
 	&"bee": {kind = &"insect", side = &"Bottom", cost = 1, effect = {pick = 1}, bonus = {}, score = {per_species = &"flower", pts = 2}},
 	&"mushroom": {kind = &"mushroom", side = &"Bottom", cost = 2, effect = {}, bonus = {}, score = {flat = 0}, hook = {on = &"place", side = &"Left", give = {draw = 1}}},
 	&"flower": {kind = &"flower", side = &"Bottom", cost = 0, effect = {}, bonus = {}, score = {flat = 2}},
@@ -36,7 +36,38 @@ const SPECIES := {
 	&"boar": {kind = &"hoof", side = &"Side", cost = 2, effect = {cave = 1}, bonus = {}, score = {on = [&"oak", &"chestnut", &"beech"], pts = 7, other = 2}},
 	&"hare": {kind = &"paw", side = &"Side", cost = 0, effect = {}, bonus = {}, stack = true, score = {per_species = &"hare", pts = 1}},
 	&"marmot": {kind = &"paw", side = &"Side", cost = 1, effect = {pick = 1}, bonus = {}, score = {distinct_kind = &"paw", pts = 2}},
+	# 3-1: 26종 더(보상·가게로 들어온다)
+	&"eagle": {kind = &"bird", side = &"Top", cost = 3, effect = {}, bonus = {draw = 2}, score = {flat = 8}},
+	&"woodpecker": {kind = &"bird", side = &"Top", cost = 1, effect = {pick = 1}, bonus = {}, score = {per_tree = 1}},
+	&"jay": {kind = &"bird", side = &"Top", cost = 2, effect = {}, bonus = {pick = 1}, score = {per_tree_kind = &"oak", pts = 3}},
+	&"red_panda": {kind = &"paw", side = &"Top", cost = 1, effect = {pick = 1}, bonus = {}, score = {on = [&"maple", &"linden"], pts = 5, other = 2}},
+	&"long_eared_bat": {kind = &"bat", side = &"Top", cost = 1, effect = {}, bonus = {draw = 1}, score = {distinct_at_least = 3, each = 5, other = 1}},
+	&"horseshoe_bat": {kind = &"bat", side = &"Top", cost = 2, effect = {cave = 1}, bonus = {}, score = {distinct_at_least = 3, each = 5, other = 1}},
+	&"swallowtail": {kind = &"butterfly", side = &"Top", cost = 0, effect = {}, bonus = {}, score = {kind_set = BUTTERFLY_SET}},
+	&"morpho": {kind = &"butterfly", side = &"Top", cost = 1, effect = {}, bonus = {draw = 1}, score = {kind_set = BUTTERFLY_SET}},
+	&"peacock_butterfly": {kind = &"butterfly", side = &"Top", cost = 0, effect = {}, bonus = {}, score = {kind_set = BUTTERFLY_SET}},
+	&"cabbage_white": {kind = &"butterfly", side = &"Top", cost = 0, effect = {}, bonus = {}, score = {kind_set = BUTTERFLY_SET}},
+	&"newt": {kind = &"amphibian", side = &"Bottom", cost = 1, effect = {}, bonus = {draw = 1}, score = {per_kind = &"amphibian", pts = 1}},
+	&"fire_salamander": {kind = &"amphibian", side = &"Bottom", cost = 2, effect = {cave = 1}, bonus = {}, score = {flat = 4}},
+	&"chanterelle": {kind = &"mushroom", side = &"Bottom", cost = 2, effect = {}, bonus = {}, score = {flat = 0}, hook = {on = &"place", side = &"Top", give = {draw = 1}}},
+	&"fly_agaric": {kind = &"mushroom", side = &"Bottom", cost = 1, effect = {}, bonus = {}, score = {flat = 0}, hook = {on = &"plant", give = {draw = 1}}},
+	&"violet": {kind = &"flower", side = &"Bottom", cost = 0, effect = {}, bonus = {}, score = {same_tree = &"butterfly", pts = 4, other = 1}},
+	&"fern": {kind = &"flower", side = &"Bottom", cost = 0, effect = {}, bonus = {}, score = {on = [&"fir", &"pine"], pts = 4, other = 1}},
+	&"field_mouse": {kind = &"paw", side = &"Bottom", cost = 0, effect = {pick = 1}, bonus = {}, score = {per_kind = &"mushroom", pts = 2}},
+	&"badger": {kind = &"paw", side = &"Side", cost = 2, effect = {}, bonus = {cave = 1}, score = {per_side = &"Bottom", pts = 2}},
+	&"wolf": {kind = &"paw", side = &"Side", cost = 3, effect = {draw = 1}, bonus = {}, score = {per_kind = &"deer", pts = 4}},
+	&"moon_bear": {kind = &"paw", side = &"Side", cost = 3, effect = {cave = 2}, bonus = {}, score = {per_cave = 1}},
+	&"roe_deer": {kind = &"deer", side = &"Side", cost = 2, effect = {}, bonus = {draw = 1}, score = {kinds_of_trees = 1}},
+	&"red_deer": {kind = &"deer", side = &"Side", cost = 3, effect = {}, bonus = {draw = 2}, score = {per_kind = &"flower", pts = 2}},
+	&"otter": {kind = &"paw", side = &"Side", cost = 2, effect = {}, bonus = {}, score = {per_kind = &"amphibian", pts = 2}},
+	&"duck": {kind = &"bird", side = &"Bottom", cost = 1, effect = {draw = 1}, bonus = {}, score = {flat = 3}},
+	&"quail": {kind = &"bird", side = &"Side", cost = 0, effect = {}, bonus = {}, score = {per_kind = &"bird", pts = 1}},
+	&"crested_ibis": {kind = &"bird", side = &"Side", cost = 2, effect = {}, bonus = {}, score = {on = [&"pine"], pts = 8, other = 3}},
 }
+const BUTTERFLY_SET := [0, 3, 7, 12, 20, 32]
+## 카드 꾸미기(오두막): 이슬 = 점수 +2, 금빛 잎 = 어느 나무 색으로도 셈
+const DECOS: Array[StringName] = [&"dew", &"gold"]
+const DEW_POINTS := 2
 ## 시작 주머니 36장: 나무 12 + 이웃 24
 const START_TREES := {&"oak": 2, &"birch": 2, &"pine": 1, &"fir": 2, &"maple": 1, &"chestnut": 2, &"linden": 1, &"beech": 1}
 const START_PAIRS := [

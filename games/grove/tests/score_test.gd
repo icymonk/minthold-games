@@ -112,13 +112,65 @@ func test_neighbor_patterns() -> void:
 	assert_int(_pts(Score.count(f), &"goat")).is_equal(4)
 
 
-func test_bats_need_three() -> void:
-	var f := _forest({0: &"oak", 1: &"fir", 2: &"pine"})
+func test_bats_need_three_species() -> void:
+	var f := _forest({0: &"oak", 1: &"fir", 2: &"pine", 3: &"birch"})
 	f.attach(0, &"Top", _card(), &"bat")
 	f.attach(1, &"Top", _card(), &"bat")
-	assert_int(_pts(Score.count(f), &"bat")).is_equal(2)
-	f.attach(2, &"Top", _card(), &"bat")
-	assert_int(_pts(Score.count(f), &"bat")).is_equal(15)
+	f.attach(2, &"Top", _card(), &"long_eared_bat")
+	assert_int(Score.count(f).by_what()[&"bat"]).is_equal(2)
+	f.attach(3, &"Top", _card(), &"horseshoe_bat")
+	var log := Score.count(f)
+	assert_int(log.by_what()[&"bat"] + log.by_what()[&"long_eared_bat"] + log.by_what()[&"horseshoe_bat"]).is_equal(20)
+
+
+func test_butterfly_set_counts_species_once() -> void:
+	var f := _forest({0: &"oak", 1: &"fir", 2: &"pine"})
+	f.attach(0, &"Top", _card(), &"butterfly")
+	f.attach(1, &"Top", _card(), &"morpho")
+	f.attach(2, &"Top", _card(), &"butterfly")
+	var log := Score.count(f)
+	assert_int(log.by_what().get(&"butterfly", 0) + log.by_what().get(&"morpho", 0)).is_equal(7)
+
+
+func test_new_tree_rules() -> void:
+	var f := _forest({0: &"oak", 1: &"oak", 2: &"fir", 3: Forest.SAPLING})
+	f.attach(0, &"Top", _card(), &"woodpecker")
+	f.attach(1, &"Top", _card(), &"jay")
+	f.attach(2, &"Left", _card(), &"roe_deer")
+	f.attach(2, &"Right", _card(), &"moon_bear")
+	f.cave.append(_card())
+	var log := Score.count(f)
+	assert_int(log.by_what()[&"woodpecker"]).is_equal(3)
+	assert_int(log.by_what()[&"jay"]).is_equal(6)
+	assert_int(log.by_what()[&"roe_deer"]).is_equal(2)
+	assert_int(log.by_what()[&"moon_bear"]).is_equal(1)
+
+
+func test_dew_adds_two() -> void:
+	var f := Forest.new()
+	f.plant(0, {id = 1, deco = &"dew"}, &"fir")
+	assert_int(Score.count(f).total).is_equal(8)
+
+
+func test_gold_leaf_counts_as_any_color() -> void:
+	var s := Season.new(Cards.start_bag(), 3)
+	s.forest.plant(0, _card(), &"oak")
+	s.hand.append({id = 900, halves = [&"owl", &"mushroom"], axis = &"v", sym = &"oak"})
+	s.hand.append({id = 901, tree = &"fir", sym = &"fir", deco = &"gold"})
+	s.hand.append({id = 902, tree = &"fir", sym = &"oak"})
+	assert_bool(s.play(900, 0, 0, [901, 902])).is_true()
+	assert_bool(s.log.any(func(e: Dictionary) -> bool: return e.t == &"bonus")).is_true()
+
+
+func test_fly_agaric_draws_when_planting() -> void:
+	var s := Season.new(Cards.start_bag(), 3)
+	s.forest.plant(0, _card(), &"oak")
+	s.forest.attach(0, &"Bottom", _card(), &"fly_agaric")
+	s.hand.append({id = 900, tree = &"birch", sym = &"birch"})
+	var before := s.hand.size()
+	assert_bool(s.play(900, 0, 1, [])).is_true()
+	# 자작 효과 1장 + 광대버섯 1장
+	assert_int(s.hand.size()).is_equal(before - 1 + 2)
 
 
 func test_cave_and_score_log_lines() -> void:

@@ -24,6 +24,32 @@ const KINDS := {
 	&"boar": {model = "Boar", scale = 0.32, sides = [&"Left", &"Right"], entrance = Entrance.WALK, height = 1.2, color = Color("#9A5A3A")},
 	&"hare": {model = "Bunnykit", scale = 0.24, sides = [&"Left", &"Right"], entrance = Entrance.WALK, height = 0.96, color = Color("#C89A78"), stack = true},
 	&"marmot": {model = "Marmot", scale = 0.256, sides = [&"Left", &"Right"], entrance = Entrance.WALK, height = 0.96, color = Color("#B07A4A")},
+	&"eagle": {model = "StellersSeaEagle", scale = 0.27, sides = [&"Top"], entrance = Entrance.FLY, height = 1.0, color = Color("#6E5A48")},
+	&"woodpecker": {model = "Quail", scale = 0.2, tint = Color("#F09080"), sides = [&"Top"], entrance = Entrance.FLY, height = 0.88, color = Color("#C8483A")},
+	&"jay": {model = "Quail", scale = 0.2, tint = Color("#9AB8F0"), sides = [&"Top"], entrance = Entrance.FLY, height = 0.88, color = Color("#5A86C8")},
+	&"red_panda": {model = "Red", scale = 0.0026, sides = [&"Top"], entrance = Entrance.HOP, height = 0.9, color = Color("#C8643A")},
+	&"long_eared_bat": {model = "Bat", scale = 0.00256, tint = Color("#9A7060"), sides = [&"Top"], entrance = Entrance.FLY, height = 0.88, color = Color("#8A6A4A")},
+	&"horseshoe_bat": {model = "Bat", scale = 0.0028, tint = Color("#6A6A88"), sides = [&"Top"], entrance = Entrance.FLY, height = 0.88, color = Color("#6A6A7A")},
+	&"swallowtail": {model = "", scale = 1.5, sides = [&"Top"], entrance = Entrance.FLUTTER, height = 0.65, color = Color("#F2D24C")},
+	&"morpho": {model = "", scale = 1.5, sides = [&"Top"], entrance = Entrance.FLUTTER, height = 0.65, color = Color("#4C8CF2")},
+	&"peacock_butterfly": {model = "", scale = 1.5, sides = [&"Top"], entrance = Entrance.FLUTTER, height = 0.65, color = Color("#C8483A")},
+	&"cabbage_white": {model = "", scale = 1.4, sides = [&"Top"], entrance = Entrance.FLUTTER, height = 0.65, color = Color("#F4F0E4")},
+	&"newt": {model = "Axolotl", scale = 0.2, tint = Color("#B0D890"), sides = [&"Bottom"], entrance = Entrance.HOP, height = 0.72, color = Color("#6AAE5A")},
+	&"fire_salamander": {model = "Axolotl", scale = 0.21, tint = Color("#7A6A60"), sides = [&"Bottom"], entrance = Entrance.HOP, height = 0.72, color = Color("#3A3A3A")},
+	&"chanterelle": {model = "Mushroom_Common", scale = 0.8, tint = Color("#F2C14C"), frame = 1.7, sides = [&"Bottom"], entrance = Entrance.POP, height = 0.8, color = Color("#E8B040")},
+	&"fly_agaric": {model = "Mushroom_Common", scale = 0.85, tint = Color("#F05A4A"), frame = 1.7, sides = [&"Bottom"], entrance = Entrance.POP, height = 0.8, color = Color("#D04030")},
+	&"violet": {model = "Flower_4_Group", scale = 0.4, sides = [&"Bottom"], entrance = Entrance.POP, height = 0.85, color = Color("#9A7AD0")},
+	&"fern": {model = "Fern_1", scale = 0.45, sides = [&"Bottom"], entrance = Entrance.POP, height = 0.85, color = Color("#6E9A4F")},
+	&"field_mouse": {model = "Rat", scale = 0.18, tint = Color("#D8B898"), sides = [&"Bottom"], entrance = Entrance.POP, height = 0.7, color = Color("#A88A6A")},
+	&"badger": {model = "TasmanianDevil", scale = 0.28, sides = [&"Left", &"Right"], entrance = Entrance.WALK, height = 1.0, color = Color("#5A5A5A")},
+	&"wolf": {model = "BlackWolf", scale = 0.34, sides = [&"Left", &"Right"], entrance = Entrance.WALK, height = 1.36, color = Color("#4A4A52")},
+	&"moon_bear": {model = "SunBear", scale = 0.36, sides = [&"Left", &"Right"], entrance = Entrance.WALK, height = 1.4, color = Color("#3A3A3A")},
+	&"roe_deer": {model = "Goat", scale = 0.32, tint = Color("#B88058"), sides = [&"Left", &"Right"], entrance = Entrance.WALK, height = 1.4, color = Color("#B07A4A")},
+	&"red_deer": {model = "Goat", scale = 0.38, tint = Color("#905038"), sides = [&"Left", &"Right"], entrance = Entrance.WALK, height = 1.6, color = Color("#8A4A2A")},
+	&"otter": {model = "SeaOtter", scale = 0.27, sides = [&"Left", &"Right"], entrance = Entrance.WALK, height = 1.0, color = Color("#8A6A4A")},
+	&"duck": {model = "Duck", scale = 0.0024, sides = [&"Bottom"], entrance = Entrance.FLY, height = 0.8, color = Color("#4A8A5A")},
+	&"quail": {model = "Quail", scale = 0.2, sides = [&"Left", &"Right"], entrance = Entrance.WALK, height = 0.8, color = Color("#A88A6A")},
+	&"crested_ibis": {model = "SacredIbis", scale = 0.26, sides = [&"Left", &"Right"], entrance = Entrance.FLY, height = 1.1, color = Color("#F0B8A8")},
 }
 
 var kind: StringName
@@ -61,9 +87,28 @@ func _build() -> void:
 		model = Nature.spawn(data.model)
 	model.name = "Model"
 	model.scale = Vector3.ONE * data.scale
+	if data.has("tint"):
+		_tint(model, data.tint)
 	_body.add_child(model)
 	_ap = model.find_child("AnimationPlayer", true, false) as AnimationPlayer
 	play(&"idle")
+
+
+## 같은 모델로 여러 종을 만든다: 재질 색에 tint를 곱한다(텍스처 색도 함께 바뀐다).
+static func _tint(model: Node, tint: Color) -> void:
+	for mi: MeshInstance3D in model.find_children("*", "MeshInstance3D", true, false):
+		for i in mi.mesh.get_surface_count():
+			var mat := mi.get_active_material(i)
+			if mat is BaseMaterial3D:
+				var m: BaseMaterial3D = mat.duplicate()
+				m.albedo_color = m.albedo_color * tint
+				mi.set_surface_override_material(i, m)
+			elif mat is ShaderMaterial:
+				var sm: ShaderMaterial = mat.duplicate()
+				for key in [&"albedo", &"tint", &"color"]:
+					if sm.get_shader_parameter(key) is Color:
+						sm.set_shader_parameter(key, sm.get_shader_parameter(key) * tint)
+				mi.set_surface_override_material(i, sm)
 
 
 ## 쉬기(idle)·걷기(walk). 한 줄로 구운 모델은 프레임 구간만 되풀이한다.
@@ -202,7 +247,7 @@ func _butterfly() -> Node3D:
 	dark.albedo_color = Color("#3A2A22")
 	body.material_override = dark
 	root.add_child(body)
-	var color: Color = KINDS[&"butterfly"].color
+	var color: Color = KINDS[kind].color
 	var lobe := SphereMesh.new()
 	lobe.radius = 0.5
 	lobe.height = 1.0
