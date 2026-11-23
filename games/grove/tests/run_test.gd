@@ -30,9 +30,9 @@ func test_pass_target_gives_acorns_and_offers() -> void:
 	var run := Run.new(2)
 	run.events[0] = &"doves"
 	run.begin()
-	_fill(run, &"fir", 9)
+	_fill(run, &"pine", 9)
 	var log := run.finish()
-	assert_int(log.total).is_equal(54)
+	assert_int(log.total).is_equal(45)
 	assert_bool(run.lost).is_false()
 	assert_int(run.season_index).is_equal(1)
 	assert_int(run.acorns).is_greater(0)
@@ -52,7 +52,7 @@ func test_forest_stays_between_seasons() -> void:
 	var run := Run.new(3)
 	run.events[0] = &"doves"
 	run.begin()
-	_fill(run, &"fir", 9)
+	_fill(run, &"pine", 9)
 	run.finish()
 	var s := run.begin()
 	assert_object(s.forest).is_same(run.forest)
@@ -64,8 +64,8 @@ func test_event_score_modifier() -> void:
 	run.events[0] = &"late_frost"
 	run.begin()
 	run.forest.plant(0, {id = 900, sym = &""}, &"oak")
-	run.forest.attach(0, &"Bottom", {id = 901}, &"flower")
-	assert_int(Score.count(run.forest, 0, run.score_mods()).by_what()[&"flower"]).is_equal(1)
+	run.forest.attach(0, &"Bottom", {id = 901}, &"blackberry")
+	assert_int(Score.count(run.forest, 0, run.score_mods()).by_what()[&"blackberry"]).is_equal(1)
 
 
 func test_survey_cuts_bare_trees() -> void:
@@ -73,9 +73,9 @@ func test_survey_cuts_bare_trees() -> void:
 	run.season_index = 2
 	run.events[2] = &"survey"
 	run.begin()
-	run.forest.plant(0, {id = 900, sym = &""}, &"fir")
-	run.forest.plant(1, {id = 901, sym = &""}, &"fir")
-	run.forest.attach(1, &"Bottom", {id = 902}, &"flower")
+	run.forest.plant(0, {id = 900, sym = &""}, &"pine")
+	run.forest.plant(1, {id = 901, sym = &""}, &"pine")
+	run.forest.attach(1, &"Bottom", {id = 902}, &"moss")
 	run.finish()
 	assert_bool(run.forest.trees.has(0)).is_false()
 	assert_bool(run.forest.trees.has(1)).is_true()
@@ -85,8 +85,8 @@ func test_spirit_multiplier() -> void:
 	var f := Forest.new()
 	f.plant(0, {id = 1}, &"oak")
 	f.plant(1, {id = 2}, &"birch")
-	f.attach(0, &"Top", {id = 3}, &"owl")
-	f.attach(1, &"Top", {id = 4}, &"finch")
+	f.attach(0, &"Top", {id = 3}, &"tawny_owl")
+	f.attach(1, &"Top", {id = 4}, &"chaffinch")
 	var owned: Array[StringName] = [&"old_owl"]
 	assert_float(Spirits.mult(f, owned)).is_equal_approx(1.2, 0.001)
 	owned = [&"firefly"]
@@ -148,7 +148,7 @@ func test_thirty_spirits_all_have_names_and_work() -> void:
 	assert_int(Spirits.ALL.size()).is_equal(60)
 	var f := Forest.new()
 	f.plant(0, {id = 1}, &"oak")
-	f.attach(0, &"Top", {id = 2}, &"owl")
+	f.attach(0, &"Top", {id = 2}, &"tawny_owl")
 	for id: StringName in Spirits.ALL:
 		var owned: Array[StringName] = [id]
 		assert_float(Spirits.mult(f, owned, 0)).is_greater_equal(1.0)
@@ -177,7 +177,7 @@ func test_deco_from_shop() -> void:
 	assert_bool(run.buy({t = &"deco", deco = &"gold"}, ids)).is_false()
 
 
-func test_forty_species_with_names() -> void:
-	assert_int(Cards.SPECIES.size()).is_equal(90)
+func test_original_species_with_names() -> void:
+	assert_int(Cards.SPECIES.size()).is_equal(49)
 	for k: StringName in Cards.SPECIES:
 		assert_str(tr("KIND_%s" % String(k).to_upper())).is_not_equal("KIND_%s" % String(k).to_upper())

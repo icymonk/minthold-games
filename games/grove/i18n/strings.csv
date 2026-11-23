@@ -22,62 +22,40 @@ COACH_WIND,덱 아래쪽에 계절 바람 3장이 섞여 있어요. 세 번째 �
 COACH_NEXT,알겠어요,Got it
 COACH_SKIP,건너뛰기,Skip
 COACH_HELP,처음 안내 다시 보기,Show the guide again
-KIND_OWL,올빼미,Owl
-KIND_FINCH,되새,Finch
-KIND_BAT,박쥐,Bat
-KIND_BUTTERFLY,나비,Butterfly
-KIND_BEE,꿀벌,Bee
-KIND_MUSHROOM,덕다리버섯,Bracket Fungus
-KIND_FLOWER,풀꽃,Wildflower
-KIND_MOLE,두더지,Mole
-KIND_AXOLOTL,도롱뇽,Salamander
-KIND_FOX,여우,Fox
-KIND_GOAT,산양,Goat
-KIND_BOAR,멧돼지,Boar
-KIND_HARE,산토끼,Hare
-KIND_MARMOT,마멋,Marmot
-KIND_OAK,참나무,Oak
-KIND_BIRCH,자작나무,Birch
-KIND_PINE,소나무,Pine
-KIND_FIR,전나무,Fir
-KIND_MAPLE,단풍나무,Maple
-KIND_CHESTNUT,밤나무,Chestnut
-KIND_LINDEN,피나무,Linden
-KIND_BEECH,너도밤나무,Beech
 CABIN_TITLE,숲지기 오두막,Keeper's Cabin
 CABIN_NEXT,다음 계절: %s,Next: %s
 RUN_END_WIN,보호림 지정!,Protected Forest!
 RUN_END_RETRY,한 해 더,One More Year
 SEASON_SCORE,점수 %d / %d,Score %d / %d
-SEASON_CLEARING,빈터,Clearing
+SEASON_CLEARING,공터,Clearing
 SEASON_DECK,덱에서 가져오기 (%d),Draw from deck (%d)
-SEASON_TAKE,빈터에서 가져오기,Take from the clearing
+SEASON_TAKE,공터에서 가져오기,Take from the clearing
 SEASON_SAPLING,묘목으로 심기,Plant as sapling
 SEASON_SAPLING_HINT,아무 카드나 빈 땅에 끌면 묘목이 돼요 (비용 없음),Drag any card onto an empty plot to plant a sapling (free)
 SEASON_TURN_HINT,카드 2장 가져오기 또는 카드 1장 내기 · 들고 오른쪽 클릭·휠·Tab: 반쪽 바꾸기,Take 2 cards or play 1 card · Right-click / wheel / Tab while holding: switch half
 SEASON_DRAW_MORE,한 장 더 가져오세요,Take one more card
-SEASON_PAY,비용 %d장: 손패에서 빈터로 낼 카드를 고르세요 (같은 나무 색이면 보너스),Cost %d: pick cards to discard to the clearing (same tree color = bonus)
+SEASON_PAY,비용 %d장: 손패에서 공터로 낼 카드를 고르세요 (같은 나무 색이면 보너스),Cost %d: pick cards to discard to the clearing (same tree color = bonus)
 SEASON_PAY_OK,내기,Play
 SEASON_CANCEL,취소,Cancel
-SEASON_SWEPT,바람이 빈터의 %d장을 쓸어 갔어요,The wind swept away %d cards
-COACH_DRAW,카드를 내지 않을 때는 덱이나 빈터에서 2장을 가져와요,"When you don't play, take 2 cards from the deck or the clearing"
+SEASON_SWEPT,바람이 공터의 %d장을 쓸어 갔어요,The wind swept away %d cards
+COACH_DRAW,카드를 내지 않을 때는 덱이나 공터에서 2장을 가져와요,"When you don't play, take 2 cards from the deck or the clearing"
 SCORE_PASS,목표 달성!,Goal reached!
 SCORE_FAIL,%d점 모자라요,%d points short
 SCORE_CONTINUE,계속,Continue
 CABIN_SCORE,지난 계절 점수 %d,Last season: %d
-CABIN_ACORNS,도토리 %d,Acorns %d
+CABIN_ACORNS,솔방울 %d,Pinecones %d
 CABIN_EVENT,다음 계절 사건: %s,Next season event: %s
 RUN_END_LOSE,숲이 베어졌어요,The forest was cut down
 EVENT_LATE_FROST,늦서리: 아래 자리 이웃 점수 절반,Late frost: bottom neighbors score half
 EVENT_YELLOW_DUST,황사: 새 점수 절반,Yellow dust: birds score half
 EVENT_COLD_SNAP,꽃샘바람: 나비 0점,Cold snap: butterflies score 0
-EVENT_DOVES,산비둘기 떼: 빈터 8장이면 쓸림,Doves: clearing sweeps at 8
-EVENT_DROUGHT,가뭄: 빈터 7장이면 쓸림,Drought: clearing sweeps at 7
+EVENT_DOVES,산비둘기 떼: 공터 8장이면 쓸림,Doves: clearing sweeps at 8
+EVENT_DROUGHT,가뭄: 공터 7장이면 쓸림,Drought: clearing sweeps at 7
 EVENT_MONSOON,장마: 양서류 ×2 · 나비·박쥐 0점,Monsoon: amphibians ×2 · butterflies & bats 0
 EVENT_CICADAS,매미 떼: 곤충 ×2 · 손패 8장,Cicadas: insects ×2 · hand limit 8
 EVENT_HIKERS,등산객: 발굽 짐승 점수 절반,Hikers: hoofed animals score half
 EVENT_FIRE_WATCH,산불 주의보: 손패 8장,Fire watch: hand limit 8
-EVENT_ACORN_FAMINE,도토리 흉년: 도토리 없음,Acorn famine: no acorns
+EVENT_ACORN_FAMINE,솔방울 흉년: 솔방울 없음,Pinecone famine: no pinecones
 EVENT_SURVEY,벌목꾼 측량: 이웃 없는 나무는 베어짐,Logger survey: trees without neighbors are cut
 EVENT_TYPHOON,태풍: 계절 바람 4장,Typhoon: 4 season winds
 EVENT_DEEP_COLD,혹한: 위 자리 이웃 점수 절반,Deep cold: top neighbors score half
@@ -85,8 +63,8 @@ EVENT_BLIZZARD,폭설: 손패 7장,Blizzard: hand limit 7
 EVENT_LONG_NIGHT,긴 밤: 박쥐 ×2 · 나비 0점,Long night: bats ×2 · butterflies 0
 EVENT_FOOD_SHORTAGE,먹이 부족: 발바닥 짐승 점수 절반,Food shortage: pawed animals score half
 CABIN_PICK,보상 하나를 고르세요,Pick one reward
-CABIN_SHOP,도토리 가게,Acorn shop
-CABIN_PRICE,도토리 %d,%d acorns
+CABIN_SHOP,솔방울 가게,Pinecone shop
+CABIN_PRICE,솔방울 %d,%d pinecones
 CABIN_SPIRITS,숲 정령 %d/%d: %s,Forest spirits %d/%d: %s
 CABIN_PAIR,새 이웃 카드 2장을 씨앗 주머니에,Add 2 new neighbor cards to your seed bag
 CABIN_REMOVE,카드 빼기,Remove cards
@@ -104,34 +82,8 @@ SPIRIT_WIND_CHILD,바람 아이,Wind Child
 SPIRIT_WIND_CHILD_DESC,첫 계절 바람이 뜨면 카드 2장 더 뽑기,Draw 2 extra cards when the first wind shows
 SPIRIT_HIBERNATING_BEAR,겨울잠 곰,Hibernating Bear
 SPIRIT_HIBERNATING_BEAR_DESC,겨울 사건을 무시해요,Ignore the winter event
-SPIRIT_ACORN_SQUIRREL,도토리 다람쥐,Acorn Squirrel
+SPIRIT_ACORN_SQUIRREL,솔방울 다람쥐,Pinecone Squirrel
 SPIRIT_ACORN_SQUIRREL_DESC,굴의 카드 1장 = 2점,Each card in the cave scores 2
-KIND_EAGLE,참수리,Sea Eagle
-KIND_WOODPECKER,오색딱따구리,Woodpecker
-KIND_JAY,어치,Jay
-KIND_RED_PANDA,레서판다,Red Panda
-KIND_LONG_EARED_BAT,긴귀박쥐,Long-eared Bat
-KIND_HORSESHOE_BAT,관박쥐,Horseshoe Bat
-KIND_SWALLOWTAIL,호랑나비,Swallowtail
-KIND_MORPHO,모르포나비,Morpho
-KIND_PEACOCK_BUTTERFLY,공작나비,Peacock
-KIND_CABBAGE_WHITE,배추흰나비,Cabbage White
-KIND_NEWT,꼬리치레도롱뇽,Newt
-KIND_FIRE_SALAMANDER,불도롱뇽,Fire Salamander
-KIND_CHANTERELLE,꾀꼬리버섯,Chanterelle
-KIND_FLY_AGARIC,광대버섯,Fly Agaric
-KIND_VIOLET,제비꽃,Violet
-KIND_FERN,고사리,Fern
-KIND_FIELD_MOUSE,등줄쥐,Field Mouse
-KIND_BADGER,오소리,Badger
-KIND_WOLF,늑대,Wolf
-KIND_MOON_BEAR,반달가슴곰,Moon Bear
-KIND_ROE_DEER,노루,Roe Deer
-KIND_RED_DEER,붉은사슴,Red Deer
-KIND_OTTER,수달,Otter
-KIND_DUCK,청둥오리,Mallard
-KIND_QUAIL,메추라기,Quail
-KIND_CRESTED_IBIS,따오기,Crested Ibis
 SPIRIT_MOTH_QUEEN,나비 여왕,Moth Queen
 SPIRIT_MOTH_QUEEN_DESC,나비가 3마리 이상이면 배수 +0.3,3+ butterflies: multiplier +0.3
 SPIRIT_BAT_LANTERN,박쥐 등불,Bat Lantern
@@ -179,9 +131,9 @@ SPIRIT_SEED_KEEPER_DESC,계절을 시작할 때 카드 2장 더,Start each seaso
 SPIRIT_DEEP_POCKET,깊은 주머니,Deep Pocket
 SPIRIT_DEEP_POCKET_DESC,손패 한도 +2,Hand limit +2
 SPIRIT_STILL_AIR,고요한 공기,Still Air
-SPIRIT_STILL_AIR_DESC,빈터가 3장 더 쌓여야 쓸려요,Clearing holds 3 more cards
-SPIRIT_ACORN_CACHE,도토리 창고,Acorn Cache
-SPIRIT_ACORN_CACHE_DESC,계절을 넘길 때마다 도토리 +3,+3 acorns each passed season
+SPIRIT_STILL_AIR_DESC,공터가 3장 더 쌓여야 쓸려요,Clearing holds 3 more cards
+SPIRIT_ACORN_CACHE,솔방울 창고,Pinecone Cache
+SPIRIT_ACORN_CACHE_DESC,계절을 넘길 때마다 솔방울 +3,+3 pinecones each passed season
 CABIN_DECO_DEW,이슬 꾸미기,Dew drop
 CABIN_DECO_DEW_DESC,카드 1장에 이슬: 그 카드 점수 +%d,Decorate a card: it scores +%d
 CABIN_DECO_GOLD,금빛 잎 꾸미기,Golden leaf
@@ -205,9 +157,9 @@ KEEPER_BAT_KEEPER,박쥐 지기,Bat Warden
 KEEPER_BUTTERFLY_GIRL,나비 소녀,Butterfly Girl
 KEEPER_RANGER,산지기,Ranger
 KEEPER_POND_KEEPER,물가지기,Pond Keeper
-KEEPER_ACORN_MERCHANT,도토리 상인,Acorn Merchant
+KEEPER_ACORN_MERCHANT,솔방울 상인,Pinecone Merchant
 KEEPER_PAIRS,이웃 카드 %d장 더,+%d neighbor cards
-KEEPER_ACORNS,도토리 %d개로 시작,Start with %d acorns
+KEEPER_ACORNS,솔방울 %d개로 시작,Start with %d pinecones
 KEEPER_SPIRIT,정령: %s,Spirit: %s
 KEEPER_PLAIN,처음 주머니 그대로,The original seed bag
 UNLOCK_RUNS,잠김 · 한 해를 %d번 해 보면,Locked · play %d year
@@ -215,66 +167,16 @@ UNLOCK_FINISHED,잠김 · %d번 완주하면,Locked · finish %d years
 UNLOCK_FOUND,잠김 · 도감에서 %d종을 찾으면,Locked · find %d species
 GRADE_0,기본,Standard
 GRADE_1,목표 점수 ×1.1,Goals ×1.1
-GRADE_2,+ 빈터 한 칸 적게,+ clearing holds 1 fewer
+GRADE_2,+ 공터 한 칸 적게,+ clearing holds 1 fewer
 GRADE_3,+ 손패 한도 1 적게,+ hand limit 1 lower
 GRADE_4,+ 목표 점수 ×1.2,+ goals ×1.2
-GRADE_5,+ 도토리 ×0.75,+ acorns ×0.75
+GRADE_5,+ 솔방울 ×0.75,+ pinecones ×0.75
 GRADE_6,+ 겨울 바람 1장 적게,+ 1 fewer winter wind
 GRADE_7,+ 목표 점수 ×1.35,+ goals ×1.35
-GRADE_8,+ 도토리 ×0.5,+ acorns ×0.5
+GRADE_8,+ 솔방울 ×0.5,+ pinecones ×0.5
 ALBUM_TITLE,내 숲 앨범,My Forest Album
 ALBUM_EMPTY,"한 해를 끝내면 숲 사진이 여기 남아요","Finish a year to keep a photo of your forest here"
 ALBUM_ENTRY,%d점 · %s · 등급 %d,%d pts · %s · grade %d
-KIND_MAGPIE,까치,Magpie
-KIND_CROW,까마귀,Crow
-KIND_GREAT_TIT,박새,Great Tit
-KIND_NUTHATCH,동고비,Nuthatch
-KIND_CUCKOO,뻐꾸기,Cuckoo
-KIND_SCOPS_OWL,소쩍새,Scops Owl
-KIND_GOSHAWK,참매,Goshawk
-KIND_NOCTULE,멧박쥐,Noctule
-KIND_PIPISTRELLE,집박쥐,Pipistrelle
-KIND_PURPLE_EMPEROR,왕오색나비,Purple Emperor
-KIND_SULPHUR,노랑나비,Sulphur
-KIND_BLUE_COPPER,부전나비,Blue Copper
-KIND_LUNA_MOTH,긴꼬리산누에나방,Luna Moth
-KIND_FLYING_SQUIRREL,하늘다람쥐,Flying Squirrel
-KIND_RED_SQUIRREL,청설모,Squirrel
-KIND_CICADA,매미,Cicada
-KIND_STAG_BEETLE,사슴벌레,Stag Beetle
-KIND_FIREFLY_BUG,반딧불이,Firefly
-KIND_ANT,개미,Ant
-KIND_LADYBUG,무당벌레,Ladybug
-KIND_BUMBLEBEE,호박벌,Bumblebee
-KIND_SHIITAKE,표고,Shiitake
-KIND_OYSTER_MUSHROOM,느타리,Oyster Mushroom
-KIND_PUFFBALL,말불버섯,Puffball
-KIND_LINGZHI,영지,Lingzhi
-KIND_AZALEA,진달래,Azalea
-KIND_LILY_OF_VALLEY,은방울꽃,Lily of the Valley
-KIND_BELLFLOWER,도라지,Bellflower
-KIND_CLOVER,토끼풀,Clover
-KIND_WILD_GINSENG,산삼,Wild Ginseng
-KIND_HEDGEHOG,고슴도치,Hedgehog
-KIND_SHREW,땃쥐,Shrew
-KIND_CHIPMUNK,다람쥐,Chipmunk
-KIND_TREE_FROG,청개구리,Tree Frog
-KIND_TOAD,두꺼비,Toad
-KIND_POND_FROG,참개구리,Pond Frog
-KIND_POND_TURTLE,남생이,Pond Turtle
-KIND_MANDARIN_DUCK,원앙,Mandarin Duck
-KIND_RACCOON_DOG,너구리,Raccoon Dog
-KIND_WEASEL,족제비,Weasel
-KIND_MARTEN,담비,Yellow-throated Marten
-KIND_LEOPARD_CAT,삵,Leopard Cat
-KIND_TIGER,호랑이,Tiger
-KIND_BROWN_BEAR,불곰,Brown Bear
-KIND_WATER_DEER,고라니,Water Deer
-KIND_MUSK_DEER,사향노루,Musk Deer
-KIND_GORAL,산양,Goral
-KIND_SIKA_DEER,꽃사슴,Sika Deer
-KIND_PHEASANT,꿩,Pheasant
-KIND_RED_CROWNED_CRANE,두루미,Red-crowned Crane
 SPIRIT_CICADA_SONG,매미 노래,Cicada Song
 SPIRIT_CICADA_SONG_DESC,"곤충 3마리 이상이면 배수 +0.3","+0.3 multiplier with 3+ insects"
 SPIRIT_SQUIRREL_HOARD,다람쥐 곳간,Squirrel Hoard
@@ -331,26 +233,26 @@ SPIRIT_BEAR_DEN,곰 굴,Bear Den
 SPIRIT_BEAR_DEN_DESC,"굴 카드 1장 = 3점","Each cave card scores 3"
 SPIRIT_LONG_ARMS,긴 팔,Long Arms
 SPIRIT_LONG_ARMS_DESC,"손패 한도 +1","Hand limit +1"
-SPIRIT_OPEN_GLADE,트인 빈터,Open Glade
-SPIRIT_OPEN_GLADE_DESC,"빈터 한도 +2","Clearing holds 2 more"
-SPIRIT_ACORN_RAIN,도토리 비,Acorn Rain
-SPIRIT_ACORN_RAIN_DESC,"계절을 넘길 때마다 도토리 +2","+2 acorns each passed season"
+SPIRIT_OPEN_GLADE,트인 공터,Open Glade
+SPIRIT_OPEN_GLADE_DESC,"공터 한도 +2","Clearing holds 2 more"
+SPIRIT_ACORN_RAIN,솔방울 비,Pinecone Rain
+SPIRIT_ACORN_RAIN_DESC,"계절을 넘길 때마다 솔방울 +2","+2 pinecones each passed season"
 EVENT_SPRING_RAIN,"봄비: 양서류 ×1.5","Spring rain: amphibians ×1.5"
 EVENT_CHERRY_BLOSSOM,"꽃 잔치: 꽃 ×2","Blossoms: flowers ×2"
 EVENT_SPRING_GALE,"봄바람: 계절 바람 4장","Spring gale: 4 season winds"
-EVENT_SPROUT_FEAST,"새순 잔치: 도토리 ×1.5","Sprout feast: acorns ×1.5"
+EVENT_SPROUT_FEAST,"새순 잔치: 솔방울 ×1.5","Sprout feast: pinecones ×1.5"
 EVENT_HEAT_WAVE,"폭염: 위 자리 이웃 점수 절반","Heat wave: top neighbors score half"
 EVENT_THUNDERSTORM,"소나기: 계절 바람 4장","Thunderstorm: 4 season winds"
 EVENT_MOSQUITOES,"모기 떼: 박쥐 ×2","Mosquitoes: bats ×2"
-EVENT_BERRY_SEASON,"산딸기 철: 도토리 ×1.5","Berry season: acorns ×1.5"
+EVENT_BERRY_SEASON,"산딸기 철: 솔방울 ×1.5","Berry season: pinecones ×1.5"
 EVENT_HARVEST_MOON,"한가위: 발바닥 짐승 ×1.5","Harvest moon: pawed animals ×1.5"
 EVENT_MUSHROOM_RAIN,"버섯 비: 버섯 ×2","Mushroom rain: mushrooms ×2"
 EVENT_RUTTING,"짝짓기 철: 사슴·발굽 ×2","Rutting: deer & hoofed ×2"
-EVENT_LEAF_STORM,"낙엽 폭풍: 빈터 7장이면 쓸림","Leaf storm: clearing sweeps at 7"
+EVENT_LEAF_STORM,"낙엽 폭풍: 공터 7장이면 쓸림","Leaf storm: clearing sweeps at 7"
 EVENT_THAW,"이른 해빙: 아래 자리 ×1.5","Early thaw: bottom neighbors ×1.5"
 EVENT_ICE_STORM,"얼음 폭풍: 계절 바람 2장","Ice storm: 2 season winds"
 EVENT_HUNGRY_WOLVES,"굶주린 늑대: 사슴·발굽 절반","Hungry wolves: deer & hoofed score half"
-EVENT_AURORA,"오로라: 도토리 ×2","Aurora: acorns ×2"
+EVENT_AURORA,"오로라: 솔방울 ×2","Aurora: pinecones ×2"
 TITLE_DAILY,오늘의 숲,Today's Forest
 TITLE_DAILY_BEST,오늘의 숲 · 최고 %d점,Today's Forest · best %d
 DAILY_TAG,오늘의 숲 %s,Today's Forest %s
@@ -361,7 +263,6 @@ GROUP_BAT,박쥐,bats
 GROUP_BUTTERFLY,나비,butterflies
 GROUP_INSECT,곤충,insects
 GROUP_MUSHROOM,버섯,mushrooms
-GROUP_FLOWER,꽃·풀,plants
 GROUP_PAW,발 동물,paw animals
 GROUP_AMPHIBIAN,물가 동물,amphibians
 GROUP_DEER,사슴,deer
@@ -372,39 +273,12 @@ SIDE_BOTTOM,아래,bottom
 SIDE_LEFT,왼쪽,left
 SIDE_RIGHT,오른쪽,right
 SIDE_SIDE,왼쪽·오른쪽,left/right
-GIVE_DRAW,덱에서 %d장,draw %d
-GIVE_PICK,빈터에서 %d장,take %d from the clearing
-GIVE_CAVE,굴에 %d장 넣기,tuck %d into the cave
-GIVE_DRAW_S,덱+%d,Draw %d
-GIVE_PICK_S,빈터+%d,Pick %d
-GIVE_CAVE_S,굴+%d,Cave %d
-HOOK_PLACE,숲에 있는 동안: 나무 %s 자리에 낼 때마다 %s,While in the forest: each card played on a %s side gives %s
-HOOK_PLANT,숲에 있는 동안: 나무를 심을 때마다 %s,While in the forest: each tree planted gives %s
-RULE_FLAT,%d점,%d pts
-RULE_PER,%s 하나마다 %d점,each of %s: %d pts
-RULE_PER_HERE,이 나무의 이웃 하나마다 %d점,%d pts per neighbor on this tree
-RULE_PER_SIDE,%s 자리 이웃 하나마다 %d점,each %s neighbor: %d pts
-RULE_DISTINCT_KIND,서로 다른 %s 종마다 %d점,each different %s: %d pts
-RULE_FULL,4방향이 다 찬 나무마다 %d점,%d pts per tree with all 4 sides full
-RULE_TREE_KINDS,나무가 %d종 이상이면 %d점,%d+ tree kinds: %d pts
-RULE_LATE,"가을·겨울 %d점, 봄·여름 %d점","%d pts in autumn/winter, %d in spring/summer"
-RULE_SET,같은 종 수에 따라 %s점,By count of this species: %s pts
-RULE_SPREAD,붙은 나무 종류 수에 따라 %s점,By kinds of trees it is on: %s pts
-RULE_MOST,"숲에서 가장 많은 나무면 %d점, 아니면 %d점","%d pts if most common tree, else %d"
-RULE_AT_LEAST,"같은 종 %d장 이상이면 장마다 %d점, 아니면 %d점","%d+ of this: %d pts each, else %d"
-RULE_SAME_TREE,"같은 나무에 %s 있으면 %d점, 아니면 %d점","%s on the same tree: %d pts, else %d"
-RULE_ON,"%s에 붙으면 %d점, 아니면 %d점","on %s: %d pts, else %d"
-RULE_KIND_SET,서로 다른 %s 종 수에 따라 %s점,By different %s: %s pts
-RULE_DISTINCT_AT_LEAST,"서로 다른 %s %d종 이상이면 마리마다 %d점, 아니면 %d점","different %s %d+: %d pts each, else %d"
-RULE_PER_TREE,나무 한 그루마다 %d점,%d pts per tree
-RULE_KINDS_OF_TREES,나무 종류마다 %d점,%d pts per tree kind
-RULE_PER_CAVE,굴 카드 한 장마다 %d점,%d pts per card in the cave
 CARD_COST,비용 %d,Cost %d
 CARD_EFFECT,효과,Effect
 CARD_BONUS,보너스 (같은 색 카드로 비용을 내면),Bonus (pay with same-color cards)
 CARD_SCORE,점수,Score
 CARD_NONE,없음,none
-CARD_COLOR,카드 색: %s,Card color: %s
+CARD_COLOR,나무 색 %s,tree color %s
 CARD_ANY_COLOR,금빛 잎: 어느 나무 색으로도 셈,Golden leaf: counts as any color
 CARD_DEW,이슬: 점수 +%d,Dew: +%d pts
 CARD_STACK,한 자리에 같은 종이 여럿 겹쳐 붙어요,Stacks with the same species on one side
@@ -412,3 +286,150 @@ CARD_NOW,지금 %d점,Now %d pts
 CARD_HALF_USE,카드를 든 채 오른쪽 클릭·휠·Tab으로 반쪽 바꾸기,"Right-click, wheel or Tab while holding to switch half"
 CARD_SAPLING,묘목: 이웃이 붙을 수 있는 작은 나무,Sapling: a small tree neighbors can join
 CARD_ON_TREE,%s의 %s 자리,"%s tree, %s side"
+KIND_LINDEN,피나무,Linden
+KIND_OAK,참나무,Oak
+KIND_FIR,전나무,Silver Fir
+KIND_BIRCH,자작나무,Birch
+KIND_BEECH,너도밤나무,Beech
+KIND_MAPLE,단풍나무,Sycamore
+KIND_PINE,미송,Douglas Fir
+KIND_CHESTNUT,칠엽수,Horse Chestnut
+KIND_TAWNY_OWL,올빼미,"Tawny Owl"
+KIND_GOSHAWK,참매,"Goshawk"
+KIND_WOODPECKER,오색딱따구리,"Great Spotted Woodpecker"
+KIND_CHAFFINCH,푸른머리되새,"Chaffinch"
+KIND_BULLFINCH,멋쟁이새,"Bullfinch"
+KIND_JAY,어치,"Eurasian Jay"
+KIND_RED_SQUIRREL,붉은다람쥐,"Red Squirrel"
+KIND_CAMBERWELL_BEAUTY,신부나비,"Camberwell Beauty"
+KIND_LARGE_TORTOISESHELL,들신선나비,"Large Tortoiseshell"
+KIND_PEACOCK_BUTTERFLY,공작나비,"Peacock Butterfly"
+KIND_PURPLE_EMPEROR,번개오색나비,"Purple Emperor"
+KIND_FRITILLARY,은줄표범나비,"Silver-washed Fritillary"
+KIND_MOSS,이끼,"Moss"
+KIND_WOOD_ANT,불개미,"Wood Ant"
+KIND_STAG_BEETLE,사슴벌레,"Stag Beetle"
+KIND_FIRE_SALAMANDER,불도롱뇽,"Fire Salamander"
+KIND_POND_TURTLE,늪거북,"Pond Turtle"
+KIND_TREE_FROG,청개구리,"Tree Frog"
+KIND_HEDGEHOG,고슴도치,"Hedgehog"
+KIND_TOAD,두꺼비,"Common Toad"
+KIND_FERN,고사리,"Tree Ferns"
+KIND_WILD_STRAWBERRY,산딸기,"Wild Strawberries"
+KIND_BLACKBERRY,블랙베리,"Blackberries"
+KIND_FIREFLY,반딧불이,"Fireflies"
+KIND_CHANTERELLE,꾀꼬리버섯,"Chanterelle"
+KIND_FLY_AGARIC,광대버섯,"Fly Agaric"
+KIND_PENNY_BUN,그물버섯,"Penny Bun"
+KIND_PARASOL,큰갓버섯,"Parasol Mushroom"
+KIND_MOLE,두더지,"Mole"
+KIND_HARE,멧토끼,"European Hare"
+KIND_BADGER,오소리,"European Badger"
+KIND_FOX,붉은여우,"Red Fox"
+KIND_RACCOON,라쿤,"Raccoon"
+KIND_BOAR,멧돼지,"Wild Boar"
+KIND_SQUEAKER,새끼멧돼지,"Squeaker"
+KIND_ROE_DEER,노루,"Roe Deer"
+KIND_RED_DEER,붉은사슴,"Red Deer"
+KIND_FALLOW_DEER,다마사슴,"Fallow Deer"
+KIND_WOLF,늑대,"Wolf"
+KIND_LYNX,스라소니,"Lynx"
+KIND_BROWN_BEAR,불곰,"Brown Bear"
+KIND_MARTEN,담비,"Beech Marten"
+KIND_DORMOUSE,겨울잠쥐,"Fat Dormouse"
+KIND_GNAT,각다귀,"Gnat"
+KIND_CARPENTER_BEE,어리호박벌,"Violet Carpenter Bee"
+KIND_BARBASTELLE_BAT,바바스텔박쥐,"Barbastelle Bat"
+KIND_BECHSTEIN_BAT,벡슈타인박쥐,"Bechstein's Bat"
+KIND_LONG_EARED_BAT,갈색긴귀박쥐,"Brown Long-eared Bat"
+KIND_HORSESHOE_BAT,관박쥐,"Greater Horseshoe Bat"
+SEASON_MORE_DONE,그만 내고 차례 끝,End turn
+SEASON_FREE,%s 카드 1장을 공짜로 낼 수 있어요 (효과·보너스 없음),You may play a %s card for free (no effect or bonus)
+SEASON_MORE,카드를 비용을 내고 더 낼 수 있어요,You may play more cards by paying their cost
+SEASON_STASH,굴에 넣을 손패를 고르세요. 넣은 만큼 덱에서 뽑아요 (안 넣어도 돼요),"Pick hand cards to tuck into the cave, then draw that many (or none)"
+GROUP_FLOWER,식물,plants
+GIVE_DRAW,덱에서 %d장,draw %d
+GIVE_DRAW_S,덱+%d,Draw %d
+GIVE_PICK,공터에서 %d장,take %d from the clearing
+GIVE_PICK_S,공터+%d,Pick %d
+GIVE_CAVE,덱 맨 위 %d장을 굴에,tuck %d from the deck into the cave
+GIVE_CAVE_S,굴+%d,Cave %d
+GIVE_AGAIN,한 번 더 하기,take another turn
+GIVE_AGAIN_S,한 번 더,Again
+GIVE_FREE,%s 카드 1장 공짜로 내기,play a %s card for free
+GIVE_FREE_S,%s 공짜,Free %s
+GIVE_FREE_ALL,%s 카드를 몇 장이든 공짜로 내기,play any number of %s cards for free
+GIVE_FREE_ALL_S,%s 모두 공짜,All %s free
+GIVE_MORE,카드를 몇 장이든 비용을 내고 더 내기,play any number of cards paying their cost
+GIVE_MORE_S,더 내기,Play more
+GIVE_DRAW_PER,숲의 %s 1마리마다 덱에서 1장,draw 1 per %s in the forest
+GIVE_DRAW_PER_S,%s마다 덱+1,Draw per %s
+GIVE_CLEAR_TO_CAVE,공터 카드를 모두 굴에 넣기,put the whole clearing into the cave
+GIVE_CLEAR_TO_CAVE_S,공터→굴,Clearing→cave
+GIVE_STASH,손패를 몇 장이든 굴에 넣고 그만큼 덱에서 뽑기,"tuck any hand cards into the cave, draw as many"
+GIVE_STASH_S,손패→굴,Hand→cave
+GIVE_BOOST,붙은 나무가 그 종 한 그루 더로 세어짐,its tree counts as one more of its kind
+GIVE_BOOST_S,나무+1,Tree+1
+HOOK_PLANT,숲에 있는 동안: 나무를 낼 때마다 %s,While in the forest: each tree you play gives %s
+HOOK_PLACE,숲에 있는 동안: 나무 %s 자리에 카드를 낼 때마다 %s,While in the forest: each card played on a %s side gives %s
+HOOK_TAG,숲에 있는 동안: %s 카드를 낼 때마다 %s,While in the forest: each %s card you play gives %s
+HOOK_PLANT_S,나무 낼 때 %s,Tree played: %s
+HOOK_PLACE_S,%s 자리 낼 때 %s,%s side: %s
+HOOK_TAG_S,%s 낼 때 %s,%s played: %s
+RULE_FLAT,도토리 %d개,%d acorns
+RULE_PER,숲의 %s 카드 1장마다 도토리 %d개,each %s card in the forest: %d acorns
+RULE_PER_HERE,이 나무에 붙은 카드 1장마다 도토리 %d개,%d acorns per card on this tree
+RULE_PER_SIDE,나무 %s 자리 카드 1장마다 도토리 %d개,each card on a %s side: %d acorns
+RULE_FULL,4자리가 다 찬 나무 1그루마다 도토리 %d개,%d acorns per tree with all 4 sides taken
+RULE_PER_TREE,숲의 나무 1그루마다 도토리 %d개,%d acorns per tree in the forest
+RULE_TREE_KINDS,나무 %d종이 모두 있으면 도토리 %d개,all %d tree kinds: %d acorns
+RULE_TREES_AT_LEAST,나무가 %d그루 이상이면 도토리 %d개,%d+ trees: %d acorns
+RULE_SET,이 종 수에 따라 한 번만: %s,"once, by how many of this kind: %s"
+RULE_MOST,"이 나무 종이 숲에서 가장 많으면(같아도) 도토리 %d개, 아니면 %d개","%d acorns if this is (tied for) the most common tree, else %d"
+RULE_AT_LEAST,이 종이 %d장 이상이면 1장마다 도토리 %d개,%d+ of this kind: %d acorns each
+RULE_SAME_TREE,같은 나무에 %s도 있으면 도토리 %d개,%s on the same tree: %d acorns
+RULE_ON,%s에 붙어 있으면 도토리 %d개,on %s: %d acorns
+RULE_WITH,숲에 %s 1마리라도 있으면 도토리 %d개,at least one %s in the forest: %d acorns
+RULE_PAIR,한 자리에 이 종이 둘 겹쳐 있으면 1마리마다 도토리 %d개,two of this sharing a side: %d acorns each
+RULE_PER_SYM,숲에서 이 카드와 나무 색이 같은 카드 1장마다 도토리 %d개,%d acorns per card with this tree color
+RULE_DISTINCT_AT_LEAST,서로 다른 %s가 %d종 이상이면 도토리 %d개,%s of %d+ different kinds: %d acorns
+RULE_BUTTERFLY,"서로 다른 나비끼리 묶어, 묶음마다 종 수에 따라: %s","each set of different butterflies, by its size: %s"
+FACE_PER,× %s,× %s
+FACE_PER_HERE,× 이 나무 카드,× card on this tree
+FACE_PER_SIDE,× %s 자리 카드,× %s-side card
+FACE_FULL,× 다 찬 나무,× full tree
+FACE_PER_TREE,× 나무,× tree
+FACE_PER_SYM,× 같은 색 카드,× same-color card
+FACE_TREE_KINDS,나무 %d종 모두,all %d tree kinds
+FACE_TREES_AT_LEAST,나무 %d그루 이상,%d+ trees
+FACE_MOST,"가장 많으면 (아니면 %d)","if most common (else %d)"
+FACE_AT_LEAST,× 이 종 (%d장 이상),× this (%d+)
+FACE_SAME_TREE,같은 나무에 %s,%s on same tree
+FACE_ON,%s 위,on %s
+FACE_WITH,숲에 %s,with a %s
+FACE_PAIR,둘이 겹치면 1마리마다,each when two share
+FACE_DISTINCT_AT_LEAST,다른 %s %d종 이상,%s: %d+ kinds
+FACE_SET,수에 따라 한 번,"once, by count"
+FACE_BUTTERFLY,다른 나비 묶음마다,per set of different butterflies
+CARD_TERMS,용어,Terms
+TERM_ACORN,도토리: 계절 끝에 받는 점수예요. 카드에 적힌 수만큼 받아요.,Acorns: the points a card scores at season end.
+TERM_COST,"비용: 이 카드를 내려면 손패에서 이만큼 다른 카드를 공터로 내야 해요.",Cost: discard this many other hand cards to the clearing to play it.
+TERM_EFFECT,효과: 카드를 내면 바로 받아요.,Effect: you get it right away when you play the card.
+TERM_BONUS,"보너스(★): 비용으로 낸 카드가 모두 이 카드와 같은 나무 색이면 효과에 더해 받아요. 비용이 0이면 받지 못해요.","Bonus (★): also gained when every card paid has this card's tree color. Not gained at cost 0."
+TERM_COLOR,"나무 색: 카드 귀퉁이 동그라미예요. 반쪽 카드는 반쪽마다 색이 있고, 비용으로 낼 때는 두 색 중 하나만 맞아도 돼요.","Tree color: the corner circle. Split cards have one per half; a paid split card matches if either color does."
+TERM_DECK,"덱+N: 덱 맨 위에서 N장을 손패로 가져와요. 손패는 10장까지예요.","Draw N: take N cards from the deck top. Hand holds up to 10."
+TERM_CLEARING,"공터: 비용으로 낸 카드와, 나무를 심을 때 덱에서 날아온 카드가 쌓이는 곳이에요. 10장이 되면 바람이 쓸어 가요.","Clearing: paid cards and the deck card that flies off when a tree is planted pile up here. At 10 the wind sweeps them away."
+TERM_CAVE,굴: 카드를 넣어 두는 곳이에요. 굴에 든 카드는 계절 끝에 1장마다 도토리 1개예요.,Cave: cards tucked here score 1 acorn each at season end.
+TERM_HOOK,"지속 효과(∞): 이 카드가 숲에 있는 동안, 조건이 맞을 때마다 받아요.","Lasting effect (∞): triggers every time while this card is in the forest."
+TERM_SIDE,"자리: 이웃은 나무의 위·아래·왼쪽·오른쪽 중 카드에 그려진 자리에만 붙어요. 한 자리에 하나씩이에요.","Side: a neighbor attaches only to its side of a tree, one per side."
+TERM_HALF,반쪽 카드: 두 이웃 중 하나만 골라 내요. 고른 쪽만 숲에 붙어요.,Split card: play only one of the two neighbors.
+TERM_SET,"1→1 2→4…: 숲에 있는 수(왼쪽)에 따라 받는 도토리(오른쪽)예요. 한 번만 세요.","1→1 2→4…: acorns (right) by how many you have (left). Scored once."
+TERM_BUTTERFLY,"나비 묶음: 서로 다른 나비를 한 마리씩 모아 한 묶음이에요. 같은 나비가 둘이면 묶음이 둘로 나뉘어요.","Butterfly sets: one of each different butterfly makes a set; duplicates start another set."
+TERM_MOST,가장 많은 나무: 숲에서 이 나무 종이 가장 많거나 같이 가장 많으면 돼요.,Most common: this tree kind is (tied for) the most common in your forest.
+TERM_FULL,다 찬 나무: 위·아래·왼쪽·오른쪽 4자리에 모두 이웃이 붙은 나무예요.,Full tree: neighbors on all four sides.
+TERM_AGAIN,"한 번 더: 원작에서는 상대보다 차례를 한 번 더 두는 효과예요. 혼자 하는 숲은 차례 수에 제한이 없어서 따로 일어나는 일은 없어요.","Again: in the original you take an extra turn. Solo turns are unlimited, so it has no extra effect here."
+TERM_FREE,"공짜로 내기: 이 카드를 낸 뒤, 그 상징 카드를 비용 없이 바로 더 낼 수 있어요. 공짜로 낸 카드의 효과·보너스는 받지 않아요.","Free play: right after this card, play a card with that symbol at no cost. The free card gives no effect or bonus."
+TERM_MORE,더 내기: 이 카드를 낸 뒤 카드를 몇 장이든 비용을 내고 이어서 낼 수 있어요.,"Play more: after this card, play any number of cards, paying their costs."
+TERM_BOOST,"한 그루 더: 이 이웃이 붙은 나무는 그 나무 종을 셀 때 한 그루 더로 세어져요.",Counts double: the tree it is on counts as one more of its kind.
+TERM_GROUP,%s: %s,%s: %s
+TERM_MORE_KINDS,외 %d종,+%d more

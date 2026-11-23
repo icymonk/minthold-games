@@ -29,8 +29,8 @@ static func kind_of(card: Dictionary, half: int) -> StringName:
 ## 처음 손패: 나무 2장, 위/아래 2장, 왼/오른 1장 — 여섯 가지 등장을 바로 볼 수 있게 고른다.
 static func starting_hand() -> Array[Dictionary]:
 	return [
-		tree(&"linden"), pair(&"owl", &"mushroom", &"v"), pair(&"fox", &"hare", &"h"),
-		pair(&"butterfly", &"axolotl", &"v"), tree(&"chestnut"),
+		tree(&"linden"), pair(&"tawny_owl", &"chanterelle", &"v"), pair(&"fox", &"hare", &"h"),
+		pair(&"peacock_butterfly", &"toad", &"v"), tree(&"chestnut"),
 	]
 
 

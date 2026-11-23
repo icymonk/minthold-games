@@ -26,9 +26,9 @@ func _process(delta: float) -> bool:
 		root.get_node(^"/root/Game").start_run()
 		# [기다릴 초, 할 일]: 앞 단계 뒤 그만큼 기다렸다가 한다
 		var tree := func(c: Dictionary) -> bool: return DemoCards.is_tree(c)
-		var owl := func(c: Dictionary) -> bool: return c.get("axis") == &"v" and c.halves[0] == &"owl"
+		var owl := func(c: Dictionary) -> bool: return c.get("axis") == &"v" and c.halves[0] == &"tawny_owl"
 		var fox := func(c: Dictionary) -> bool: return c.get("axis") == &"h"
-		var fly := func(c: Dictionary) -> bool: return c.get("axis") == &"v" and c.halves[0] == &"butterfly"
+		var fly := func(c: Dictionary) -> bool: return c.get("axis") == &"v" and c.halves[0] == &"peacock_butterfly"
 		_plan = [
 			[1.8, _snap.bind("coach")], [0.0, _skip_coach],
 			[0.4, _hold.bind(tree, 0)], [0.5, _snap.bind("drag_tree")], [0.0, _drop],

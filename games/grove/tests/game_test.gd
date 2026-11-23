@@ -22,7 +22,7 @@ func _on_screen(screen: StringName, _scene: PackedScene) -> void:
 
 func _grow(n: int) -> void:
 	for p in n:
-		Game.run.forest.plant(p, {id = 5000 + p, sym = &""}, &"fir")
+		Game.run.forest.plant(p, {id = 5000 + p, sym = &""}, &"pine")
 
 
 func test_start_run_opens_spring() -> void:
@@ -106,4 +106,4 @@ func test_cabin_saves_and_continue_restores() -> void:
 	assert_int(Game.run.acorns).is_equal(acorns)
 	assert_int(Game.season).is_equal(0)
 	assert_str(String(_screens.back())).is_equal("cabin")
-	assert_int(Game.records.seen.get(&"fir", 0)).is_greater(0)
+	assert_int(Game.records.seen.get(&"pine", 0)).is_greater(0)

@@ -28,6 +28,8 @@ func _process(delta: float) -> bool:
 		root.get_node(^"/root/Game").start_run(4)
 		_plan = [
 			[1.5, _snap.bind("hand")], [0.0, _detail], [0.6, _snap.bind("hand_detail")],
+			[0.0, _detail_split], [0.6, _detail], [0.6, _snap.bind("hand_detail_split")],
+			[0.0, _clearing], [0.4, _clearing_show], [0.8, _snap.bind("clearing_detail")],
 			[0.0, _grow], [2.5, _inspect.bind(&"Top")], [0.4, _snap.bind("inspect_neighbor")],
 			[0.0, _inspect.bind(&"")], [0.4, _snap.bind("inspect_tree")],
 			[0.0, _spin], [0.6, _snap.bind("dragged")],
@@ -60,8 +62,37 @@ func _detail() -> void:
 	h.show_detail(h.cards[0])
 
 
+## 왼/오른 반쪽 카드를 손패 맨 앞에 넣고 상세 창
+func _detail_split() -> void:
+	var scr := _scr()
+	scr.hand.hide_detail()
+	var s: Season = scr.season
+	s.hand.push_front(Cards.full_pair(7000, 24))
+	s.hand.push_front(Cards.full_pair(7001, 63))
+	scr.hand.sync(s.hand)
+
+
+## 공터에 카드를 놓고 하나에 마우스를 올린 것처럼 상세 창
+func _clearing() -> void:
+	var scr := _scr()
+	scr.hand.hide_detail()
+	var s: Season = scr.season
+	for i in [44, 71, 22]:
+		s.clearing.append(Cards.full_pair(7100 + i, i))
+	scr._refresh()
+
+
+func _clearing_show() -> void:
+	var scr := _scr()
+	var s: Season = scr.season
+	var box: Control = scr._clearing.get_child(scr._clearing.get_child_count() - 1)
+	scr._show_clearing_detail(box, s.clearing.back())
+
+
 func _inspect(side: StringName) -> void:
 	_scr().hand.hide_detail()
+	if is_instance_valid(_scr()._clearing_detail):
+		_scr()._clearing_detail.queue_free()
 	var w = _scr().world
 	var at: Vector2 = w.screen_position({plot = 0, side = side}) if side != &"" else w.screen_position({plot = 2, side = &""})
 	_scr()._inspect(at)
@@ -85,7 +116,7 @@ func _grow() -> void:
 		s.forest.plant(p, Cards.tree(id, kind), kind)
 		w.place({plot = p, side = &""}, kind)
 		id += 1
-	for put in [[0, &"Top", &"owl"], [1, &"Bottom", &"flower"], [2, &"Left", &"fox"], [3, &"Right", &"hare"], [3, &"Top", &"butterfly"], [5, &"Bottom", &"bee"]]:
+	for put in [[0, &"Top", &"tawny_owl"], [1, &"Bottom", &"moss"], [2, &"Left", &"fox"], [3, &"Right", &"hare"], [3, &"Top", &"peacock_butterfly"], [5, &"Bottom", &"wood_ant"]]:
 		if s.forest.attach(put[0], put[1], {id = id, sym = &""}, put[2]):
 			w.place({plot = put[0], side = put[1]}, put[2])
 		id += 1

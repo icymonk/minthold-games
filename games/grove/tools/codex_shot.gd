@@ -32,7 +32,7 @@ func _process(_delta: float) -> bool:
 		_game.start_run(5)
 		for p in 9:
 			_game.run.forest.plant(p, {id = 5000 + p, sym = &""}, &"fir")
-		_game.run.forest.attach(0, &"Top", {id = 6000}, &"eagle")
+		_game.run.forest.attach(0, &"Top", {id = 6000}, &"goshawk")
 		_game.run.forest.attach(1, &"Left", {id = 6001}, &"red_panda")
 		_game.run.forest.attach(2, &"Bottom", {id = 6002}, &"fly_agaric")
 		_game.finish_season()
