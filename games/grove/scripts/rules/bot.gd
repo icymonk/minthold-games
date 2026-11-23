@@ -74,8 +74,9 @@ static func pick_reward(run: Run) -> int:
 	return 0
 
 
-## 한 해를 끝까지 둔다
-static func play_run(run: Run, max_turns := 400) -> void:
+## 한 해를 끝까지 둔다. 둔 차례 수를 돌려준다.
+static func play_run(run: Run, max_turns := 400) -> int:
+	var total := 0
 	while not run.lost and not run.done:
 		var s := run.begin()
 		var turns := 0
@@ -83,8 +84,10 @@ static func play_run(run: Run, max_turns := 400) -> void:
 			if not turn(s, run.season_index, run.score_mods()):
 				break
 			turns += 1
+		total += turns
 		run.finish()
 		if not run.offers.is_empty():
 			run.take(pick_reward(run))
 		while run.acorns >= Reward.PRICES.land and run.forest.plots < Forest.MAX_PLOTS:
 			run.buy({t = &"land"})
+	return total

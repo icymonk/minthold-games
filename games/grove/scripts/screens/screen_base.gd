@@ -71,3 +71,12 @@ func _glass(parent: Control) -> HBoxContainer:
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	panel.add_child(row)
 	return row
+
+
+## 숲을 어둡게 덮어 글자가 묻히지 않게 한다. 다른 자식보다 먼저 부른다.
+func _dim(alpha := 0.55) -> void:
+	var shade := ColorRect.new()
+	shade.color = Color(Style.FOREST.darkened(0.4), alpha)
+	shade.set_anchors_preset(Control.PRESET_FULL_RECT)
+	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(shade)

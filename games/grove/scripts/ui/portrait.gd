@@ -16,7 +16,7 @@ func _init() -> void:
 	size = Vector2i(SIZE, SIZE)
 	own_world_3d = true
 	transparent_bg = true
-	msaa_3d = Viewport.MSAA_4X
+	msaa_3d = Viewport.MSAA_2X if OS.has_feature("web") else Viewport.MSAA_4X
 	render_target_update_mode = SubViewport.UPDATE_DISABLED
 
 

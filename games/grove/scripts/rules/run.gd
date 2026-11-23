@@ -4,7 +4,7 @@ extends RefCounted
 ## begin() → Season을 끝까지 → finish()(점수·목표·도토리·보상 3장) → take()/buy() → begin() ...
 ## 계절 덱은 매번 씨앗 주머니 전체를 섞어 만든다(숲에 심은 카드도 씨앗으로 다시 돌아온다).
 
-const TARGETS := [40, 110, 220, 380]
+const TARGETS := [35, 150, 400, 800]
 ## 도토리 = 목표 넘긴 점수 / OVER_PER_ACORN + 남은 덱 / DECK_PER_ACORN (4-3에서 조정)
 const OVER_PER_ACORN := 10
 const DECK_PER_ACORN := 4

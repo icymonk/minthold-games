@@ -92,9 +92,9 @@ func test_keepers_change_bag_spirit_and_unlock() -> void:
 
 
 func test_grades_stack_and_round_trip() -> void:
-	assert_int(Run.new(1).target_of(0)).is_equal(40)
+	assert_int(Run.new(1).target_of(0)).is_equal(35)
 	var hard := Run.new(1, &"grandma", 8)
-	assert_int(hard.target_of(3)).is_equal(515)
+	assert_int(hard.target_of(3)).is_equal(1080)
 	var s := hard.begin()
 	assert_int(s.clearing_limit).is_less(Run.new(1).begin().clearing_limit + 1)
 	var m := Keepers.grade_mods(6)
@@ -131,7 +131,7 @@ func test_endless_year_keeps_forest_and_counts_once() -> void:
 	assert_bool(run.next_year()).is_true()
 	assert_int(run.year).is_equal(1)
 	assert_int(run.season_index).is_equal(0)
-	assert_int(run.target_of(0)).is_equal(70)
+	assert_int(run.target_of(0)).is_equal(60)
 	assert_int(run.offers.size()).is_equal(3)
 	assert_int(run.events.size()).is_equal(4)
 	assert_bool(run.forest.trees.has(4)).is_true()

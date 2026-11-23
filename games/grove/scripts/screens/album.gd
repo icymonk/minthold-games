@@ -8,6 +8,7 @@ const THUMB := Vector2(400, 225)
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_dim()
 	var col := _frame()
 	_label(col, tr("ALBUM_TITLE"), Style.HEADLINE)
 	var album := Game.records.album
