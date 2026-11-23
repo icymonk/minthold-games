@@ -24,5 +24,13 @@ class HubTest(unittest.TestCase):
             self.assertEqual(g["url"] in html, g["preview"], g["code"])
 
 
+    def test_release_games_link_downloads(self):
+        games = build.load()
+        html = build.page(games)
+        for g in games:
+            link = f'{build.REPO}/releases/download/{g["code"]}-latest/{g["code"]}-windows.zip'
+            self.assertEqual(link in html, bool(g.get("release")), g["code"])
+
+
 if __name__ == "__main__":
     unittest.main()

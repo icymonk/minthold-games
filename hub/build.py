@@ -15,7 +15,7 @@ OUT = HUB / "build"
 SHOTS = HUB / "shots"
 FONTS = ROOT / "games" / "rooster" / "assets" / "fonts"
 WEIGHTS = {400: "Pretendard-Regular.otf", 700: "Pretendard-Bold.otf"}
-REPO = "https://github.com/icymonk/minthold-games"
+REPO = "https://github.com/Minthold/games"
 REQUIRED = ("title", "title_en", "genre", "summary", "how_to_play", "preview")
 ITEM = re.compile(r"^\s*- \[([ xX])\] (\d+)-(\w+)\s+(.*)$")
 
@@ -83,6 +83,10 @@ def card(g):
     play = (f'<a class="btn play" href="{g["url"]}" target="_blank" rel="noopener">플레이</a>'
             if g["preview"] else '<span class="btn off">준비 중</span>')
     steps = "".join(f"<li>{e(s)}</li>" for s in g["how_to_play"])
+    rel = f'{REPO}/releases/download/{g["code"]}-latest/{g["code"]}'
+    dl = (f'<p class="dl">받기: <a href="{rel}-macos.zip">맥</a> · <a href="{rel}-windows.zip">윈도우</a>'
+          f' · <a href="{REPO}/releases/tag/{g["code"]}-latest" target="_blank" rel="noopener">설치 안내</a></p>'
+          if g.get("release") else "")
     recent = "".join(f'<li><b>{e(i["id"])}</b> {e(i["text"])}</li>' for i in g["recent"]) or "<li>기획 문서만 있습니다</li>"
     nxt = f'<p class="next">다음: <b>{e(g["next"]["id"])}</b> {e(g["next"]["text"])}</p>' if g["next"] else '<p class="next">계획한 단계를 모두 끝냈습니다</p>'
     commit = f'<a href="{REPO}/commit/{g["sha"]}" target="_blank" rel="noopener">{g["sha"]}</a>' if g["sha"] else ""
@@ -96,6 +100,7 @@ def card(g):
     <p class="prog">개발 단계 {g["done"]}/{g["total"]}</p>
     <details><summary>하는 방법</summary><ol>{steps}</ol></details>
     <details><summary>최근 업데이트</summary><ul>{recent}</ul>{nxt}</details>
+    {dl}
     <div class="links">{play}<a class="btn" href="{REPO}/blob/develop/games/{g["code"]}/docs/design.md" target="_blank" rel="noopener">기획서</a></div>
   </div>
 </article>"""
@@ -124,6 +129,7 @@ main{{max-width:1200px;margin:0 auto;padding:20px;display:grid;gap:20px;grid-tem
 .bar{{height:6px;background:#efe6d6;border-radius:3px;overflow:hidden;margin-top:6px}}.bar i{{display:block;height:100%;background:var(--mint)}}.prog{{font-size:12px;color:var(--sub)}}
 details{{border-top:1px solid var(--line);padding-top:6px}}summary{{cursor:pointer;font-weight:600}}details ol,details ul{{margin:6px 0;padding-left:20px;font-size:14px}}.next{{font-size:13px;color:var(--sub);margin:0}}
 .links{{margin-top:auto;padding-top:10px;display:flex;gap:8px}}.btn{{flex:1;text-align:center;padding:9px;border:1px solid var(--line);border-radius:8px;color:var(--ink);text-decoration:none;font-weight:600}}
+.dl{{font-size:14px;margin:6px 0 0}}.dl a{{color:var(--mint);font-weight:600}}
 .btn.play{{background:var(--accent);border-color:var(--accent);color:#fff}}.btn.off{{color:var(--sub);background:#f4efe6}}
 footer{{max-width:1200px;margin:0 auto;padding:10px 20px 40px;color:var(--sub);font-size:13px}}footer a{{color:var(--sub)}}
 </style></head><body>
