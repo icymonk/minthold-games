@@ -187,3 +187,10 @@ CABIN_DECO_DEW_DESC,카드 1장에 이슬: 그 카드 점수 +%d,Decorate a card
 CABIN_DECO_GOLD,금빛 잎 꾸미기,Golden leaf
 CABIN_DECO_GOLD_DESC,카드 1장에 금빛 잎: 어느 나무 색으로도 셈,Decorate a card: counts as any tree color
 CABIN_DECO_PICK,꾸밀 카드 1장을 고르세요,Pick a card to decorate
+TITLE_CONTINUE,이어 하기,Continue
+TITLE_CODEX,도감,Field Guide
+CODEX_TITLE,숲 도감,Field Guide
+CODEX_FOUND,찾은 종 %d / %d,Found %d / %d
+CODEX_RECORDS,한 해 %d번 · 완주 %d번 · 최고 %d점,Years %d · Finished %d · Best %d
+CODEX_UNKNOWN,???,???
+CODEX_NEW,도감에 새로 열림: %s,New in the field guide: %s

@@ -16,6 +16,7 @@ func _ready() -> void:
 	Game.run_started.connect(_world.reset_plots)
 	Game.run_started.connect(_world.plant_layout.bind(ForestView.EMPTY_FOREST))
 	Game.plots_changed.connect(_world.open_plots)
+	Game.run_restored.connect(_world.rebuild)
 	Game.goto(&"title")
 
 

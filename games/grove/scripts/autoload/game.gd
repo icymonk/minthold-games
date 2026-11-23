@@ -9,12 +9,15 @@ signal winds_changed(winds: int)
 signal run_started
 ## 땅 자리 수가 바뀌었다(오두막 땅 넓히기)
 signal plots_changed(plots: int)
+## 이어 하기: 남긴 숲을 다시 세운다
+signal run_restored(forest: Forest)
 
 const SCREENS := {
 	&"title": preload("res://scenes/screens/title.tscn"),
 	&"season": preload("res://scenes/screens/season.tscn"),
 	&"cabin": preload("res://scenes/screens/cabin.tscn"),
 	&"run_end": preload("res://scenes/screens/run_end.tscn"),
+	&"codex": preload("res://scenes/screens/codex.tscn"),
 }
 const SEASON_KEYS: Array[String] = ["SEASON_SPRING", "SEASON_SUMMER", "SEASON_AUTUMN", "SEASON_WINTER"]
 ## 계절 목표 점수(기획서 2.2 초기값)
@@ -27,10 +30,17 @@ var screen: StringName = &""
 var run: Run
 ## 방금 끝난 계절 점수
 var last_score: ScoreLog
+## 방금 끝난 계절에 도감에 새로 열린 종
+var fresh: Array[StringName] = []
+var records := Records.load_file()
+## 테스트는 다른 곳에 남긴다
+var save_path := Save.PATH
+var records_path := Records.PATH
 
 
 func start_run(seed_value := -1) -> void:
 	run = Run.new(seed_value if seed_value >= 0 else randi())
+	Save.clear(save_path)
 	run.begin()
 	run_started.emit()
 	_set_season(0)
@@ -39,14 +49,37 @@ func start_run(seed_value := -1) -> void:
 
 ## 계절 끝: 점수를 세고(목표 비교·도토리·보상) 기록을 돌려준다. 화면은 연출 뒤 after_season()을 부른다.
 func finish_season() -> ScoreLog:
+	var i := run.season_index
 	last_score = run.finish()
+	fresh = records.note_season(i, last_score, run.forest)
+	records.save(records_path)
 	return last_score
+
+
+## 오두막에서 이어 하기
+func continue_run() -> bool:
+	var saved := Save.read(save_path)
+	if not saved:
+		return false
+	run = saved
+	last_score = run.scores.back() if not run.scores.is_empty() else null
+	fresh = []
+	run_restored.emit(run.forest)
+	_set_season(run.season_index - 1)
+	goto(&"cabin")
+	return true
+
+
+func can_continue() -> bool:
+	return Save.exists(save_path)
 
 
 ## 오두막: 보상 하나 고르기 / 가게에서 사기. 땅이 넓어지면 숲 화면에 알린다.
 func take_reward(i: int, ids: Array[int] = []) -> bool:
 	var ok := run.take(i, ids)
 	plots_changed.emit(run.forest.plots)
+	if ok:
+		Save.write(run, save_path)
 	return ok
 
 
@@ -54,11 +87,20 @@ func buy(item: Dictionary, ids: Array[int] = []) -> bool:
 	var ok := run.buy(item, ids)
 	if ok and item.t == &"land":
 		plots_changed.emit(run.forest.plots)
+	if ok:
+		Save.write(run, save_path)
 	return ok
 
 
 func after_season() -> void:
-	goto(&"run_end" if run.lost or run.done else &"cabin")
+	if run.lost or run.done:
+		records.note_run(run)
+		records.save(records_path)
+		Save.clear(save_path)
+		goto(&"run_end")
+	else:
+		Save.write(run, save_path)
+		goto(&"cabin")
 
 
 func goto(to: StringName) -> void:

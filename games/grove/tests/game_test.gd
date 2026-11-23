@@ -5,11 +5,15 @@ var _screens: Array[StringName] = []
 
 func before_test() -> void:
 	_screens = []
+	Game.save_path = "user://test_game.save"
+	Game.records_path = "user://test_game_records.cfg"
 	Game.screen_changed.connect(_on_screen)
 
 
 func after_test() -> void:
 	Game.screen_changed.disconnect(_on_screen)
+	Save.clear(Game.save_path)
+	Save.clear(Game.records_path)
 
 
 func _on_screen(screen: StringName, _scene: PackedScene) -> void:
@@ -86,3 +90,20 @@ func test_cabin_land_and_rewards() -> void:
 	assert_int(Game.run.spirits.size()).is_equal(1)
 	assert_int(Game.run.offers.size()).is_equal(0)
 	Game.plots_changed.disconnect(on_plots)
+
+
+func test_cabin_saves_and_continue_restores() -> void:
+	Game.start_run(3)
+	assert_bool(Game.can_continue()).is_false()
+	_grow(9)
+	Game.finish_season()
+	assert_bool(Game.run.lost).is_false()
+	Game.after_season()
+	assert_bool(Game.can_continue()).is_true()
+	var acorns := Game.run.acorns
+	Game.run = null
+	assert_bool(Game.continue_run()).is_true()
+	assert_int(Game.run.acorns).is_equal(acorns)
+	assert_int(Game.season).is_equal(0)
+	assert_str(String(_screens.back())).is_equal("cabin")
+	assert_int(Game.records.seen.get(&"fir", 0)).is_greater(0)
