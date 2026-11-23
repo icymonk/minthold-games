@@ -18,7 +18,7 @@ SEASON_HAND_HINT,카드를 끌어 숲에 붙여요 · 들고 오른쪽 클릭·�
 COACH_PLANT,나무 카드를 끌어 빛나는 빈 땅에 심어 보세요,Drag a tree card onto a glowing empty plot
 COACH_HALF,"이웃 카드는 반쪽이 둘이에요. 잡은 쪽(또는 오른쪽 클릭으로 바꾼 쪽)이 나무의 빛나는 자리에 붙어요","Neighbor cards have two halves. The half you grab (right-click to switch) joins a glowing spot on a tree"
 COACH_TURN,섬을 돌려 나무의 다른 쪽도 보세요 (Q/E),Turn the island to see the other side of the trees (Q/E)
-COACH_WIND,계절 바람이 세 번 불면 계절이 끝나요. 이제 마음껏 숲을 가꿔 보세요,Three season winds end the season. Now grow your forest
+COACH_WIND,덱 아래쪽에 계절 바람 3장이 섞여 있어요. 세 번째 바람이 뜨면 계절이 끝나고 숲 전체 점수가 목표를 넘어야 해요,Three season winds hide in the bottom of the deck. When the third one shows, the season ends and your whole forest must beat the goal
 COACH_NEXT,알겠어요,Got it
 COACH_SKIP,건너뛰기,Skip
 COACH_HELP,처음 안내 다시 보기,Show the guide again
@@ -48,3 +48,39 @@ CABIN_TITLE,숲지기 오두막,Keeper's Cabin
 CABIN_NEXT,다음 계절: %s,Next: %s
 RUN_END_WIN,보호림 지정!,Protected Forest!
 RUN_END_RETRY,한 해 더,One More Year
+SEASON_SCORE,점수 %d / 목표 %d,Score %d / Goal %d
+SEASON_CLEARING,빈터,Clearing
+SEASON_DECK,덱에서 가져오기 (%d),Draw from deck (%d)
+SEASON_TAKE,빈터에서 가져오기,Take from the clearing
+SEASON_SAPLING,묘목으로 심기,Plant as sapling
+SEASON_SAPLING_HINT,아무 카드나 빈 땅에 끌면 묘목이 돼요 (비용 없음),Drag any card onto an empty plot to plant a sapling (free)
+SEASON_TURN_HINT,카드 2장 가져오기 또는 카드 1장 내기 · 들고 오른쪽 클릭·휠·Tab: 반쪽 바꾸기,Take 2 cards or play 1 card · Right-click / wheel / Tab while holding: switch half
+SEASON_DRAW_MORE,한 장 더 가져오세요,Take one more card
+SEASON_PAY,비용 %d장: 손패에서 빈터로 낼 카드를 고르세요 (같은 나무 색이면 보너스),Cost %d: pick cards to discard to the clearing (same tree color = bonus)
+SEASON_PAY_OK,내기,Play
+SEASON_CANCEL,취소,Cancel
+SEASON_SWEPT,바람이 빈터의 %d장을 쓸어 갔어요,The wind swept away %d cards
+COACH_DRAW,카드를 내지 않을 때는 덱이나 빈터에서 2장을 가져와요,"When you don't play, take 2 cards from the deck or the clearing"
+SCORE_PASS,목표 달성!,Goal reached!
+SCORE_FAIL,%d점 모자라요,%d points short
+SCORE_CONTINUE,계속,Continue
+CABIN_SCORE,지난 계절 점수 %d,Last season: %d
+CABIN_ACORNS,도토리 %d,Acorns %d
+CABIN_EVENT,다음 계절 사건: %s,Next season event: %s
+RUN_END_LOSE,숲이 베어졌어요,The forest was cut down
+EVENT_LATE_FROST,늦서리: 아래 자리 이웃 점수 절반,Late frost: bottom neighbors score half
+EVENT_YELLOW_DUST,황사: 새 점수 절반,Yellow dust: birds score half
+EVENT_COLD_SNAP,꽃샘바람: 나비 0점,Cold snap: butterflies score 0
+EVENT_DOVES,산비둘기 떼: 빈터 8장이면 쓸림,Doves: clearing sweeps at 8
+EVENT_DROUGHT,가뭄: 빈터 7장이면 쓸림,Drought: clearing sweeps at 7
+EVENT_MONSOON,장마: 양서류 ×2 · 나비·박쥐 0점,Monsoon: amphibians ×2 · butterflies & bats 0
+EVENT_CICADAS,매미 떼: 곤충 ×2 · 손패 8장,Cicadas: insects ×2 · hand limit 8
+EVENT_HIKERS,등산객: 발굽 짐승 점수 절반,Hikers: hoofed animals score half
+EVENT_FIRE_WATCH,산불 주의보: 손패 8장,Fire watch: hand limit 8
+EVENT_ACORN_FAMINE,도토리 흉년: 도토리 없음,Acorn famine: no acorns
+EVENT_SURVEY,벌목꾼 측량: 이웃 없는 나무는 베어짐,Logger survey: trees without neighbors are cut
+EVENT_TYPHOON,태풍: 계절 바람 4장,Typhoon: 4 season winds
+EVENT_DEEP_COLD,혹한: 위 자리 이웃 점수 절반,Deep cold: top neighbors score half
+EVENT_BLIZZARD,폭설: 손패 7장,Blizzard: hand limit 7
+EVENT_LONG_NIGHT,긴 밤: 박쥐 ×2 · 나비 0점,Long night: bats ×2 · butterflies 0
+EVENT_FOOD_SHORTAGE,먹이 부족: 발바닥 짐승 점수 절반,Food shortage: pawed animals score half

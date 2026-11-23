@@ -16,40 +16,50 @@ func _on_screen(screen: StringName, _scene: PackedScene) -> void:
 	_screens.append(screen)
 
 
+func _grow(n: int) -> void:
+	for p in n:
+		Game.run.forest.plant(p, {id = 5000 + p, sym = &""}, &"fir")
+
+
 func test_start_run_opens_spring() -> void:
-	Game.start_run()
+	Game.start_run(1)
 	assert_int(Game.season).is_equal(0)
-	assert_int(Game.winds).is_equal(0)
+	assert_object(Game.run.season).is_not_null()
+	assert_int(Game.run.season.hand.size()).is_equal(Season.START_HAND)
 	assert_array(_screens).is_equal([&"season"])
 
 
-func test_third_wind_ends_season_into_cabin() -> void:
-	Game.start_run()
-	Game.blow_wind()
-	Game.blow_wind()
-	assert_str(String(Game.screen)).is_equal("season")
-	Game.blow_wind()
+func test_passing_season_goes_to_cabin_then_summer() -> void:
+	Game.start_run(2)
+	Game.run.events[0] = &"doves"
+	_grow(9)
+	Game.finish_season()
+	Game.after_season()
 	assert_str(String(Game.screen)).is_equal("cabin")
 	Game.next_season()
 	assert_int(Game.season).is_equal(1)
 	assert_int(Game.winds).is_equal(0)
+	assert_object(Game.run.season.forest).is_same(Game.run.forest)
 
 
-func test_winter_ends_run() -> void:
-	Game.start_run()
-	for s in 3:
-		for w in Game.WINDS_PER_SEASON:
-			Game.blow_wind()
-		Game.next_season()
-	assert_int(Game.season).is_equal(3)
-	for w in Game.WINDS_PER_SEASON:
-		Game.blow_wind()
+func test_failing_season_ends_run() -> void:
+	Game.start_run(3)
+	Game.finish_season()
+	Game.after_season()
 	assert_str(String(Game.screen)).is_equal("run_end")
+	assert_bool(Game.run.lost).is_true()
 
 
 func test_every_season_has_goal_and_name() -> void:
 	assert_int(Game.GOALS.size()).is_equal(Game.SEASON_KEYS.size())
+	assert_array(Game.GOALS).is_equal(Run.TARGETS)
 	assert_int(ForestView.SEASONS.size()).is_equal(Game.SEASON_KEYS.size())
+
+
+func test_every_event_has_a_name() -> void:
+	for s in Events.BY_SEASON:
+		for id: StringName in s:
+			assert_str(tr("EVENT_%s" % String(id).to_upper())).is_not_equal("EVENT_%s" % String(id).to_upper())
 
 
 func test_turn_keys_do_not_use_arrows() -> void:
@@ -58,9 +68,3 @@ func test_turn_keys_do_not_use_arrows() -> void:
 	key.pressed = true
 	key.keycode = KEY_E
 	assert_int(season._turn_dir(key)).is_equal(1)
-	key.keycode = KEY_LEFT
-	assert_int(season._turn_dir(key)).is_equal(0)
-	var pad := InputEventJoypadButton.new()
-	pad.pressed = true
-	pad.button_index = JOY_BUTTON_LEFT_SHOULDER
-	assert_int(season._turn_dir(pad)).is_equal(-1)

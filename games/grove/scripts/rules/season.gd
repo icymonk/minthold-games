@@ -54,6 +54,15 @@ func find(id: int, pile: Array[Dictionary]) -> int:
 	return -1
 
 
+## 이번 차례에 가져온 장수(1장이라도 가져오면 내기는 못 한다)
+func draws() -> int:
+	return _draws
+
+
+func can_draw() -> bool:
+	return not over and not _played and _draws < DRAWS_PER_TURN and hand.size() < hand_limit
+
+
 ## A) 1장 가져오기. from = -1이면 덱 맨 위, 아니면 빈터의 그 카드 id.
 func draw(from: int = -1) -> bool:
 	if over or _played or _draws >= DRAWS_PER_TURN or hand.size() >= hand_limit:

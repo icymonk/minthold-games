@@ -1,5 +1,5 @@
 extends Node
-## 화면 전환과 지금 런(계절·계절 바람). 규칙 엔진(1단계)이 붙기 전 뼈대.
+## 화면 전환과 지금 런(Run). 규칙은 scripts/rules가 정하고, 여기서는 화면 순서만 정한다.
 
 signal screen_changed(screen: StringName, scene: PackedScene)
 signal season_changed(season: int)
@@ -17,17 +17,32 @@ const SCREENS := {
 const SEASON_KEYS: Array[String] = ["SEASON_SPRING", "SEASON_SUMMER", "SEASON_AUTUMN", "SEASON_WINTER"]
 ## 계절 목표 점수(기획서 2.2 초기값)
 const GOALS: Array[int] = [40, 110, 220, 380]
-const WINDS_PER_SEASON := 3
+const WINDS_PER_SEASON := Season.WINDS
 
 var season := 0
 var winds := 0
 var screen: StringName = &""
+var run: Run
+## 방금 끝난 계절 점수
+var last_score: ScoreLog
 
 
-func start_run() -> void:
+func start_run(seed_value := -1) -> void:
+	run = Run.new(seed_value if seed_value >= 0 else randi())
+	run.begin()
 	run_started.emit()
 	_set_season(0)
 	goto(&"season")
+
+
+## 계절 끝: 점수를 세고(목표 비교·도토리·보상) 기록을 돌려준다. 화면은 연출 뒤 after_season()을 부른다.
+func finish_season() -> ScoreLog:
+	last_score = run.finish()
+	return last_score
+
+
+func after_season() -> void:
+	goto(&"run_end" if run.lost or run.done else &"cabin")
 
 
 func goto(to: StringName) -> void:
@@ -35,16 +50,15 @@ func goto(to: StringName) -> void:
 	screen_changed.emit(to, SCREENS[to])
 
 
-## 계절 바람 1장. 3장째면 계절이 끝나 오두막(겨울이면 런 끝)으로 간다.
-func blow_wind() -> void:
-	winds += 1
+## 계절 덱에서 바람이 떴다(화면이 SeasonLog를 보고 부른다)
+func wind_seen(n: int) -> void:
+	winds = n
 	winds_changed.emit(winds)
-	if winds >= WINDS_PER_SEASON:
-		goto(&"run_end" if season == SEASON_KEYS.size() - 1 else &"cabin")
 
 
 func next_season() -> void:
-	_set_season(season + 1)
+	run.begin()
+	_set_season(run.season_index)
 	goto(&"season")
 
 

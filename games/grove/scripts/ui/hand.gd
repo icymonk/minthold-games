@@ -10,6 +10,15 @@ const HAND_SIZE := 5
 
 var world: ForestView
 var cards: Array[CardView] = []
+## false면 규칙(Season)이 손패를 정한다: 샘플을 나눠 주지 않고, 놓으면 on_drop에 맡긴다.
+var demo := true
+## (card, half) -> [{plot, side}]. 비어 있으면 world.targets_for
+var targets_fn: Callable
+## (view, half, target): 놓은 뒤 처리(비용·규칙·숲 붙이기)를 화면이 맡는다
+var on_drop: Callable
+## (card, half, target): 자리 위에 있을 때(예상 점수). target이 비면 벗어남
+var on_hover: Callable
+var _pick := {}
 var portraits: Portrait
 var _rng := RandomNumberGenerator.new()
 var _drag: CardView
@@ -25,8 +34,9 @@ func _ready() -> void:
 	portraits = Portrait.new()
 	add_child(portraits)
 	resized.connect(_layout)
-	for c in DemoCards.starting_hand():
-		add_card(c)
+	if demo:
+		for c in DemoCards.starting_hand():
+			add_card(c)
 
 
 func add_card(c: Dictionary) -> CardView:
@@ -66,7 +76,10 @@ func _hover(v: CardView, on: bool) -> void:
 func _on_card_input(event: InputEvent, v: CardView) -> void:
 	var mb := event as InputEventMouseButton
 	if mb and mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT and not _drag:
-		begin_drag(v, v.half_at(mb.position))
+		if not _pick.is_empty():
+			_toggle_pick(v)
+		else:
+			begin_drag(v, v.half_at(mb.position))
 		accept_event()
 
 
@@ -95,10 +108,10 @@ func dragging() -> bool:
 ## 카드를 든다. 붙일 곳이 하나도 없으면 빨갛게 떨고 들지 않는다.
 func begin_drag(v: CardView, half := 0) -> bool:
 	v.set_half(half)
-	_targets = world.targets_for(v.kind(), v.side())
+	_targets = _targets_of(v)
 	if _targets.is_empty() and not DemoCards.is_tree(v.card):
 		v.set_half(1 - half)
-		_targets = world.targets_for(v.kind(), v.side())
+		_targets = _targets_of(v)
 	if _targets.is_empty():
 		v.shake()
 		return false
@@ -129,6 +142,8 @@ func move_drag(at: Vector2) -> void:
 		return
 	_target = t
 	world.preview(t, _drag.kind())
+	if on_hover.is_valid():
+		on_hover.call(_drag.card, _drag.half, t)
 	var tw := _float.create_tween().set_parallel()
 	tw.tween_property(_float, ^"scale", Vector2.ONE * (0.5 if not t.is_empty() else 0.85), 0.12)
 	tw.tween_property(_float, ^"modulate:a", 0.55 if not t.is_empty() else 1.0, 0.12)
@@ -140,7 +155,7 @@ func flip() -> void:
 		return
 	_drag.set_half(1 - _drag.half)
 	_float.set_half(_drag.half)
-	_targets = world.targets_for(_drag.kind(), _drag.side())
+	_targets = _targets_of(_drag)
 	world.show_targets(_targets)
 	if _targets.is_empty():
 		_float.shake()
@@ -155,7 +170,12 @@ func end_drag() -> void:
 	var f := _float
 	_drag = null
 	_float = null
-	if _target.has("plot"):
+	if on_hover.is_valid():
+		on_hover.call(v.card, v.half, {})
+	if _target.has("plot") and on_drop.is_valid():
+		_shatter(f)
+		on_drop.call(v, v.half, _target)
+	elif _target.has("plot"):
 		var kind := v.kind()
 		var target := _target
 		cards.erase(v)
@@ -213,3 +233,70 @@ func card_rect(pick: Callable) -> Rect2:
 		if pick.call(v.card):
 			return v.get_global_rect()
 	return Rect2()
+
+
+func _targets_of(v: CardView) -> Array[Dictionary]:
+	if targets_fn.is_valid():
+		return targets_fn.call(v.card, v.half)
+	return world.targets_for(v.kind(), v.side())
+
+
+## 규칙의 손패와 맞춘다: 없어진 카드는 빼고 새 카드는 오른쪽에서 들어온다.
+func sync(list: Array[Dictionary]) -> void:
+	var ids := list.map(func(c: Dictionary) -> int: return c.id)
+	for v in cards.duplicate():
+		if not ids.has(v.card.id):
+			cards.erase(v)
+			v.queue_free()
+	var have := cards.map(func(v: CardView) -> int: return v.card.id)
+	for c in list:
+		if not have.has(c.id):
+			add_card(c)
+	for v in cards:
+		v.modulate = Color.WHITE
+	_layout()
+
+
+## 비용 고르기: n장을 고르면 done(ids). 처음에는 suggest를 골라 둔다.
+func pick(n: int, except: int, suggest: Array[int], done: Callable) -> void:
+	_pick = {n = n, except = except, chosen = [] as Array[int], done = done}
+	for v in cards:
+		v.modulate = Color(0.6, 0.6, 0.65) if v.card.id != except else Color(1, 1, 1, 0.25)
+	for id in suggest:
+		for v in cards:
+			if v.card.id == id:
+				_toggle_pick(v)
+
+
+func picked() -> Array[int]:
+	return _pick.get("chosen", [] as Array[int])
+
+
+func picking() -> bool:
+	return not _pick.is_empty()
+
+
+func end_pick() -> void:
+	_pick = {}
+	for v in cards:
+		v.modulate = Color.WHITE
+	_layout()
+
+
+func _toggle_pick(v: CardView) -> void:
+	if v.card.id == _pick.except:
+		return
+	var chosen: Array[int] = _pick.chosen
+	if chosen.has(v.card.id):
+		chosen.erase(v.card.id)
+	elif chosen.size() < _pick.n:
+		chosen.append(v.card.id)
+	else:
+		v.shake()
+		return
+	Sfx.play(&"click")
+	var on := chosen.has(v.card.id)
+	v.modulate = Color.WHITE if on else Color(0.6, 0.6, 0.65)
+	v.create_tween().tween_property(v, ^"position:y", -40.0 if on else 0.0, 0.12)
+	if _pick.done.is_valid():
+		_pick.done.call(chosen)
